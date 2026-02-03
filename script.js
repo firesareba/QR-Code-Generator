@@ -65,10 +65,10 @@ function reset(){
     //#region bottom left
     //outline
     for (let i=0; i<7; i++){
-        code_grid[24][i] = 1;//top row
+        code_grid[24][i] = 1;//bottom row
         code_grid[24-i][0] = 1;//left column
         code_grid[24-i][6] = 1;//right column
-        code_grid[18][i] = 1;//bottom row
+        code_grid[18][i] = 1;//top row
     }
 
     //middle
@@ -77,6 +77,10 @@ function reset(){
             code_grid[i][j] = 1;
         }
     }
+    //#endregion
+
+    //#region smaller extra
+
     //#endregion
 
     drawable_canvas.fillStyle = "white";
