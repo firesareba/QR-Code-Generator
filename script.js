@@ -31,14 +31,10 @@ function reset(){
     //#region top-left
     //outline
     for (let i=0; i<7; i++){
-        code_grid[0][i] = 1;
-    }
-    for (let i=1; i<6; i++){
-        code_grid[i][0] = 1;
-        code_grid[i][6] = 1;
-    }
-    for (let i=0; i<7; i++){
-        code_grid[6][i] = 1;
+        code_grid[0][i] = 1;//top row
+        code_grid[i][0] = 1;//left column
+        code_grid[i][6] = 1;//right column
+        code_grid[6][i] = 1;//bottom column
     }
 
     //middle
@@ -52,14 +48,10 @@ function reset(){
     //#region top right
     //outline
     for (let i=0; i<7; i++){
-        code_grid[0][24-i] = 1;
-    }
-    for (let i=1; i<6; i++){
-        code_grid[i][24] = 1;
-        code_grid[i][18] = 1;
-    }
-    for (let i=0; i<7; i++){
-        code_grid[6][24-i] = 1;
+        code_grid[0][24-i] = 1;//top row
+        code_grid[i][24] = 1;//right column
+        code_grid[i][18] = 1;//left column
+        code_grid[6][24-i] = 1;//bottom row
     }
 
     //middle
@@ -73,14 +65,10 @@ function reset(){
     //#region bottom left
     //outline
     for (let i=0; i<7; i++){
-        code_grid[24][i] = 1;
-    }
-    for (let i=1; i<6; i++){
-        code_grid[24-i][0] = 1;
-        code_grid[24-i][6] = 1;
-    }
-    for (let i=0; i<7; i++){
-        code_grid[18][i] = 1;
+        code_grid[24][i] = 1;//top row
+        code_grid[24-i][0] = 1;//left column
+        code_grid[24-i][6] = 1;//right column
+        code_grid[18][i] = 1;//bottom row
     }
 
     //middle
