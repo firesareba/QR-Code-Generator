@@ -21,29 +21,29 @@ url_input.addEventListener(
 
 function reset(){
     code_grid = []
-    for (let i=0; i<27; i++){
+    for (let i=0; i<25; i++){
         code_grid.push([]);
-        for (let j=0; j<27; j++){
+        for (let j=0; j<25; j++){
             code_grid[i].push(0);
         }
     }
 
     //#region top-left
     //outline
-    for (let i=1; i<8; i++){
-        code_grid[1][i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[0][i] = 1;
     }
-    for (let i=2; i<7; i++){
-        code_grid[i][1] = 1;
-        code_grid[i][7] = 1;
+    for (let i=1; i<6; i++){
+        code_grid[i][0] = 1;
+        code_grid[i][6] = 1;
     }
-    for (let i=3; i<8; i++){
-        code_grid[1][i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[6][i] = 1;
     }
 
     //middle
-    for (let i=3; i<=5; i++){
-        for (let j=3; j<=5; j++){
+    for (let i=2; i<=4; i++){
+        for (let j=2; j<=4; j++){
             code_grid[i][j] = 1;
         }
     }
@@ -51,20 +51,20 @@ function reset(){
 
     //#region top right
     //outline
-    for (let i=1; i<8; i++){
-        code_grid[1][25-i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[0][24-i] = 1;
     }
-    for (let i=1; i<7; i++){
-        code_grid[i][25] = 1;
-        code_grid[i][19] = 1;
+    for (let i=1; i<6; i++){
+        code_grid[i][24] = 1;
+        code_grid[i][18] = 1;
     }
-    for (let i=1; i<8; i++){
-        code_grid[7][25-i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[6][24-i] = 1;
     }
 
     //middle
-    for (let i=3; i<=5; i++){
-        for (let j=23; j<=20; j--){
+    for (let i=2; i<=4; i++){
+        for (let j=22; j<=19; j--){
             code_grid[i][j] = 1;
         }
     }
@@ -72,20 +72,20 @@ function reset(){
 
     //#region bottom left
     //outline
-    for (let i=1; i<8; i++){
-        code_grid[25][i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[24][i] = 1;
     }
-    for (let i=2; i<7; i++){
-        code_grid[25-i][1] = 1;
-        code_grid[25-i][7] = 1;
+    for (let i=1; i<6; i++){
+        code_grid[24-i][0] = 1;
+        code_grid[24-i][6] = 1;
     }
-    for (let i=1; i<8; i++){
-        code_grid[19][i] = 1;
+    for (let i=0; i<7; i++){
+        code_grid[18][i] = 1;
     }
 
     //middle
-    for (let i=23; i<=20; i--){
-        for (let j=3; j<=5; j++){
+    for (let i=22; i<=19; i--){
+        for (let j=2; j<=4; j++){
             code_grid[i][j] = 1;
         }
     }
