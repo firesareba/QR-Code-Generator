@@ -3,12 +3,13 @@ const url_input = document.getElementById("url");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
-canvas.width = 2000;
+canvas.width = 2700;
 canvas.height = canvas.width;
 //#endregion
 
-//#region globals
+//#region setup
 code_grid = []
+drawable_canvas.fillStyle = "white";
 //#endregion
 
 //#region listeners
@@ -64,7 +65,7 @@ function reset(){
 
     //middle
     for (let i=2; i<=4; i++){
-        for (let j=22; j<=19; j--){
+        for (let j=22; j>=20; j--){
             code_grid[i][j] = 1;
         }
     }
@@ -84,7 +85,7 @@ function reset(){
     }
 
     //middle
-    for (let i=22; i<=19; i--){
+    for (let i=22; i>=20; i--){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 1;
         }
@@ -96,8 +97,20 @@ function generateCode(){
     reset();
 
     console.log(code_grid);
+    displayCode();
     // url = url_input.value;
     // for (let i = 0; i < url.length; i++){
     //     console.log(url.charCodeAt(i))
     // }
+}
+
+function displayCode(){
+    for (let i=0; i<25; i++){
+        for (let j=0; j<25; j++){
+            if (code_grid[i][j] == 1){
+                
+                drawable_canvas.fillRect((j+1)*100, (i+1)*100, 100, 100);
+            }
+        }
+    }
 }

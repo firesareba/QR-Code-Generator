@@ -8,6 +8,11 @@ a {
     color: antiquewhite;
 }
 
+#code-canvas {
+    height: 600px;
+    aspect-ratio: 1;
+}
+
 footer {
     position: fixed;
     bottom: 10px;
