@@ -80,7 +80,20 @@ function reset(){
     //#endregion
 
     //#region smaller extra
+    for (let i=0; i<=4; i++){
+        code_grid[16][16+i] = 1;//top row
+        code_grid[16+i][16] = 1;//left column
+        code_grid[16+i][20] = 1;//right column
+        code_grid[20][16+i] = 1;//bottom row
+    }
+    code_grid[18][18] = 1;//center
+    //#endregion
 
+    //#region timing strips
+    for (let i=8; i<=16; i+=2){
+        code_grid[8][i] = 1;
+        code_grid[i][8] = 1;
+    }
     //#endregion
 
     drawable_canvas.fillStyle = "white";
