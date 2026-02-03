@@ -1,16 +1,15 @@
+cell_size = 100
+
 //#region access html
 const url_input = document.getElementById("url");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
-canvas.width = 2700;
+canvas.width = 27*cell_size;
 canvas.height = canvas.width;
 //#endregion
 
-//#region setup
 code_grid = []
-drawable_canvas.fillStyle = "white";
-//#endregion
 
 //#region listeners
 url_input.addEventListener(
@@ -91,17 +90,20 @@ function reset(){
         }
     }
     //#endregion
+
+    drawable_canvas.fillStyle = "white";
+    drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
+    drawable_canvas.fillStyle = "black";
 }
 
 function generateCode(){
     reset();
 
-    console.log(code_grid);
     displayCode();
-    // url = url_input.value;
-    // for (let i = 0; i < url.length; i++){
-    //     console.log(url.charCodeAt(i))
-    // }
+    url = url_input.value;
+    for (let i = 0; i < url.length; i++){
+        console.log(url.charCodeAt(i))
+    }
 }
 
 function displayCode(){
@@ -109,7 +111,7 @@ function displayCode(){
         for (let j=0; j<25; j++){
             if (code_grid[i][j] == 1){
                 
-                drawable_canvas.fillRect((j+1)*100, (i+1)*100, 100, 100);
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
         }
     }
