@@ -1,0 +1,16 @@
+body{
+    background-color: black;
+    color: antiquewhite;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+a {
+    color: antiquewhite;
+}
+
+footer {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 30px;
+}
