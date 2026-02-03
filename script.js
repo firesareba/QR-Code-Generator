@@ -91,10 +91,12 @@ function reset(){
 
     //#region timing strips
     for (let i=8; i<=16; i+=2){
-        code_grid[8][i] = 1;
-        code_grid[i][8] = 1;
+        code_grid[6][i] = 1;
+        code_grid[i][6] = 1;
     }
     //#endregion
+
+    code_grid[17][8] = 1;//random one in all qr codes
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
