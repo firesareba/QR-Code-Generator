@@ -28,7 +28,8 @@ function reset(){
         }
     }
 
-    //top-left
+    //#region top-left
+    //outline
     for (let i=0; i<7; i++){
         code_grid[0][i] = 1;
     }
@@ -40,7 +41,16 @@ function reset(){
         code_grid[6][i] = 1;
     }
 
-    //top right
+    //middle
+    for (let i=2; i<=4; i++){
+        for (let j=2; j<=4; j++){
+            code_grid[i][j] = 1;
+        }
+    }
+    //#endregion
+
+    //#region top right
+    //outline
     for (let i=0; i<7; i++){
         code_grid[0][24-i] = 1;
     }
@@ -52,7 +62,16 @@ function reset(){
         code_grid[6][24-i] = 1;
     }
 
-    //bottom left
+    //middle
+    for (let i=2; i<=4; i++){
+        for (let j=22; j<=19; j--){
+            code_grid[i][j] = 1;
+        }
+    }
+    //#endregion
+
+    //#region bottom left
+    //outline
     for (let i=0; i<7; i++){
         code_grid[24][i] = 1;
     }
@@ -63,6 +82,14 @@ function reset(){
     for (let i=0; i<7; i++){
         code_grid[18][i] = 1;
     }
+
+    //middle
+    for (let i=22; i<=19; i--){
+        for (let j=2; j<=4; j++){
+            code_grid[i][j] = 1;
+        }
+    }
+    //#endregion
 }
 
 function generateCode(){
