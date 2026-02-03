@@ -97,6 +97,7 @@ function reset(){
     //#endregion
 
     code_grid[17][8] = 1;//random one in all qr codes
+    code_grid[24][23] = 1; //mode indicator 0100 for binary mode(goes right ot left, bottom to top.)
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
