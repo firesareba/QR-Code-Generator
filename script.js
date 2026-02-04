@@ -117,7 +117,14 @@ function generateCode(){
 }
 
 function writeByte(byte, start){
-    for (let i = 0; i<8; i++){
+    row_offset = 0;
+    col_offset = 0;
+    for (let i = 8; i>0; i--){
+        if (byte.length-i >= 0){
+            bit = parseInt(byte[byte.length-i]);
+        } else {
+            bit = 0;
+        }
     }
 }
 
