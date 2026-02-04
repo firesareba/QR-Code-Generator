@@ -125,8 +125,11 @@ function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
             if (code_grid[i][j] == 1){
-                
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            }else if (code_grid[i][j] == 2){
+                drawable_canvas.fillStyle = "blue";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                drawable_canvas.fillStyle = "black";
             }
         }
     }
