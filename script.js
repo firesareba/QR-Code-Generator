@@ -10,6 +10,7 @@ canvas.height = canvas.width;
 //#endregion
 
 code_grid = []
+direction = -1;
 
 //#region listeners
 url_input.addEventListener(
@@ -106,7 +107,12 @@ function generateCode(){
     reset();
 
     url = url_input.value;
+    if (url.length > 255){
+        alert("too big");
+        return;
+    }
     console.log((url.length).toString(2));
+    writeByte((url.length).toString(2), [22, 24]);
 
     for (let i = 0; i < url.length; i++){
         console.log(url.charCodeAt(i))
@@ -116,7 +122,7 @@ function generateCode(){
 
 function writeByte(byte, start){
     curr_row = start[0];
-    curr_col = start[1];
+    col_offset = 0;
     for (let i = 8; i>0; i--){//msb to lsb
         if (byte.length-i >= 0){//pad 0
             bit = parseInt(byte[byte.length-i]);
@@ -124,10 +130,13 @@ function writeByte(byte, start){
             bit = 0;
         }
 
-        curr_col = start[1]+col_offset;
-        if (col_offset){
-
+        if (col_offset < -1){
+            col_offset = 0;//for now
+            curr_row += direction;
         }
+
+        code_grid[curr_row][start[1]+col_offset] = bit;
+        col_offset -= 1;
     }
 }
 
