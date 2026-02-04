@@ -11,6 +11,8 @@ canvas.height = canvas.width;
 
 code_grid = []
 direction = -1;
+col_offset = 0;
+position = [22, 24];
 
 //#region listeners
 url_input.addEventListener(
@@ -25,7 +27,7 @@ function reset(){
     for (let i=0; i<25; i++){
         code_grid.push([]);
         for (let j=0; j<25; j++){
-            code_grid[i].push(0);
+            code_grid[i].push(-1);
         }
     }
 
@@ -112,18 +114,36 @@ function generateCode(){
         return;
     }
     console.log((url.length).toString(2));
-    writeByte((url.length).toString(2), [22, 24]);
+    writeByte((url.length).toString(2), position);
 
     for (let i = 0; i < url.length; i++){
         console.log(url.charCodeAt(i))
+        writeByte((url.length).toString(2), position);
     }
     displayCode();
 }
 
-function writeByte(byte, start){
-    curr_row = start[0];
-    col_offset = 0;
+function nextPos(row, col){
+    while (true){   
+        if (col_offset > 1){
+            col_offset = 0;
+            row += direction;
+            if (row < 0 || 24 < row){
+                direction = -direction;
+                row += direction;
+                col -= 2
+            }
+        }
+
+        if (code_grid[row][col-col_offset] == -1){
+            return [row, col];
+        }
+    }
+}
+
+function writeByte(byte){
     bit_idx = 8
+    col_offset = 0;
     while (bit_idx > 0){
         if (byte.length-bit_idx >= 0){//pad 0
             bit = parseInt(byte[byte.length-bit_idx]);
@@ -131,15 +151,14 @@ function writeByte(byte, start){
             bit = 0;
         }
 
-        if (col_offset > 1){
-            col_offset = 0;//for now
-            curr_row += direction;
-        }
+        position = nextPos(position[0], position[1]);
+        code_grid[position[0]][position[1]-col_offset] = bit;
 
-        code_grid[curr_row][start[1]-col_offset] = bit;
         col_offset += 1;
         bit_idx -= 1
     }
+    col_offset -= 1;
+    position = nextPos(position[0], position[1]);
 }
 
 function displayCode(){
