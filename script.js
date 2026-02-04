@@ -90,18 +90,29 @@ function reset(){
     //#endregion
 
     //#region timing strips
-    for (let i=8; i<=16; i+=2){
-        code_grid[6][i] = 2;
-        code_grid[i][6] = 2;
+    for (let i=8; i<=16; i++){
+        code_grid[6][i] = i%2+2;
+        code_grid[i][6] = i%2+2;
+        console.log(i%2+1)
     }
     //#endregion
 
     code_grid[17][8] = 2;//random one in all qr codes
     code_grid[24][23] = 2; //mode indicator 0100 for binary mode(goes right ot left, bottom to top.)
+    outline(0, 0, 8, 3)
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
     drawable_canvas.fillStyle = "black";
+}
+
+function outline(start_r, start_c, size, value){
+    for (let i=0; i<size; i++){
+        code_grid[start_r][start_c+i] = value;//top row
+        code_grid[start_r+i][start_c] = value;//left column
+        code_grid[start_r+i][start_c+size-1] = value;//right column
+        code_grid[start_r+size-1][start_c+i] = value;//bottom row
+    }
 }
 
 function generateCode(){
@@ -117,13 +128,18 @@ function generateCode(){
 }
 
 function writeByte(byte, start){
-    row_offset = 0;
-    col_offset = 0;
-    for (let i = 8; i>0; i--){
-        if (byte.length-i >= 0){
+    curr_row = start[0];
+    curr_col = start[1];
+    for (let i = 8; i>0; i--){//msb to lsb
+        if (byte.length-i >= 0){//pad 0
             bit = parseInt(byte[byte.length-i]);
         } else {
             bit = 0;
+        }
+
+        curr_col = start[1]+col_offset;
+        if (col_offset){
+
         }
     }
 }
@@ -132,11 +148,14 @@ function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
             if (code_grid[i][j] == 1){
+                drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }else if (code_grid[i][j] == 2){
-                drawable_canvas.fillStyle = "blue";
+                drawable_canvas.fillStyle = "grey";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                drawable_canvas.fillStyle = "black";
+            }else if (code_grid[i][j] == 3){
+                drawable_canvas.fillStyle = "antiquewhite";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
         }
     }
