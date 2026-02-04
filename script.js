@@ -123,20 +123,22 @@ function generateCode(){
 function writeByte(byte, start){
     curr_row = start[0];
     col_offset = 0;
-    for (let i = 8; i>0; i--){//msb to lsb
-        if (byte.length-i >= 0){//pad 0
-            bit = parseInt(byte[byte.length-i]);
+    bit_idx = 8
+    while (bit_idx > 0){
+        if (byte.length-bit_idx >= 0){//pad 0
+            bit = parseInt(byte[byte.length-bit_idx]);
         } else {
             bit = 0;
         }
 
-        if (col_offset < -1){
+        if (col_offset > 1){
             col_offset = 0;//for now
             curr_row += direction;
         }
 
-        code_grid[curr_row][start[1]+col_offset] = bit;
-        col_offset -= 1;
+        code_grid[curr_row][start[1]-col_offset] = bit;
+        col_offset += 1;
+        bit_idx -= 1
     }
 }
 
