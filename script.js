@@ -94,6 +94,11 @@ function reset(){
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
     drawable_canvas.fillStyle = "black";
+
+    for (let i=0; i<27; i++){
+        draw_line(0, i*cell_size, 27*cell_size, i*cell_size);
+        draw_line(i*cell_size, 0, i*cell_size, 27*cell_size,);
+    }
 }
 
 function outline(start_r, start_c, size, value){
@@ -123,27 +128,29 @@ function generateCode(){
     displayCode();
 }
 
-function nextPos(row, col){
-    while (true){   
-        if (col_offset > 1){
-            col_offset = 0;
-            row += direction;
-            if (row < 0 || 24 < row){
-                direction = -direction;
-                row += direction;
-                col -= 2
-            }
+function nextPos(){
+    while (true){
+        if (code_grid[position[0]][position[1]] == -1){
+            return
+        } else if (code_grid[position[0]][position[1]] in [3, 4]){
+            position[0] += direction;
+        } else if (col_offset == 0){//right cell
+            col_offset += 1;
+        } else {//move up/down
+            position[0] += direction;
         }
 
-        if (code_grid[row][col-col_offset] == -1){
-            return [row, col];
+        if (position[0] < 0 || 24 < position[0]){
+            direction = -direction;
+            position[0] += direction;
+            position[1] -= 2;
+            col_offset = 0;
         }
     }
 }
 
 function writeByte(byte){
     bit_idx = 8
-    col_offset = 0;
     while (bit_idx > 0){
         if (byte.length-bit_idx >= 0){//pad 0
             bit = parseInt(byte[byte.length-bit_idx]);
@@ -151,14 +158,10 @@ function writeByte(byte){
             bit = 0;
         }
 
-        position = nextPos(position[0], position[1]);
+        nextPos();
         code_grid[position[0]][position[1]-col_offset] = bit;
-
-        col_offset += 1;
         bit_idx -= 1
     }
-    col_offset -= 1;
-    position = nextPos(position[0], position[1]);
 }
 
 function displayCode(){
@@ -177,3 +180,13 @@ function displayCode(){
         }
     }
 }
+
+
+function draw_line(x1, y1, x2, y2, type) {
+    drawable_canvas.strokeStyle = 'rgb(0, 0, 255)';
+    drawable_canvas.beginPath();
+    drawable_canvas.moveTo(x1, y1);
+    drawable_canvas.lineTo(x2, y2);
+    drawable_canvas.stroke();
+}
+
