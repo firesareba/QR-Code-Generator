@@ -24,6 +24,9 @@ url_input.addEventListener(
 
 function reset(){
     code_grid = []
+    direction = -1;
+    col_offset = 0;
+    position = [22, 24];
     for (let i=0; i<25; i++){
         code_grid.push([]);
         for (let j=0; j<25; j++){
@@ -122,8 +125,8 @@ function generateCode(){
     writeByte((url.length).toString(2), position);
 
     for (let i = 0; i < url.length; i++){
-        // console.log(url.charCodeAt(i));
-        writeByte((url.length).toString(2), position);
+        console.log(url.charCodeAt(i).toString(2));
+        writeByte(url.charCodeAt(i).toString(2), position);
     }
     displayCode();
 }
@@ -160,10 +163,10 @@ function writeByte(byte){
         }
 
         nextPos();
+        console.log(position[0], position[1]-col_offset);
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
     }
-    nextPos();
 }
 
 function displayCode(){
