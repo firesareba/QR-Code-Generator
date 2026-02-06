@@ -118,11 +118,11 @@ function generateCode(){
         alert("too big");
         return;
     }
-    console.log((url.length).toString(2));
+    // console.log((url.length).toString(2));
     writeByte((url.length).toString(2), position);
 
     for (let i = 0; i < url.length; i++){
-        console.log(url.charCodeAt(i))
+        // console.log(url.charCodeAt(i));
         writeByte((url.length).toString(2), position);
     }
     displayCode();
@@ -130,14 +130,15 @@ function generateCode(){
 
 function nextPos(){
     while (true){
-        if (code_grid[position[0]][position[1]] == -1){
+        if (code_grid[position[0]][position[1]-col_offset] == -1){
             return
-        } else if (code_grid[position[0]][position[1]] in [3, 4]){
+        } else if (code_grid[position[0]][position[1]-col_offset] == 2 || code_grid[position[0]][position[1]-col_offset] == 3){
             position[0] += direction;
         } else if (col_offset == 0){//right cell
-            col_offset += 1;
+            col_offset = 1;
         } else {//move up/down
             position[0] += direction;
+            col_offset = 0;
         }
 
         if (position[0] < 0 || 24 < position[0]){
@@ -162,6 +163,7 @@ function writeByte(byte){
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
     }
+    nextPos();
 }
 
 function displayCode(){
@@ -176,11 +178,13 @@ function displayCode(){
             }else if (code_grid[i][j] == 3){
                 drawable_canvas.fillStyle = "grey";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            }else if (code_grid[i][j] == -1){
+                drawable_canvas.fillStyle = "red";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
         }
     }
 }
-
 
 function draw_line(x1, y1, x2, y2, type) {
     drawable_canvas.strokeStyle = 'rgb(0, 0, 255)';
