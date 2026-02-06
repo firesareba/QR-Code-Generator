@@ -122,20 +122,24 @@ function outline(start_r, start_c, size, value){
 }
 
 function generateCode(){
-    reset();
-
     url = url_input.value;
     if (url.length > 255){
         alert("too big");
         return;
     }
-    console.log((url.length).toString(2));
-    writeByte((url.length).toString(2), position);
+    
+    reset();
+    writeByte((url.length).toString(2), position);//length
 
     for (let i = 0; i < url.length; i++){
-        // console.log(url.charCodeAt(i).toString(2));
-        writeByte(url.charCodeAt(i).toString(2), position);
+        writeByte(url.charCodeAt(i).toString(2), position);//main data
     }
+
+    for (let i=0; i<4; i++){
+        nextPos();
+        code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
+    }
+
     displayCode();
 }
 
@@ -169,7 +173,6 @@ function writeByte(byte){
         }
 
         nextPos();
-        console.log(position[0], position[1]-col_offset);
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
     }
