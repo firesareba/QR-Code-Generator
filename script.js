@@ -34,6 +34,14 @@ function reset(){
         }
     }
 
+    //#region format strips
+    outline(0, 0, 9, 3);
+    for (let i=24; i >= 17; i--){
+        code_grid[8][i] = 3;
+        code_grid[i][8] = 3;
+    }
+    //#endregion
+
     //#region top-left
     outline(0, 0, 8, 2);//outside
     outline(1, 1, 5, 2);//inside
@@ -121,11 +129,11 @@ function generateCode(){
         alert("too big");
         return;
     }
-    // console.log((url.length).toString(2));
+    console.log((url.length).toString(2));
     writeByte((url.length).toString(2), position);
 
     for (let i = 0; i < url.length; i++){
-        console.log(url.charCodeAt(i).toString(2));
+        // console.log(url.charCodeAt(i).toString(2));
         writeByte(url.charCodeAt(i).toString(2), position);
     }
     displayCode();
