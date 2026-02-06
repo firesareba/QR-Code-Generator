@@ -143,8 +143,6 @@ function nextPos(){
     while (true){
         if (code_grid[position[0]][position[1]-col_offset] == -1){
             return
-        } else if (code_grid[position[0]][position[1]-col_offset] == 2 || code_grid[position[0]][position[1]-col_offset] == 3){
-            position[0] += direction;
         } else if (col_offset == 0){//right cell
             col_offset = 1;
         } else {//move up/down
