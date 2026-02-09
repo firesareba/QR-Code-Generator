@@ -136,17 +136,41 @@ function generateCode(){
     }
 
     for (let i=0; i<4; i++){
-        nextPos();
+        nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
     }
+
+    //error correction
+    position = [22, 24];
+    col_offset = 0;
+    direction = -1;
+
+    coefficients = [];
+    currByte = "";
+    while (code_grid[position[0]][position[1]-col_offset] != -1){
+        if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
+            currByte += code_grid[position[0]][position[1]-col_offset];
+            if (currByte.length == 8){
+                coefficients.push(parseInt(currByte, 2));
+                currByte = "";
+            }
+        }
+        code_grid[position[0]][position[1]-col_offset] += 2;
+        nextPos(true);
+    }
+    console.log(coefficients);
 
     displayCode();
 }
 
-function nextPos(){
+function nextPos(codeReading){
     while (true){
+        if (codeReading && !(code_grid[position[0]][position[1]-col_offset] == 2 || code_grid[position[0]][position[1]-col_offset] == 3)){
+            return;
+        }
+
         if (code_grid[position[0]][position[1]-col_offset] == -1){
-            return
+            return;
         } else if (col_offset == 0){//right cell
             col_offset = 1;
         } else {//move up/down
@@ -172,7 +196,7 @@ function writeByte(byte){
             bit = 0;
         }
 
-        nextPos();
+        nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
     }
