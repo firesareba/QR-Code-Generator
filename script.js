@@ -134,8 +134,8 @@ function polynomialDivision(dividend, divisor){
     while (dividend[0] == 0){
         dividend.shift();
     }
-    console.log(quotient)
-    console.log(dividend)
+    console.log("quotient: "+quotient)
+    console.log("remainder: "+dividend)
 }
 
 function generateCode(){
@@ -174,10 +174,11 @@ function generateCode(){
                 coefficients.push(parseInt(currByte, 2));
                 currByte = "";
             }
-            code_grid[position[0]][position[1]-col_offset] += 2;
+            code_grid[position[0]][position[1]-col_offset] += 4;
         }
         nextPos(true);
     }
+    console.log("coefficients: "+coefficients);
     //#endregion
 
     polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//get divisor from docs later
@@ -187,7 +188,7 @@ function generateCode(){
 
 function nextPos(codeReading){
     while (true){
-        if (codeReading && !(code_grid[position[0]][position[1]-col_offset] == 2 || code_grid[position[0]][position[1]-col_offset] == 3)){
+        if (codeReading && code_grid[position[0]][position[1]-col_offset] < 2){
             return;
         }
 
@@ -227,7 +228,7 @@ function writeByte(byte){
 function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
-            if (code_grid[i][j] == 1){
+            if (code_grid[i][j] == 5){
                 drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }else if (code_grid[i][j] == 2){
