@@ -146,7 +146,8 @@ function generateCode(){
     direction = -1;
 
     coefficients = [];
-    currByte = "";
+    currByte = "0100";
+    
     while (code_grid[position[0]][position[1]-col_offset] != -1){
         if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
             currByte += code_grid[position[0]][position[1]-col_offset];
@@ -154,12 +155,12 @@ function generateCode(){
                 coefficients.push(parseInt(currByte, 2));
                 currByte = "";
             }
+            code_grid[position[0]][position[1]-col_offset] += 2;
         }
-        code_grid[position[0]][position[1]-col_offset] += 2;
         nextPos(true);
     }
-    console.log(coefficients);
 
+    console.log(coefficients)
     displayCode();
 }
 
