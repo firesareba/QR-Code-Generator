@@ -121,6 +121,23 @@ function outline(start_r, start_c, size, value){
     }
 }
 
+function polynomialDivision(dividend, divisor){
+    quotient = []
+
+    for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
+        multiplier = Math.floor(dividend[calcIdx]/divisor[0]);
+        quotient.push(multiplier);
+        for (let i=0; i < divisor.length; i++){
+            dividend[calcIdx+i] -= divisor[i]*multiplier;
+        }
+    }
+    while (dividend[0] == 0){
+        dividend.shift();
+    }
+    console.log(quotient)
+    console.log(dividend)
+}
+
 function generateCode(){
     url = url_input.value;
     if (url.length > 255){
@@ -131,23 +148,25 @@ function generateCode(){
     reset();
     writeByte((url.length).toString(2), position);//length
 
+    //#region main data
     for (let i = 0; i < url.length; i++){
-        writeByte(url.charCodeAt(i).toString(2), position);//main data
+        writeByte(url.charCodeAt(i).toString(2), position);
     }
 
     for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
     }
+    //#endregion
 
-    //error correction
+    //#region error correction coefficients
     position = [22, 24];
     col_offset = 0;
     direction = -1;
 
     coefficients = [];
     currByte = "0100";
-    
+
     while (code_grid[position[0]][position[1]-col_offset] != -1){
         if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
             currByte += code_grid[position[0]][position[1]-col_offset];
@@ -159,8 +178,10 @@ function generateCode(){
         }
         nextPos(true);
     }
+    //#endregion
 
-    console.log(coefficients)
+    polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//get divisor from docs later
+
     displayCode();
 }
 
