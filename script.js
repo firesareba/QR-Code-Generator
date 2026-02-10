@@ -9,10 +9,13 @@ canvas.width = 27*cell_size;
 canvas.height = canvas.width;
 //#endregion
 
-code_grid = []
+code_grid = [];
 direction = -1;
 col_offset = 0;
 position = [22, 24];
+available_bits = ((4*2)+17)**2;//4*version + 17
+n_per_block = 10;
+blocks = 1;
 
 //#region listeners
 url_input.addEventListener(
@@ -39,6 +42,7 @@ function reset(){
     for (let i=24; i >= 17; i--){
         code_grid[8][i] = 3;
         code_grid[i][8] = 3;
+        available_bits -= 2;
     }
     //#endregion
 
@@ -51,6 +55,7 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -64,6 +69,7 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=22; j>=20; j--){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -77,6 +83,7 @@ function reset(){
     for (let i=22; i>=20; i--){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -86,12 +93,14 @@ function reset(){
     outline(16, 16, 5, 3);
 
     code_grid[18][18] = 3;//center
+    available_bits -= 1;
     //#endregion
 
     //#region timing strips
     for (let i=8; i<=16; i++){
         code_grid[6][i] = (i%2==0)+2;
         code_grid[i][6] = (i%2==0)+2;
+        available_bits -= (code_grid[i][6]==-1) + (code_grid[6][i]==-1);
     }
     //#endregion
 
@@ -100,12 +109,16 @@ function reset(){
     code_grid[24][24] = 2; 
     code_grid[24][23] = 3;
     code_grid[23][24] = 2;
-    code_grid[23][23] = 2; 
+    code_grid[23][23] = 2;
+    available_bits -= 4; 
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
     drawable_canvas.fillStyle = "black";
+    console.log(available_bits)
+}
 
+function drawGrid(){
     for (let i=0; i<27; i++){
         draw_line(0, i*cell_size, 27*cell_size, i*cell_size);
         draw_line(i*cell_size, 0, i*cell_size, 27*cell_size,);
@@ -114,6 +127,7 @@ function reset(){
 
 function outline(start_r, start_c, size, value){
     for (let i=0; i<size; i++){
+        available_bits -= (code_grid[start_r][start_c+i]==-1) + (code_grid[start_r+i][start_c]==-1) + (code_grid[start_r+i][start_c+size-1]==-1) + (code_grid[start_r+size-1][start_c+i]==-1);
         code_grid[start_r][start_c+i] = value;//top row
         code_grid[start_r+i][start_c] = value;//left column
         code_grid[start_r+i][start_c+size-1] = value;//right column
@@ -152,7 +166,9 @@ function generateCode(){
     for (let i = 0; i < url.length; i++){
         writeByte(url.charCodeAt(i).toString(2), position);
     }
+    //#endregion
 
+    //#region padding
     for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
@@ -243,6 +259,7 @@ function displayCode(){
             }
         }
     }
+    drawGrid();
 }
 
 function draw_line(x1, y1, x2, y2, type) {
