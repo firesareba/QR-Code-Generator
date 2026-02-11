@@ -13,7 +13,7 @@ code_grid = [];
 direction = -1;
 col_offset = 0;
 position = [22, 24];
-n_per_block = 1;
+n_per_block = 16;
 num_blocks = 1;
 
 //#region listeners
@@ -138,8 +138,8 @@ function polynomialDivision(dividend, divisor){
     while (dividend[0] == 0){
         dividend.shift();
     }
-    console.log("quotient: "+quotient)
-    console.log("remainder: "+dividend)
+    // console.log("quotient: "+quotient)
+    // console.log("remainder: "+dividend)
     return dividend;
 }
 
@@ -151,35 +151,43 @@ function generateCode(){
     }
     
     reset();
-    writeByte((url.length).toString(2), false);//length
-
+    
     //#region main data
+    writeByte((url.length).toString(2));//length
+
     for (let i = 0; i < url.length; i++){
-        writeByte(url.charCodeAt(i).toString(2), false);
+        writeByte(url.charCodeAt(i).toString(2));
     }
     //#endregion
 
     //#region padding
     for (let i=0; i<4; i++){
         nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
+        code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
     }
 
     store_pos = [position[0], position[1]-col_offset];
-    console.log(position[0], position[1], col_offset);
 
     direction = -1;
     position = [16, 0];
     col_offset = 0;
-    for (let i=0; i < ((n_per_block*num_blocks)*8)-1; i++){
+    code_grid[position[0]][position[1]+col_offset] = 10;
+    for (let i=0; i < 7+(((n_per_block*num_blocks)*8)-1); i++){//7 for version info, n/block*block = total error correction bytes; bytes*8 = total bits, -1 because want to use last one as the stop pos
         prevPos();
+        code_grid[position[0]][position[1]+col_offset] = 10;
     }
     stop_pos = [position[0], position[1]+col_offset];
-    console.log(stop_pos);
+    console.log(stop_pos, 7+(n_per_block*num_blocks)*8);
 
     position = [store_pos[0], store_pos[1]+(store_pos[1] % 2 == 1)];
     col_offset = 0+(store_pos[1] % 2 == 1);
-    console.log(position[0], position[1], col_offset);
+
+    // num = 1;
+    // while (!(position[0] == 13 && position[1]-col_offset == 2)){
+    //     console.log(position[0], position[1]-col_offset);
+    //     writeByte((17+(219*num)).toString(2));
+    //     num = Math.abs(num-1);
+    // }
     //#endregion
 
     //#region error correction coefficients
@@ -201,16 +209,12 @@ function generateCode(){
         }
         nextPos(true);
     }
-    console.log("coefficients: "+coefficients);
+    // console.log("coefficients: "+coefficients);
     //#endregion
 
     //#region write error correction bytes
     remainder = polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
     //remainder coefficients are the error correction bytes.
-    
-    for (let i = 0; i < remainder.length; i++){
-        // writeByte(remainder[i].toString(2), true);
-    }
     //#endregion
 
     displayCode();
@@ -276,7 +280,7 @@ function prevPos(){
     }
 }
 
-function writeByte(byte, reverse){
+function writeByte(byte){
     bit_idx = 8
     while (bit_idx > 0){
         if (byte.length-bit_idx >= 0){//pad 0
@@ -285,13 +289,8 @@ function writeByte(byte, reverse){
             bit = 0;
         }
 
-        if (reverse){
-            prevPos();
-            code_grid[position[0]][position[1]+col_offset] = bit;
-        } else {
-            nextPos(false);
-            code_grid[position[0]][position[1]-col_offset] = bit;
-        }
+        nextPos(false);
+        code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
     }
 }
@@ -302,13 +301,16 @@ function displayCode(){
             if (code_grid[i][j] == 5){
                 drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            }else if (code_grid[i][j] == 2){
+            } else if (code_grid[i][j] == 2){
                 drawable_canvas.fillStyle = "antiquewhite";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            }else if (code_grid[i][j] == 3){
+            } else if (code_grid[i][j] == 3){
                 drawable_canvas.fillStyle = "grey";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            }else if (code_grid[i][j] == -1){
+            } else if (code_grid[i][j] == 10){
+                drawable_canvas.fillStyle = "green";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            } else {
                 drawable_canvas.fillStyle = "red";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
