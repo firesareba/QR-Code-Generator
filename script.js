@@ -323,7 +323,7 @@ function displayCode(){
                 drawable_canvas.fillStyle = "green";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == 11){
-                drawable_canvas.fillStyle = "turquoise";
+                drawable_canvas.fillStyle = "limegreen";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == -1){
                 drawable_canvas.fillStyle = "red";
