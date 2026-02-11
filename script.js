@@ -13,9 +13,8 @@ code_grid = [];
 direction = -1;
 col_offset = 0;
 position = [22, 24];
-available_bits = ((4*2)+17)**2;//4*version + 17
-n_per_block = 10;
-blocks = 1;
+n_per_block = 1;
+num_blocks = 1;
 
 //#region listeners
 url_input.addEventListener(
@@ -42,7 +41,6 @@ function reset(){
     for (let i=24; i >= 17; i--){
         code_grid[8][i] = 3;
         code_grid[i][8] = 3;
-        available_bits -= 2;
     }
     //#endregion
 
@@ -55,7 +53,6 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
-            available_bits -= 1;
         }
     }
     //#endregion
@@ -69,7 +66,6 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=22; j>=20; j--){
             code_grid[i][j] = 3;
-            available_bits -= 1;
         }
     }
     //#endregion
@@ -83,7 +79,6 @@ function reset(){
     for (let i=22; i>=20; i--){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
-            available_bits -= 1;
         }
     }
     //#endregion
@@ -93,14 +88,12 @@ function reset(){
     outline(16, 16, 5, 3);
 
     code_grid[18][18] = 3;//center
-    available_bits -= 1;
     //#endregion
 
     //#region timing strips
     for (let i=8; i<=16; i++){
         code_grid[6][i] = (i%2==0)+2;
         code_grid[i][6] = (i%2==0)+2;
-        available_bits -= (code_grid[i][6]==-1) + (code_grid[6][i]==-1);
     }
     //#endregion
 
@@ -110,12 +103,10 @@ function reset(){
     code_grid[24][23] = 3;
     code_grid[23][24] = 2;
     code_grid[23][23] = 2;
-    available_bits -= 4; 
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
     drawable_canvas.fillStyle = "black";
-    console.log(available_bits)
 }
 
 function drawGrid(){
@@ -127,7 +118,6 @@ function drawGrid(){
 
 function outline(start_r, start_c, size, value){
     for (let i=0; i<size; i++){
-        available_bits -= (code_grid[start_r][start_c+i]==-1) + (code_grid[start_r+i][start_c]==-1) + (code_grid[start_r+i][start_c+size-1]==-1) + (code_grid[start_r+size-1][start_c+i]==-1);
         code_grid[start_r][start_c+i] = value;//top row
         code_grid[start_r+i][start_c] = value;//left column
         code_grid[start_r+i][start_c+size-1] = value;//right column
@@ -150,6 +140,7 @@ function polynomialDivision(dividend, divisor){
     }
     console.log("quotient: "+quotient)
     console.log("remainder: "+dividend)
+    return dividend;
 }
 
 function generateCode(){
@@ -160,11 +151,11 @@ function generateCode(){
     }
     
     reset();
-    writeByte((url.length).toString(2), position);//length
+    writeByte((url.length).toString(2), false);//length
 
     //#region main data
     for (let i = 0; i < url.length; i++){
-        writeByte(url.charCodeAt(i).toString(2), position);
+        writeByte(url.charCodeAt(i).toString(2), false);
     }
     //#endregion
 
@@ -173,6 +164,22 @@ function generateCode(){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded endbits
     }
+
+    store_pos = [position[0], position[1]-col_offset];
+    console.log(position[0], position[1], col_offset);
+
+    direction = -1;
+    position = [16, 0];
+    col_offset = 0;
+    for (let i=0; i < ((n_per_block*num_blocks)*8)-1; i++){
+        prevPos();
+    }
+    stop_pos = [position[0], position[1]+col_offset];
+    console.log(stop_pos);
+
+    position = [store_pos[0], store_pos[1]+(store_pos[1] % 2 == 1)];
+    col_offset = 0+(store_pos[1] % 2 == 1);
+    console.log(position[0], position[1], col_offset);
     //#endregion
 
     //#region error correction coefficients
@@ -197,7 +204,14 @@ function generateCode(){
     console.log("coefficients: "+coefficients);
     //#endregion
 
-    polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//get divisor from docs later
+    //#region write error correction bytes
+    remainder = polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
+    //remainder coefficients are the error correction bytes.
+    
+    for (let i = 0; i < remainder.length; i++){
+        // writeByte(remainder[i].toString(2), true);
+    }
+    //#endregion
 
     displayCode();
 }
@@ -226,7 +240,43 @@ function nextPos(codeReading){
     }
 }
 
-function writeByte(byte){
+function prevPos(){
+    //#region force move
+    if (col_offset == 0){
+        col_offset = 1;
+    } else {
+        position[0] += direction;
+        col_offset = 0;
+    }
+
+    if (position[0] < 0 || 24 < position[0]){
+        direction = -direction;
+        position[0] += direction;
+        position[1] += 2;
+        col_offset = 0;
+
+    }
+    //#endregion
+    while (true){
+        if (code_grid[position[0]][position[1]+col_offset] == -1){
+            return;
+        } else if (col_offset == 0){//right cell
+            col_offset = 1;
+        } else {//move up/down
+            position[0] += direction;
+            col_offset = 0;
+        }
+
+        if (position[0] < 0 || 24 < position[0]){
+            direction = -direction;
+            position[0] += direction;
+            position[1] += 2;
+            col_offset = 0;
+        }
+    }
+}
+
+function writeByte(byte, reverse){
     bit_idx = 8
     while (bit_idx > 0){
         if (byte.length-bit_idx >= 0){//pad 0
@@ -235,8 +285,13 @@ function writeByte(byte){
             bit = 0;
         }
 
-        nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = bit;
+        if (reverse){
+            prevPos();
+            code_grid[position[0]][position[1]+col_offset] = bit;
+        } else {
+            nextPos(false);
+            code_grid[position[0]][position[1]-col_offset] = bit;
+        }
         bit_idx -= 1
     }
 }
