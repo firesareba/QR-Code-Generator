@@ -166,40 +166,13 @@ function generateCode(){
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
     }
 
-    store_pos = [position[0], position[1]-col_offset];
-
-    direction = -1;
-    position = [16, 1];
-    col_offset = 0;
-    code_grid[position[0]][position[1]-col_offset] = 11;
-    console.log(position[0], position[1]-col_offset);
-
-    for (let i=0; i < 7-1; i++){//7 for version info -1 cause u start on a usable square
-        prevPos();
-        code_grid[position[0]][position[1]-col_offset] = 11;
+    num = 1;
+    while (!(position[0] == 12 && position[1]-col_offset == 12)){
         console.log(position[0], position[1]-col_offset);
+        writeByte((17+(219*num)).toString(2));
+        num = Math.abs(num-1);
     }
-    console.log("____________________")
-    for (let i=0; i < (n_per_block*num_blocks); i++){//n/block*block = total error correction bytes; bytes*8 = total bits, -1 because want to use last one as the stop pos
-        for (let b=0; b<8; b++){
-            prevPos();
-            code_grid[position[0]][position[1]-col_offset] = 10+(i%2);
-            console.log(position[0], position[1]-col_offset);
-        }
-        console.log("____________________")
-    }
-    stop_pos = [position[0], position[1]-col_offset];
-    console.log(stop_pos, 7+(n_per_block*num_blocks)*8);
 
-    position = [store_pos[0], store_pos[1]+(store_pos[1] % 2 == 1)];
-    col_offset = 0+(store_pos[1] % 2 == 1);
-
-    // num = 1;
-    // while (!(position[0] == 13 && position[1]-col_offset == 2)){
-    //     console.log(position[0], position[1]-col_offset);
-    //     writeByte((17+(219*num)).toString(2));
-    //     num = Math.abs(num-1);
-    // }
     //#endregion
 
     //#region error correction coefficients
@@ -251,40 +224,6 @@ function nextPos(codeReading){
             direction = -direction;
             position[0] += direction;
             position[1] -= 2;
-            col_offset = 0;
-        }
-    }
-}
-
-function prevPos(){
-    if (col_offset == 0){//right cell
-        col_offset = 1;
-    } else {//move up/down
-        position[0] += direction;
-        col_offset = 0;
-    }
-
-    if (position[0] < 0 || 24 < position[0]){
-        direction = -direction;
-        position[0] += direction;
-        position[1] += 2;
-        col_offset = 0;
-    }
-
-    while (true){
-        if (code_grid[position[0]][position[1]-col_offset] == -1){
-            return;
-        } else if (col_offset == 0){//right cell
-            col_offset = 1;
-        } else {//move up/down
-            position[0] += direction;
-            col_offset = 0;
-        }
-
-        if (position[0] < 0 || 24 < position[0]){
-            direction = -direction;
-            position[0] += direction;
-            position[1] += 2;
             col_offset = 0;
         }
     }
