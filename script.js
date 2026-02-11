@@ -172,9 +172,21 @@ function generateCode(){
     position = [16, 0];
     col_offset = 0;
     code_grid[position[0]][position[1]+col_offset] = 10;
-    for (let i=0; i < 7+(((n_per_block*num_blocks)*8)-1); i++){//7 for version info, n/block*block = total error correction bytes; bytes*8 = total bits, -1 because want to use last one as the stop pos
+    console.log(position[0], position[1]+col_offset);
+
+    for (let i=0; i < 7-1; i++){//7 for version info -1 cause u start on a usable square
         prevPos();
         code_grid[position[0]][position[1]+col_offset] = 10;
+        console.log(position[0], position[1]+col_offset);
+    }
+    console.log("____________________")
+    for (let i=0; i < (n_per_block*num_blocks); i++){//n/block*block = total error correction bytes; bytes*8 = total bits, -1 because want to use last one as the stop pos
+        for (let b=0; b<8; b++){
+            prevPos();
+            code_grid[position[0]][position[1]+col_offset] = 10+(i%2);
+            console.log(position[0], position[1]+col_offset);
+        }
+        console.log("____________________")
     }
     stop_pos = [position[0], position[1]+col_offset];
     console.log(stop_pos, 7+(n_per_block*num_blocks)*8);
@@ -310,7 +322,10 @@ function displayCode(){
             } else if (code_grid[i][j] == 10){
                 drawable_canvas.fillStyle = "green";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else {
+            } else if (code_grid[i][j] == 11){
+                drawable_canvas.fillStyle = "limegreen";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            } else if (code_grid[i][j] == -1){
                 drawable_canvas.fillStyle = "red";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
