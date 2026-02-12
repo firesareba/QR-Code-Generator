@@ -189,10 +189,11 @@ function generateCode(){
     for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
+        available_bits -= 1;
     }
 
     num = 1;
-    while (!(position[0] == 12 && position[1]-col_offset == 12)){
+    while (available_bits > 8*(n_per_block*num_blocks)+7){//8 bits per byte, n/block*block = n = # of bytes, 7 for version info
         writeByte((17+(219*num)).toString(2));
         num = Math.abs(num-1);
     }
@@ -265,6 +266,7 @@ function writeByte(byte){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
+        available_bits -= 1;
     }
 }
 
