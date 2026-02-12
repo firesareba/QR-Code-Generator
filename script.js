@@ -13,6 +13,8 @@ code_grid = [];
 direction = -1;
 col_offset = 0;
 position = [22, 24];
+
+available_bits = 25**2; 
 n_per_block = 16;
 num_blocks = 1;
 
@@ -37,11 +39,19 @@ function reset(){
     }
 
     //#region format strips
-    outline(0, 0, 9, 3);
-    for (let i=24; i >= 17; i--){
-        code_grid[8][i] = 3;
+    for (let i=0; i < 8; i++){
+        //topleft
+        code_grid[8][i] = 3;    
         code_grid[i][8] = 3;
+
+        code_grid[8][24-i] = 3;//top right
+        code_grid[24-i][8] = 3;//bottom left
+        
+        available_bits -= 4;
     }
+    code_grid[8][8] = 3;//corner in top left
+    available_bits -= 1;
+    console.log("format", (25**2-available_bits));
     //#endregion
 
     //#region top-left
@@ -53,6 +63,7 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -66,6 +77,7 @@ function reset(){
     for (let i=2; i<=4; i++){
         for (let j=22; j>=20; j--){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -79,6 +91,7 @@ function reset(){
     for (let i=22; i>=20; i--){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
+            available_bits -= 1;
         }
     }
     //#endregion
@@ -88,21 +101,25 @@ function reset(){
     outline(16, 16, 5, 3);
 
     code_grid[18][18] = 3;//center
+    available_bits -= 1;
     //#endregion
 
     //#region timing strips
     for (let i=8; i<=16; i++){
+        available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
         code_grid[6][i] = (i%2==0)+2;
         code_grid[i][6] = (i%2==0)+2;
     }
     //#endregion
 
+    available_bits -= (code_grid[17][8] == -1);
     code_grid[17][8] = 3;//random one in all qr codes
     //mode indicator 0100(+2 at each cause it's base not data) for binary mode(goes right to left, bottom to top.)
     code_grid[24][24] = 2; 
     code_grid[24][23] = 3;
     code_grid[23][24] = 2;
     code_grid[23][23] = 2;
+    available_bits -= 4;
 
     drawable_canvas.fillStyle = "white";
     drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
@@ -117,7 +134,14 @@ function drawGrid(){
 }
 
 function outline(start_r, start_c, size, value){
-    for (let i=0; i<size; i++){
+    available_bits -= (code_grid[start_r][start_c] == -1) + (code_grid[start_r+size-1][start_c] == -1) + (code_grid[start_r][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+size-1] == -1);
+    code_grid[start_r][start_c] = value;
+    code_grid[start_r+size-1][start_c] = value;
+    code_grid[start_r][start_c+size-1] = value;
+    code_grid[start_r+size-1][start_c+size-1] = value;
+
+    for (let i=1; i<size-1; i++){
+        available_bits -= (code_grid[start_r][start_c+i] == -1) + (code_grid[start_r+i][start_c] == -1) + (code_grid[start_r+i][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+i] == -1);
         code_grid[start_r][start_c+i] = value;//top row
         code_grid[start_r+i][start_c] = value;//left column
         code_grid[start_r+i][start_c+size-1] = value;//right column
@@ -151,6 +175,7 @@ function generateCode(){
     }
     
     reset();
+    console.log(available_bits, 25**2-available_bits);
     
     //#region main data
     writeByte((url.length).toString(2));//length
@@ -168,7 +193,6 @@ function generateCode(){
 
     num = 1;
     while (!(position[0] == 12 && position[1]-col_offset == 12)){
-        console.log(position[0], position[1]-col_offset);
         writeByte((17+(219*num)).toString(2));
         num = Math.abs(num-1);
     }
