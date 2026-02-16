@@ -150,36 +150,36 @@ function outline(start_r, start_c, size, value){
     }
 }
 
-function galois_add(a, b){
-    return a ^ b;
+function galois_Add(addend_1, addend_2){
+    return addend_1 ^ addend_2;
 }
 
-function galois_subtract(a, b){
-    return galois_add(a, b);//same thing bc of the way math works, cause needs to be finite or smth
+function galois_Subtract(minuend, subtrahend){
+    return galois_Add(minuend, subtrahend);//same thing bc of the way math works, cause needs to be finite or smth
 }
 
-function galois_multiply(a, b){
-    if (a*b == 0){
+function galois_Multiply(factor_1, factor_2){
+    if (factor_1*factor_2 == 0){
         return 0;
     }
 
-    log_a = Math.log2(a);
-    log_b = Math.log2(b);
-    return alpha**(galois_add(log_a, log_b)%255);
+    log_1 = Math.log2(factor_1);
+    log_2 = Math.log2(factor_2);
+    return alpha**(galois_Add(log_1, log_2)%255);
 }
 
-function galois_divide(a, b){
-    return galois_multiply(a, b**254);
+function galoisDivide(dividend, divisor){
+    return galois_Multiply(dividend, divisor**254);
 }
 
-function polynomialDivision(dividend, divisor){
+function dividePolynomial(dividend, divisor){
     quotient = []
 
     for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
-        multiplier = Math.floor(galois_divide(dividend[calcIdx], divisor[0]));
+        multiplier = Math.floor(galoisDivide(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
-            dividend[calcIdx+i] = galois_subtract(dividend[calcIdx+i], galois_multiply(divisor[i], multiplier));
+            dividend[calcIdx+i] = galois_Subtract(dividend[calcIdx+i], galois_Multiply(divisor[i], multiplier));
         }
     }
     while (dividend[0] == 0){
@@ -188,6 +188,10 @@ function polynomialDivision(dividend, divisor){
     // console.log("quotient: "+quotient)
     // console.log("remainder: "+dividend)
     return dividend;
+}
+
+function multiplyPolynomial(){
+    
 }
 
 function generatorPolynomial(){
@@ -250,7 +254,7 @@ function generateCode(){
     //#endregion
 
     //#region write error correction bytes
-    remainder = polynomialDivision([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
+    remainder = dividePolynomial([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
     //remainder coefficients are the error correction bytes.
     //#endregion
 
