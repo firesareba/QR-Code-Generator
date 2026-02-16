@@ -163,8 +163,9 @@ function galois_multiply(a, b){
         return 0;
     }
 
-    //get log to base alpha for each
-    return alpha**((log_a+log_b)%255);
+    log_a = Math.log2(a);
+    log_b = Math.log2(b);
+    return alpha**(galois_add(log_a, log_b)%255);
 }
 
 function galois_divide(a, b){
