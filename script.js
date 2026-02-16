@@ -176,10 +176,10 @@ function polynomialDivision(dividend, divisor){
     quotient = []
 
     for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
-        multiplier = Math.floor(dividend[calcIdx]/divisor[0]);
+        multiplier = Math.floor(galois_divide(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
-            dividend[calcIdx+i] -= divisor[i]*multiplier;
+            dividend[calcIdx+i] = galois_subtract(dividend[calcIdx+i], galois_multiply(divisor[i], multiplier));
         }
     }
     while (dividend[0] == 0){
