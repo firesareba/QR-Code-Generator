@@ -15,6 +15,7 @@ col_offset = 0;
 position = [22, 24];
 
 available_bits = 25**2; 
+alpha = 2;
 n_per_block = 16;
 num_blocks = 1;
 
@@ -149,6 +150,27 @@ function outline(start_r, start_c, size, value){
     }
 }
 
+function galois_add(a, b){
+    return a ^ b;
+}
+
+function galois_subtract(a, b){
+    return galois_add(a, b);//same thing bc of the way math works, cause needs to be finite or smth
+}
+
+function galois_multiply(a, b){
+    if (a*b == 0){
+        return 0;
+    }
+
+    //get log to base alpha for each
+    return alpha**((log_a+log_b)%255);
+}
+
+function galois_divide(a, b){
+    return galois_multiply(a, b**254);
+}
+
 function polynomialDivision(dividend, divisor){
     quotient = []
 
@@ -165,6 +187,10 @@ function polynomialDivision(dividend, divisor){
     // console.log("quotient: "+quotient)
     // console.log("remainder: "+dividend)
     return dividend;
+}
+
+function generatorPolynomial(){
+
 }
 
 function generateCode(){
