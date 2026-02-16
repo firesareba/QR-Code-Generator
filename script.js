@@ -158,17 +158,17 @@ function galois_Subtract(minuend, subtrahend){
     return galois_Add(minuend, subtrahend);//same thing bc of the way math works, cause needs to be finite or smth
 }
 
-function galois_Multiply(factor_1, factor_2){
-    if (factor_1*factor_2 == 0){
+function galois_Multiply(multiplicand, multiplier){
+    if (multiplicand*multiplier == 0){
         return 0;
     }
 
-    log_1 = Math.log2(factor_1);
-    log_2 = Math.log2(factor_2);
-    return alpha**(galois_Add(log_1, log_2)%255);
+    log_multiplicand = Math.log2(multiplicand);
+    log_multiplier = Math.log2(multiplier);
+    return alpha**(galois_Add(log_multiplicand, log_multiplier)%255);
 }
 
-function galoisDivide(dividend, divisor){
+function galois_Divide(dividend, divisor){
     return galois_Multiply(dividend, divisor**254);
 }
 
@@ -176,7 +176,7 @@ function dividePolynomial(dividend, divisor){
     quotient = []
 
     for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
-        multiplier = Math.floor(galoisDivide(dividend[calcIdx], divisor[0]));
+        multiplier = Math.floor(galois_Divide(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
             dividend[calcIdx+i] = galois_Subtract(dividend[calcIdx+i], galois_Multiply(divisor[i], multiplier));
@@ -190,12 +190,28 @@ function dividePolynomial(dividend, divisor){
     return dividend;
 }
 
-function multiplyPolynomial(){
-    
+function multiplyPolynomial(multiplicand, multiplier){
+    product = new Array(multiplicand.length+multiplier.length-1).fill(0);
+
+    for (let i=multiplicand.length; i>=0; i--){
+        for (let j=multiplier.length; j>=0; j--){
+            from_end = (multiplicand.length-i)+(multiplier.length-j);//idx stuff
+            main_idx = len(product.length)-from_end;
+
+            product[main_idx] = galois_Add(product[main_idx], galois_Multiply(multiplicand[i], multiplier[j]));
+        }
+    }
+
+    return product;
 }
 
 function generatorPolynomial(){
-
+    curr = [1];
+    for (let i=0; i<n_per_block*num_blocks; i++){
+        curr = multiplyPolynomial(curr, [1-alpha**i]);
+    }
+    
+    return curr;
 }
 
 function generateCode(){
