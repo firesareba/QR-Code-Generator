@@ -224,7 +224,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 function generatorPolynomial(){
     curr = [1];
     for (let i=0; i<n_per_block*num_blocks; i++){
-        curr = multiplyPolynomial(curr, [1-alpha**i]);
+        curr = multiplyPolynomial(curr, [1, galois_Exponentiate(i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
     return curr;
