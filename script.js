@@ -205,12 +205,15 @@ function dividePolynomial(dividend, divisor){
 function multiplyPolynomial(multiplicand, multiplier){
     product = new Array(multiplicand.length+multiplier.length-1).fill(0);
 
-    for (let i=multiplicand.length; i>=0; i--){
-        for (let j=multiplier.length; j>=0; j--){
-            from_end = (multiplicand.length-i)+(multiplier.length-j);//idx stuff
-            main_idx = len(product.length)-from_end;
+    for (let i=0; i < multiplicand.length; i++){
+        for (let j=0; j < multiplier.length; j++){
+            multiplicand_degree = (multiplicand.length-i) -1;
+            multiplier_degree = (multiplier.length-j) -1;
+            product_degree = multiplicand_degree + multiplier_degree;
 
-            product[main_idx] = galois_Add(product[main_idx], galois_Multiply(multiplicand[i], multiplier[j]));
+            product_idx = (product.length-product_degree) -1;
+
+            product[product_idx] = galois_Add(product[product_idx], galois_Multiply(multiplicand[i], multiplier[j]));
         }
     }
 
