@@ -284,8 +284,22 @@ function generateCode(){
     //#endregion
 
     //#region write error correction bytes
-    console.log(generatorPolynomial());
-    remainder = dividePolynomial([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
+    remainder = dividePolynomial(coefficients, generatorPolynomial());
+    for (let i=0; i<remainder.length; i++){
+        if (i%2 == 0) {
+            green_byte = ""
+            for (let j=0; j < remainder[i].toString(2).length; j++){
+                green_byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
+            }
+
+            while (green_byte.length < 8){
+                green_byte = '6'+green_byte;
+            }
+            writeByte(green_byte);
+        } else {
+            writeByte(remainder[i].toString(2));
+        }
+    }
     //remainder coefficients are the error correction bytes.
     //#endregion
 
@@ -327,6 +341,7 @@ function writeByte(byte){
 
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = bit;
+        console.log(bit);
         bit_idx -= 1
         available_bits -= 1;
     }
@@ -335,7 +350,7 @@ function writeByte(byte){
 function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
-            if (code_grid[i][j] == 5){
+            if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
                 drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == 2){
@@ -344,10 +359,10 @@ function displayCode(){
             } else if (code_grid[i][j] == 3){
                 drawable_canvas.fillStyle = "grey";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 10){
+            } else if (code_grid[i][j] == 6){
                 drawable_canvas.fillStyle = "green";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 11){
+            } else if (code_grid[i][j] == 7){
                 drawable_canvas.fillStyle = "limegreen";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == -1){
