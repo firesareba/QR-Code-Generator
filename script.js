@@ -56,7 +56,6 @@ function reset(){
     }
     code_grid[8][8] = 3;//corner in top left
     available_bits -= 1;
-    console.log("format", (25**2-available_bits));
     //#endregion
 
     //#region top-left
@@ -238,7 +237,6 @@ function generateCode(){
     }
     
     reset();
-    console.log(available_bits, 25**2-available_bits);
     
     //#region main data
     writeByte((url.length).toString(2));//length
@@ -286,6 +284,7 @@ function generateCode(){
     //#endregion
 
     //#region write error correction bytes
+    console.log(generatorPolynomial());
     remainder = dividePolynomial([3, -4, 0, -3, -1], [1, -1]);//GET DIVISOR LATER FROM DOCS
     //remainder coefficients are the error correction bytes.
     //#endregion
