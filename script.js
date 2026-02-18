@@ -169,7 +169,7 @@ function galois_Multiply(multiplicand, multiplier){
 
     log_multiplicand = galois_Log(multiplicand);
     log_multiplier = galois_Log(multiplier);
-    return galois_Exponentiate(galois_Add(log_multiplicand, log_multiplier)%255);
+    return galois_Exponentiate((log_multiplicand + log_multiplier)%255);
 }
 
 function galois_Divide(dividend, divisor){
