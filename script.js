@@ -131,13 +131,6 @@ function reset(){
     drawable_canvas.fillStyle = "black";
 }
 
-function drawGrid(){
-    for (let i=0; i<27; i++){
-        draw_line(0, i*cell_size, 27*cell_size, i*cell_size);
-        draw_line(i*cell_size, 0, i*cell_size, 27*cell_size,);
-    }
-}
-
 function outline(start_r, start_c, size, value){
     available_bits -= (code_grid[start_r][start_c] == -1) + (code_grid[start_r+size-1][start_c] == -1) + (code_grid[start_r][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+size-1] == -1);
     code_grid[start_r][start_c] = value;
@@ -153,6 +146,7 @@ function outline(start_r, start_c, size, value){
         code_grid[start_r+size-1][start_c+i] = value;//bottom row
     }
 }
+
 
 function galois_Add(addend_1, addend_2){
     return addend_1 ^ addend_2;
@@ -183,6 +177,7 @@ function galois_Exponentiate(exponent){//base is alpha(2 bc binary)
 function galois_Log(power){//base is alpha(2 bc binary)
     return log_table[power];
 }
+
 
 function dividePolynomial(dividend, divisor){
     quotient = []
@@ -220,7 +215,6 @@ function multiplyPolynomial(multiplicand, multiplier){
     return product;
 }
 
-
 function generatorPolynomial(){
     curr = [1];
     for (let i=0; i<n_per_block*num_blocks; i++){
@@ -229,6 +223,7 @@ function generatorPolynomial(){
     
     return curr;
 }
+
 
 function generateCode(){
     url = url_input.value;
@@ -300,13 +295,19 @@ function generateCode(){
             byte = remainder[i].toString(2);
         }
         console.log(i+1);
-        writeByte(byte, true);
+        writeByte(byte);
     }
-    //remainder coefficients are the error correction bytes.
+
+    //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
+    for (let i=0; i<7; i++){
+        nextPos(false);
+        code_grid[position[0]][position[1]-col_offset] = 2;//should be done in reset func, but don't want to hard code starting pos
+    }
     //#endregion
 
     displayCode();
 }
+
 
 function nextPos(codeReading){
     while (true){
@@ -335,7 +336,7 @@ function nextPos(codeReading){
     }
 }
 
-function writeByte(byte, printPos=false){
+function writeByte(byte){
     bit_idx = 8
     while (bit_idx > 0){
         if (byte.length-bit_idx >= 0){//pad 0
@@ -345,14 +346,12 @@ function writeByte(byte, printPos=false){
         }
 
         nextPos(false);
-        if (printPos){
-            console.log(position[0], position[1]-col_offset);
-        }
         code_grid[position[0]][position[1]-col_offset] = bit;
         bit_idx -= 1
         available_bits -= 1;
     }
 }
+
 
 function displayCode(){
     for (let i=0; i<25; i++){
@@ -379,6 +378,13 @@ function displayCode(){
         }
     }
     drawGrid();
+}
+
+function drawGrid(){
+    for (let i=0; i<27; i++){
+        draw_line(0, i*cell_size, 27*cell_size, i*cell_size);
+        draw_line(i*cell_size, 0, i*cell_size, 27*cell_size,);
+    }
 }
 
 function draw_line(x1, y1, x2, y2, type) {
