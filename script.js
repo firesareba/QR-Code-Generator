@@ -287,18 +287,19 @@ function generateCode(){
     remainder = dividePolynomial(coefficients, generatorPolynomial());
     for (let i=0; i<remainder.length; i++){
         if (i%2 == 0) {
-            green_byte = ""
+            byte = ""
             for (let j=0; j < remainder[i].toString(2).length; j++){
-                green_byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
+                byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
             }
 
-            while (green_byte.length < 8){
-                green_byte = '6'+green_byte;
+            while (byte.length < 8){
+                byte = '6'+byte;
             }
-            writeByte(green_byte);
         } else {
-            writeByte(remainder[i].toString(2));
+            byte = remainder[i].toString(2);
         }
+        console.log(remainder[i]);
+        writeByte(byte);
     }
     //remainder coefficients are the error correction bytes.
     //#endregion
@@ -341,7 +342,6 @@ function writeByte(byte){
 
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = bit;
-        console.log(bit);
         bit_idx -= 1
         available_bits -= 1;
     }
