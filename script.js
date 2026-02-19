@@ -90,19 +90,16 @@ function generateCode(){
     //#region write error correction bytes
     remainder = dividePolynomial(coefficients, generatorPolynomial());
     for (let i=0; i<remainder.length; i++){
-        if (i%2 == 0) {
-            byte = ""
-            for (let j=0; j < remainder[i].toString(2).length; j++){
-                byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
-            }
+        byte = ""
 
-            while (byte.length < 8){
-                byte = '6'+byte;
-            }
-        } else {
-            byte = remainder[i].toString(2);
+        //make green
+        for (let j=0; j < remainder[i].toString(2).length; j++){
+            byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
         }
-        console.log(i+1);
+        while (byte.length < 8){
+            byte = '6'+byte;
+        }
+
         writeByte(byte);
     }
 
