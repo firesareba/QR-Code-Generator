@@ -110,6 +110,24 @@ function generateCode(){
     }
     //#endregion
 
+    //#region format strips
+    //medium error correction
+    code_grid[8][0] = 9;
+    code_grid[8][1] = 8;
+    code_grid[24][8] = 9;
+    code_grid[23][8] = 8;
+
+    //placeholder
+    code_grid[8][2] = 9;
+    code_grid[8][3] = 9;
+    code_grid[8][4] = 9;
+    code_grid[22][8] = 9;
+    code_grid[21][8] = 9;
+    code_grid[20][8] = 9;
+
+    console.log(extend_format("01100"));
+    //#endregion
+
     displayCode();
 }
 
@@ -280,7 +298,7 @@ function writeByte(byte){
 
 
 //#region math
-//#region galois
+//#region reed-solomon
 function galois_Add(addend_1, addend_2){
     return addend_1 ^ addend_2;
 }
@@ -310,9 +328,8 @@ function galois_Exponentiate(exponent){//base is alpha(2 bc binary)
 function galois_Log(power){//base is alpha(2 bc binary)
     return log_table[power];
 }
-//#endregion
 
-//#region polynomial
+
 function dividePolynomial(dividend, divisor){
     quotient = []
 
@@ -358,6 +375,49 @@ function generatorPolynomial(){
     return curr;
 }
 //#endregion
+
+function pad(binaryString, targetLen){
+    while (binaryString.length < targetLen){
+        binaryString = binaryString + '0';
+    }
+    return binaryString;
+}
+
+function removeLeadingZeros(binaryString){
+    while (binaryString[0] == 0){
+        binaryString = binaryString.substring(1);
+    }
+
+    return binaryString;
+}
+
+function stringXOR(a, b){
+    result = "";
+    for (let i=a.length-1; i >= 0; i--){
+        for (let j=b.length-1; j >= 0; j--){
+            bit = (parseInt(a[i]) + parseInt(b[j]))%2;
+            result = bit.toString() + result
+        }
+    }
+    return result;
+}
+
+function extend_format(format){
+
+    format = pad(format, 15);
+    format = removeLeadingZeros(format);
+
+    generator = pad("10100110111", format.length);
+    
+    format = stringXOR(format, generator);
+    format = removeLeadingZeros(format);
+
+    if (format.lenth > 10){
+        return extend_format(format);
+    }
+    return format;
+}
+
 //#endregion
 
 
@@ -379,6 +439,12 @@ function displayCode(){
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == 7){
                 drawable_canvas.fillStyle = "limegreen";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            }  else if (code_grid[i][j] == 8){
+                drawable_canvas.fillStyle = "yellow";
+                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            } else if (code_grid[i][j] == 9){
+                drawable_canvas.fillStyle = "blue";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             } else if (code_grid[i][j] == -1){
                 drawable_canvas.fillStyle = "red";
