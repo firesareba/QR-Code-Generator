@@ -116,9 +116,27 @@ function generateCode(){
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
+    format_combined = format_main+format_error;
 
-    format = format_main+format_error;
-    console.log(format);
+    format_final = stringXOR(format_combined, "101010000010010");
+    console.log(format_final);
+
+    for (let i=0; i<6; i++){//top left
+        code_grid[8][i] =  parseInt(format_final[i])+8;
+    }
+    code_grid[8][7] =  parseInt(format_final[6])+8;
+    code_grid[8][8] =  parseInt(format_final[7])+8;
+    code_grid[7][8] =  parseInt(format_final[8])+8;
+    for (let i=0; i<6; i++){
+        code_grid[5-i][8] =  parseInt(format_final[i+9])+8;
+    }
+
+    for (let i=0; i<7; i++){//botom left
+        code_grid[24-i][8] = parseInt(format_final[i])+8;
+    }
+    for (let i=0; i<8; i++){//top right
+        code_grid[8][24-7+i] = parseInt(format_final[7+i])+8;
+    }
     //#endregion
 
     displayCode();
