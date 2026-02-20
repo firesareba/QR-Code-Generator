@@ -397,11 +397,9 @@ function removeLeadingZeros(binaryString){
 
 function stringXOR(a, b){
     result = "";
-    for (let i=a.length-1; i >= 0; i--){
-        for (let j=b.length-1; j >= 0; j--){
-            bit = (parseInt(a[i]) + parseInt(b[j]))%2;
-            result = bit.toString() + result
-        }
+    for (let i=0; i < a.length; i++){//b.len = a.len
+            bit = (parseInt(a[i]) + parseInt(b[i]))%2;
+            result += bit.toString();
     }
     return result;
 }
@@ -414,6 +412,7 @@ function extend_format(format){
     generator = pad("10100110111", format.length);
     
     format = stringXOR(format, generator);
+    console.log(format);
     format = removeLeadingZeros(format);
 
     // if (format.length > 10){
