@@ -112,24 +112,13 @@ function generateCode(){
 
     //#region format strips
     //medium error correction
-    code_grid[8][0] = 9;
-    code_grid[8][1] = 8;
-    code_grid[24][8] = 9;
-    code_grid[23][8] = 8;
+    format_main = "01100";
 
-    //placeholder
-    code_grid[8][2] = 9;
-    code_grid[8][3] = 9;
-    code_grid[8][4] = 9;
-    code_grid[22][8] = 9;
-    code_grid[21][8] = 9;
-    code_grid[20][8] = 9;
+    format_error = padRight(format_main, 15);
+    format_error = extend_format(format_error);
 
-    format = pad("01100", 15);
-    for (let cycle=1; cycle < 5; cycle++){
-        format = extend_format(format);
-        console.log("after cycle", cycle, format);
-    }
+    format = format_main+format_error;
+    console.log(format);
     //#endregion
 
     displayCode();
@@ -380,9 +369,16 @@ function generatorPolynomial(){
 }
 //#endregion
 
-function pad(binaryString, targetLen){
+function padRight(binaryString, targetLen){
     while (binaryString.length < targetLen){
         binaryString = binaryString + '0';
+    }
+    return binaryString;
+}
+
+function padLeft(binaryString, targetLen){
+    while (binaryString.length < targetLen){
+        binaryString = '0'+binaryString;
     }
     return binaryString;
 }
@@ -407,16 +403,15 @@ function stringXOR(a, b){
 function extend_format(format){
     format = removeLeadingZeros(format);
 
-    generator = pad("10100110111", format.length);
+    generator = padRight("10100110111", format.length);
     
     format = stringXOR(format, generator);
-    console.log(format);
     format = removeLeadingZeros(format);
 
-    // if (format.length > 10){
-    //     return extend_format(format);
-    // }
-    return format;
+    if (format.length > 10){
+        return extend_format(format);
+    }
+    return padLeft(format, 10);
 }
 
 //#endregion
