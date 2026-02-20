@@ -125,7 +125,11 @@ function generateCode(){
     code_grid[21][8] = 9;
     code_grid[20][8] = 9;
 
-    console.log(extend_format("01100"));
+    format = "01100";
+    // for (let cycle=1; cycle < 5; cycle++){
+        format = extend_format(format);
+        console.log(format);
+    // }
     //#endregion
 
     displayCode();
@@ -412,9 +416,9 @@ function extend_format(format){
     format = stringXOR(format, generator);
     format = removeLeadingZeros(format);
 
-    if (format.lenth > 10){
-        return extend_format(format);
-    }
+    // if (format.length > 10){
+    //     return extend_format(format);
+    // }
     return format;
 }
 
