@@ -106,13 +106,24 @@ function generateCode(){
     //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
     for (let i=0; i<7; i++){
         nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = 2;//should be done in reset func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in reset func, but don't want to hard code starting pos
+    }
+    //#endregion
+
+    //#region mask
+    maskingMethod = 0;
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col += 2){
+            if (Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
     }
     //#endregion
 
     //#region format strips
     //medium error correction
-    format_main = "01100";
+    format_main = "10"+padLeft((maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -439,31 +450,35 @@ function extend_format(format){
 function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
-            if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
+            if (code_grid[i][j]%2 == 1){
                 drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 2){
-                drawable_canvas.fillStyle = "antiquewhite";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 3){
-                drawable_canvas.fillStyle = "grey";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 6){
-                drawable_canvas.fillStyle = "green";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 7){
-                drawable_canvas.fillStyle = "limegreen";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            }  else if (code_grid[i][j] == 8){
-                drawable_canvas.fillStyle = "yellow";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 9){
-                drawable_canvas.fillStyle = "blue";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == -1){
-                drawable_canvas.fillStyle = "red";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
+            // if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
+            //     drawable_canvas.fillStyle = "black";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 2){
+            //     drawable_canvas.fillStyle = "antiquewhite";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 3){
+            //     drawable_canvas.fillStyle = "grey";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 6){
+            //     drawable_canvas.fillStyle = "green";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 7){
+            //     drawable_canvas.fillStyle = "limegreen";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // }  else if (code_grid[i][j] == 8){
+            //     drawable_canvas.fillStyle = "yellow";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 9){
+            //     drawable_canvas.fillStyle = "blue";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == -1){
+            //     drawable_canvas.fillStyle = "red";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // }
         }
     }
     drawGrid();
