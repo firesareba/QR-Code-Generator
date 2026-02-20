@@ -125,11 +125,11 @@ function generateCode(){
     code_grid[21][8] = 9;
     code_grid[20][8] = 9;
 
-    format = "01100";
-    // for (let cycle=1; cycle < 5; cycle++){
+    format = pad("01100", 15);
+    for (let cycle=1; cycle < 5; cycle++){
         format = extend_format(format);
-        console.log(format);
-    // }
+        console.log("after cycle", cycle, format);
+    }
     //#endregion
 
     displayCode();
@@ -405,8 +405,6 @@ function stringXOR(a, b){
 }
 
 function extend_format(format){
-
-    format = pad(format, 15);
     format = removeLeadingZeros(format);
 
     generator = pad("10100110111", format.length);
