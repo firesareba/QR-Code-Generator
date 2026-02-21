@@ -42,10 +42,14 @@ function generateCode(){
     
     reset();
     
+    codestream = "0100";
+
     //#region main data
+    codestream = codestream + padLeft((url.length).toString(2));
     writeByte(padLeft((url.length).toString(2)));//length
 
     for (let i = 0; i < url.length; i++){
+        codestream = codestream + padLeft(url.charCodeAt(i).toString(2));
         writeByte(padLeft(url.charCodeAt(i).toString(2)));
     }
     //#endregion
@@ -54,43 +58,45 @@ function generateCode(){
     for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
+        codestream = codestream + '0';
         available_bits -= 1;
     }
+    console.log(codestream.length);
 
     num = 1;
     while (available_bits > 8*(n_per_block*num_blocks)+7){//8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+        codestream = codestream + padLeft((17+(219*num)).toString(2));
         writeByte(padLeft((17+(219*num)).toString(2)));
         num = Math.abs(num-1);
     }
 
     //#endregion
 
+    console.log(codestream);
+    console.log(codestream.length);
+
     //#region error correction coefficients
-    position = [22, 24];
-    col_offset = 0;
-    direction = -1;
 
     coefficients = [];
-    currByte = "0100";
 
-    while (code_grid[position[0]][position[1]-col_offset] != -1){
-        if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
-            currByte += code_grid[position[0]][position[1]-col_offset];
-            if (currByte.length == 8){
-                coefficients.push(parseInt(currByte, 2));
-                currByte = "";
-            }
-            code_grid[position[0]][position[1]-col_offset] += 4;
+    bytesRead = 0;
+    while ((bytesRead)*8 < codestream.length){
+        currByte = "";
+        for (let i=0; i<8; i++){
+            currByte = currByte + codestream[(bytesRead*8)+i];
         }
-        nextPos(true);
-    }
-    console.log("message: "+coefficients);
-    //#endregion
 
-    //#region write error correction bytes
+        coefficients.push(parseInt(currByte, 2));
+        bytesRead++;
+    }    
+
+    console.log("message: "+coefficients);
     remainder = dividePolynomial(coefficients, generatorPolynomial());
     console.log("generator: "+generatorPolynomial());
     console.log("remainder: "+remainder);
+    //#endregion
+
+    //#region write error correction bytes
     for (let i=0; i<remainder.length; i++){
         byte = ""
 
@@ -111,13 +117,13 @@ function generateCode(){
 
     //#region mask
     maskingMethod = 0;
-    for (let row=0; row <= 24; row++){
-        for (let col=0; col <= 24; col ++){
-            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
-                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
-            }
-        }
-    }
+    // for (let row=0; row <= 24; row++){
+    //     for (let col=0; col <= 24; col ++){
+    //         if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+    //             code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+    //         }
+    //     }
+    // }
     //#endregion
 
     //#region format strips
@@ -333,16 +339,7 @@ function galois_Multiply(multiplicand, multiplier){
 }
 
 function galois_Divide(dividend, divisor){
-    if (divisor == 0) return 0; // Should not happen in poly division
-    if (dividend == 0) return 0;
-    
-    let log_dividend = galois_Log(dividend);
-    let log_divisor = galois_Log(divisor);
-    
-    // Subtract exponents to divide
-    let diff = log_dividend - log_divisor;
-    // Keep the result in the 0-254 range
-    return galois_Exponentiate((diff + 255) % 255);
+    return galois_Multiply(dividend, divisor**254);
 }
 
 function galois_Exponentiate(exponent){//base is alpha(2 bc binary)
