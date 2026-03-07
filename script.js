@@ -94,8 +94,8 @@ function writeErrorBytes(coefficients){
     }
 }
 
-function mask(){
-    maskingMethod = 0;
+//#region mask
+function mask0(){
     for (let row=0; row <= 24; row++){
         for (let col=0; col <= 24; col ++){
             if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
@@ -105,7 +105,38 @@ function mask(){
     }
 }
 
-function format(){
+function mask(maskingMethod){
+    switch (maskingMethod){
+        case 0:
+            mask0();
+            break;
+        case 1:
+            mask1();
+            break;
+        case 2:
+            mask2();
+            break;
+        case 3:
+            mask3();
+            break;
+        case 4:
+            mask4();
+            break;
+        case 5:
+            mask5();
+            break;
+        case 6:
+            mask6();
+            break;
+        case 7:
+            mask7();
+            break;
+    }
+}
+//#endregion
+
+
+function format(maskingMethod){
     //indicators according to claude:   L = 01, M = 00, Q = 11, H = 10
     //MEDIUM error correction
     format_main = "00"+padLeft((maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
@@ -149,9 +180,10 @@ function generateCode(){
 
     writeErrorBytes(coeffiecients);
 
-    mask();
+    maskingMethod = 0;
+    mask(maskingMethod);
 
-    format();
+    format(maskingMethod);
 
     displayCode(true);
 }
