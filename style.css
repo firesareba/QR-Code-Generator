@@ -8,6 +8,11 @@ a {
     color: antiquewhite;
 }
 
+.settings-holder{
+    display: flex;
+    gap: 40px;
+}
+
 #code-canvas {
     height: 600px;
     aspect-ratio: 1;

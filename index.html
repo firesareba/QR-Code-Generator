@@ -6,7 +6,17 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <p>Enter URL Here: <input type="text" id="url"></p>
+        <div class="settings-holder">
+            <div>
+                <label class="settings">Enter URL Here:</label>
+                <input class="settings" id="url" type="text">
+            </div>
+            <div>
+                <label class="settings">Mask version(0-7)</label>
+                <input class="settings" id="mask" type="number" min="0" max="7" value="0">
+            </div>
+        </div>
+
         <canvas id="code-canvas"></canvas>
         <footer>
             *Instructions and <strong>SIMULATION</strong> on  <a href="./info.html">Information Page</a>

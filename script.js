@@ -2,6 +2,7 @@ cell_size = 100
 
 //#region access html
 const url_input = document.getElementById("url");
+const mask_input = document.getElementById("mask");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -18,6 +19,12 @@ num_blocks = 1;
 
 //#region listeners
 url_input.addEventListener(
+    "change", function(event) {
+        generateCode()
+    }
+);
+
+mask_input.addEventListener(
     "change", function(event) {
         generateCode()
     }
@@ -97,7 +104,7 @@ function writeErrorBytes(coefficients){
 //#region mask
 function mask0(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -107,7 +114,7 @@ function mask0(){
 
 function mask1(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -117,7 +124,7 @@ function mask1(){
 
 function mask2(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -127,7 +134,7 @@ function mask2(){
 
 function mask3(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -137,7 +144,7 @@ function mask3(){
 
 function mask4(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -147,7 +154,7 @@ function mask4(){
 
 function mask5(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -157,7 +164,7 @@ function mask5(){
 
 function mask6(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -167,7 +174,7 @@ function mask6(){
 
 function mask7(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col++){
+        for (let col=0; col <= 24; col++){
             if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
@@ -177,28 +184,28 @@ function mask7(){
 
 function mask(maskingMethod){
     switch (maskingMethod){
-        case 0:
+        case '0':
             mask0();
             break;
-        case 1:
+        case '1':
             mask1();
             break;
-        case 2:
+        case '2':
             mask2();
             break;
-        case 3:
+        case '3':
             mask3();
             break;
-        case 4:
+        case '4':
             mask4();
             break;
-        case 5:
+        case '5':
             mask5();
             break;
-        case 6:
+        case '6':
             mask6();
             break;
-        case 7:
+        case '7':
             mask7();
             break;
     }
@@ -209,7 +216,7 @@ function mask(maskingMethod){
 function format(maskingMethod){
     //indicators according to claude:   L = 01, M = 00, Q = 11, H = 10
     //MEDIUM error correction
-    format_main = "00"+padLeft((maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    format_main = "00"+padLeft(parseInt(maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -250,10 +257,9 @@ function generateCode(){
 
     writeErrorBytes(coeffiecients);
 
-    maskingMethod = 0;
-    mask(maskingMethod);
+    mask(mask_input.value);
 
-    format(maskingMethod);
+    format(mask_input.value);
 
     displayCode();
 }
