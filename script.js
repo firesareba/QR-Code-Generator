@@ -216,7 +216,7 @@ function mask(maskingMethod){
 function format(maskingMethod){
     //indicators according to claude:   L = 01, M = 00, Q = 11, H = 10
     //MEDIUM error correction
-    format_main = "00"+padLeft(parseInt(maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    format_main = "00"+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -257,9 +257,10 @@ function generateCode(){
 
     writeErrorBytes(coeffiecients);
 
-    mask(mask_input.value);
+    maskingMethod = parseInt(mask_input.value)
+    mask(maskingMethod);
 
-    format(mask_input.value);
+    format(maskingMethod);
 
     displayCode();
 }
