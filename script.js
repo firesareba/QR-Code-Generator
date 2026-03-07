@@ -153,7 +153,7 @@ function generateCode(){
 
     format();
 
-    displayCode();
+    displayCode(true);
 }
 
 
@@ -459,38 +459,41 @@ function extend_format(format){
 
 
 //#region draw
-function displayCode(){
+function displayCode(debug=false){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
-            if (code_grid[i][j]%2 == 1){
-                drawable_canvas.fillStyle = "black";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            if (debug){
+                if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
+                    drawable_canvas.fillStyle = "black";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == 2){
+                    drawable_canvas.fillStyle = "antiquewhite";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == 3){
+                    drawable_canvas.fillStyle = "grey";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == 6){
+                    drawable_canvas.fillStyle = "green";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == 7){
+                    drawable_canvas.fillStyle = "limegreen";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                }  else if (code_grid[i][j] == 8){
+                    drawable_canvas.fillStyle = "yellow";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == 9){
+                    drawable_canvas.fillStyle = "blue";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else if (code_grid[i][j] == -1){
+                    drawable_canvas.fillStyle = "red";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                }
+            } else {
+                if (code_grid[i][j]%2 == 1){
+                    drawable_canvas.fillStyle = "black";
+                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                }
             }
-            // if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
-            //     drawable_canvas.fillStyle = "black";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == 2){
-            //     drawable_canvas.fillStyle = "antiquewhite";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == 3){
-            //     drawable_canvas.fillStyle = "grey";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == 6){
-            //     drawable_canvas.fillStyle = "green";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == 7){
-            //     drawable_canvas.fillStyle = "limegreen";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // }  else if (code_grid[i][j] == 8){
-            //     drawable_canvas.fillStyle = "yellow";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == 9){
-            //     drawable_canvas.fillStyle = "blue";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // } else if (code_grid[i][j] == -1){
-            //     drawable_canvas.fillStyle = "red";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // }
         }
     }
     drawGrid();
