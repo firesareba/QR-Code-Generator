@@ -72,6 +72,7 @@ function messageCoefficients(){
 }
 
 function writeErrorBytes(coefficients){
+    coefficients.push(...new Array(n_per_block * num_blocks).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial());
     console.log("generator: "+generatorPolynomial());
     console.log("remainder: "+remainder);
@@ -105,8 +106,9 @@ function mask(){
 }
 
 function format(){
-    //medium error correction
-    format_main = "10"+padLeft((maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    //indicators according to claude:   L = 01, M = 00, Q = 11, H = 10
+    //MEDIUM error correction
+    format_main = "00"+padLeft((maskingMethod).toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -342,11 +344,9 @@ for (let i = 0; i < 255; i++){
 function gf_add(a, b){
     return a ^ b; 
 }
-
 function gf_sub(a, b){
     return gf_add(a, b); 
 }
-
 function gf_mul(a, b){ 
     if (a === 0 || b === 0) return 0;
     return gf_exp[gf_log[a] + gf_log[b]]; // no mod needed due to extended table
@@ -369,10 +369,10 @@ function dividePolynomial(dividend, divisor){
     quotient = []
 
     for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
-        multiplier = Math.floor(galois_Divide(dividend[calcIdx], divisor[0]));
+        multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
-            dividend[calcIdx+i] = galois_Subtract(dividend[calcIdx+i], galois_Multiply(divisor[i], multiplier));
+            dividend[calcIdx+i] = gf_sub(dividend[calcIdx+i], gf_mul(divisor[i], multiplier));
         }
     }
     while (dividend[0] == 0){
@@ -394,7 +394,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 
             product_idx = (product.length-product_degree) -1;
 
-            product[product_idx] = galois_Add(product[product_idx], galois_Multiply(multiplicand[i], multiplier[j]));
+            product[product_idx] = gf_add(product[product_idx], gf_mul(multiplicand[i], multiplier[j]));
         }
     }
 
@@ -404,7 +404,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 function generatorPolynomial(){
     curr = [1];
     for (let i=0; i<n_per_block*num_blocks; i++){
-        curr = multiplyPolynomial(curr, [1, galois_Exponentiate(i)]);//actually 1-exponentialte(i), but add and sub is same
+        curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
     return curr;
