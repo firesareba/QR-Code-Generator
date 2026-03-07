@@ -105,6 +105,27 @@ function mask0(){
     }
 }
 
+function mask1(){
+}
+
+function mask2(){
+}
+
+function mask3(){
+}
+
+function mask4(){
+}
+
+function mask5(){
+}
+
+function mask6(){
+}
+
+function mask7(){
+}
+
 function mask(maskingMethod){
     switch (maskingMethod){
         case 0:
