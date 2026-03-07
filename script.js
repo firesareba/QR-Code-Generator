@@ -115,7 +115,6 @@ function format(){
     format_combined = format_main+format_error;
 
     format_final = stringXOR(format_combined, "101010000010010");
-    format_final = "101010000010010";
 
     for (let i=0; i<6; i++){//top left
         code_grid[8][i] =  parseInt(format_final[i])+8;
@@ -463,35 +462,35 @@ function extend_format(format){
 function displayCode(){
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
-            // if (code_grid[i][j]%2 == 1){
-            //     drawable_canvas.fillStyle = "black";
-            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            // }
-            if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
+            if (code_grid[i][j]%2 == 1){
                 drawable_canvas.fillStyle = "black";
                 drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 2){
-                drawable_canvas.fillStyle = "antiquewhite";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 3){
-                drawable_canvas.fillStyle = "grey";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 6){
-                drawable_canvas.fillStyle = "green";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 7){
-                drawable_canvas.fillStyle = "limegreen";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            }  else if (code_grid[i][j] == 8){
-                drawable_canvas.fillStyle = "yellow";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == 9){
-                drawable_canvas.fillStyle = "blue";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-            } else if (code_grid[i][j] == -1){
-                drawable_canvas.fillStyle = "red";
-                drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
             }
+            // if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
+            //     drawable_canvas.fillStyle = "black";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 2){
+            //     drawable_canvas.fillStyle = "antiquewhite";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 3){
+            //     drawable_canvas.fillStyle = "grey";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 6){
+            //     drawable_canvas.fillStyle = "green";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 7){
+            //     drawable_canvas.fillStyle = "limegreen";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // }  else if (code_grid[i][j] == 8){
+            //     drawable_canvas.fillStyle = "yellow";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == 9){
+            //     drawable_canvas.fillStyle = "blue";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // } else if (code_grid[i][j] == -1){
+            //     drawable_canvas.fillStyle = "red";
+            //     drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            // }
         }
     }
     drawGrid();
