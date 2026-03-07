@@ -97,8 +97,8 @@ function writeErrorBytes(coefficients){
 //#region mask
 function mask0(){
     for (let row=0; row <= 24; row++){
-        for (let col=row%2; col <= 24; col+=2){
-            if (Math.floor(code_grid[row][col]/2) != 1){
+        for (let col=row%2; col <= 24; col++){
+            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -106,24 +106,73 @@ function mask0(){
 }
 
 function mask1(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask2(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask3(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask4(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask5(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask6(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask7(){
+    for (let row=0; row <= 24; row++){
+        for (let col=row%2; col <= 24; col++){
+            if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+                code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
+            }
+        }
+    }
 }
 
 function mask(maskingMethod){
