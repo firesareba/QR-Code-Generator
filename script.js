@@ -97,8 +97,8 @@ function writeErrorBytes(coefficients){
 //#region mask
 function mask0(){
     for (let row=0; row <= 24; row++){
-        for (let col=0; col <= 24; col ++){
-            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+        for (let col=row%2; col <= 24; col+=2){
+            if (Math.floor(code_grid[row][col]/2) != 1){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -206,7 +206,7 @@ function generateCode(){
 
     format(maskingMethod);
 
-    displayCode(true);
+    displayCode();
 }
 
 
