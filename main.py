@@ -11,3 +11,8 @@ for version in range(1, 40+1):
     for level in range(4):
         per_block_array[level].append(n_per_block[level])
         num_blocks_array[level].append(num_blocks[level])
+
+for level in range(4):
+    print(level)
+    print(per_block_array[level])
+    print(num_blocks_array[level])
