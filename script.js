@@ -13,6 +13,14 @@ canvas.height = canvas.width;
 code_grid = [];
 vertical_format = 6;
 
+// L = 01, M = 00, Q = 11, H = 10
+errorLevelFormatBit = new Map();
+
+errorLevelFormatBit.set('L', '01');
+errorLevelFormatBit.set('M', '00');
+errorLevelFormatBit.set('Q', '11');
+errorLevelFormatBit.set('H', '10');
+
 alpha = 2;
 n_per_block = 16;
 num_blocks = 1;
@@ -213,10 +221,8 @@ function mask(maskingMethod){
 //#endregion
 
 
-function format(maskingMethod){
-    //indicators according to claude:   L = 01, M = 00, Q = 11, H = 10
-    //MEDIUM error correction
-    format_main = "00"+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
+function format(maskingMethod, errorLevel){
+    format_main = errorLevelFormatBit.get(errorLevel)+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -260,7 +266,8 @@ function generateCode(){
     maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod);
 
-    format(maskingMethod);
+    errorLevel = 'L'
+    format(maskingMethod, errorLevel);
 
     displayCode();
 }
