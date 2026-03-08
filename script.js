@@ -217,7 +217,7 @@ function mask(maskingMethod){
 
 
 function format(maskingMethod, errorLevel){
-    format_main = errorLevelMap.get(errorLevel)+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
