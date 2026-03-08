@@ -253,7 +253,7 @@ function format(maskingMethod, errorLevel){
 //main func
 function generateCode(){
     url = url_input.value;
-    errorLevel = 'L';
+    errorLevel = getErrorLevel();
 
     resetCode();
     
@@ -269,7 +269,6 @@ function generateCode(){
     mask(maskingMethod);
 
     format(maskingMethod, errorLevel);
-    errorLevel = getErrorLevel();
 
     displayCode();
 }
