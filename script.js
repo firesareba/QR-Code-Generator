@@ -1,4 +1,16 @@
-cell_size = 100
+//#region Vars
+const cell_size = 100
+const vertical_format = 6;
+
+let code_grid = [];
+
+// L = 01, M = 00, Q = 11, H = 10
+let errorLevelFormatBit;
+
+const alpha = 2;
+let n_per_block = 16;
+let num_blocks = 1;
+//#endregion
 
 //#region access html
 const url_input = document.getElementById("url");
@@ -9,21 +21,6 @@ const drawable_canvas = canvas.getContext("2d");
 canvas.width = 27*cell_size;
 canvas.height = canvas.width;
 //#endregion
-
-code_grid = [];
-vertical_format = 6;
-
-// L = 01, M = 00, Q = 11, H = 10
-errorLevelFormatBit = new Map();
-
-errorLevelFormatBit.set('L', '01');
-errorLevelFormatBit.set('M', '00');
-errorLevelFormatBit.set('Q', '11');
-errorLevelFormatBit.set('H', '10');
-
-alpha = 2;
-n_per_block = 16;
-num_blocks = 1;
 
 //#region listeners
 url_input.addEventListener(
@@ -275,6 +272,15 @@ function generateCode(){
 
 
 //#region independent of data
+function mapSetup(){
+    errorLevelFormatBit = new Map();
+
+    errorLevelFormatBit.set('L', '01');
+    errorLevelFormatBit.set('M', '00');
+    errorLevelFormatBit.set('Q', '11');
+    errorLevelFormatBit.set('H', '10');
+}
+
 function reset(){
     code_grid = []
     direction = -1;
@@ -630,3 +636,5 @@ function draw_line(x1, y1, x2, y2, type) {
     drawable_canvas.stroke();
 }
 //#endregion
+
+mapSetup();
