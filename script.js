@@ -81,7 +81,7 @@ function messageCoefficients(){
     return coefficients
 }
 
-function writeErrorBytes(coefficients){
+function ErrorCorrection(coefficients){
     coefficients.push(...new Array(n_per_block * num_blocks).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial());
     console.log("generator: "+generatorPolynomial());
@@ -217,7 +217,7 @@ function mask(maskingMethod){
 
 
 function format(maskingMethod, errorLevel){
-    format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -256,7 +256,7 @@ function generateCode(){
 
     coeffiecients = messageCoefficients();
 
-    writeErrorBytes(coeffiecients);
+    ErrorCorrection(coeffiecients);
 
     maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod);
