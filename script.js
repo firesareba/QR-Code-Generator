@@ -6,8 +6,7 @@ let code_grid = [];
 let errorLevelMap;
 
 const alpha = 2;
-let n_per_block = 16;
-let num_blocks = 1;
+let version = 2;
 //#endregion
 
 //#region access html
@@ -32,6 +31,12 @@ mask_input.addEventListener(
         generateCode()
     }
 );
+
+document.querySelectorAll('input[name="error-correction"]').forEach(radio => {
+    radio.addEventListener("change", function(event) {
+        generateCode();
+    });
+});
 //#endregion
 
 //#region steps
@@ -43,7 +48,7 @@ function mainData(){
     }
 }
 
-function padding(){
+function padding(errorLevel){
      for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
@@ -51,7 +56,7 @@ function padding(){
     }
 
     num = 1;
-    while (available_bits > 8*(n_per_block*num_blocks)+7){//8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+    while (available_bits > 8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+7){//8 bits per byte, n/block*block = n = # of bytes, 7 for version info
         writeByte(padLeft((17+(219*num)).toString(2)));
         num = Math.abs(num-1);
     }
@@ -81,10 +86,10 @@ function messageCoefficients(){
     return coefficients
 }
 
-function ErrorCorrection(coefficients){
-    coefficients.push(...new Array(n_per_block * num_blocks).fill(0));
-    remainder = dividePolynomial(coefficients, generatorPolynomial());
-    console.log("generator: "+generatorPolynomial());
+function ErrorCorrection(coefficients, errorLevel){
+    coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
+    remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
+    console.log("generator: "+generatorPolynomial(errorLevel));
     console.log("remainder: "+remainder);
     for (let i=0; i<remainder.length; i++){
         byte = ""
@@ -100,7 +105,7 @@ function ErrorCorrection(coefficients){
     //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
     for (let i=0; i<7; i++){
         nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in reset func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -217,6 +222,7 @@ function mask(maskingMethod){
 
 
 function format(maskingMethod, errorLevel){
+    console.log(errorLevel);
     format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
 
     format_error = padRight(format_main, 15);
@@ -247,26 +253,26 @@ function format(maskingMethod, errorLevel){
 //main func
 function generateCode(){
     url = url_input.value;
-    
-    reset();
+    errorLevel = 'L';
+
+    resetCode();
     
     mainData();
 
-    padding();
+    padding(errorLevel);
 
     coeffiecients = messageCoefficients();
 
-    ErrorCorrection(coeffiecients);
+    ErrorCorrection(coeffiecients, errorLevel);
 
     maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod);
 
-    errorLevel = 'L'
     format(maskingMethod, errorLevel);
+    errorLevel = getErrorLevel();
 
     displayCode();
 }
-
 
 
 //#region independent of data
@@ -297,7 +303,7 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function reset(){
+function resetCode(){
     code_grid = []
     direction = -1;
     col_offset = 0;
@@ -411,6 +417,14 @@ function outline(start_r, start_c, size, value){
         code_grid[start_r+i][start_c] = value;//left column
         code_grid[start_r+i][start_c+size-1] = value;//right column
         code_grid[start_r+size-1][start_c+i] = value;//bottom row
+    }
+}
+
+function getErrorLevel(){
+    for (let levelOption of document.getElementsByClassName("error-correction")){
+        if (levelOption.checked){
+            return levelOption.value;
+        }
     }
 }
 //#endregion
@@ -538,9 +552,9 @@ function multiplyPolynomial(multiplicand, multiplier){
     return product;
 }
 
-function generatorPolynomial(){
+function generatorPolynomial(errorLevel){
     curr = [1];
-    for (let i=0; i<n_per_block*num_blocks; i++){
+    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version]; i++){
         curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     

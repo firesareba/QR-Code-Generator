@@ -13,6 +13,10 @@ a {
     gap: 40px;
 }
 
+label.settings.error-correction {
+    padding-left: 50px;
+}
+
 #code-canvas {
     height: 600px;
     aspect-ratio: 1;
