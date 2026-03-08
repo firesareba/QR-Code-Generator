@@ -16,3 +16,4 @@ for level in range(4):
     print(level)
     print(per_block_array[level])
     print(num_blocks_array[level])
+    print()
