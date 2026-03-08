@@ -184,28 +184,28 @@ function mask7(){
 
 function mask(maskingMethod){
     switch (maskingMethod){
-        case '0':
+        case 0:
             mask0();
             break;
-        case '1':
+        case 1:
             mask1();
             break;
-        case '2':
+        case 2:
             mask2();
             break;
-        case '3':
+        case 3:
             mask3();
             break;
-        case '4':
+        case 4:
             mask4();
             break;
-        case '5':
+        case 5:
             mask5();
             break;
-        case '6':
+        case 6:
             mask6();
             break;
-        case '7':
+        case 7:
             mask7();
             break;
     }
