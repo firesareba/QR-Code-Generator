@@ -3,9 +3,7 @@ const cell_size = 100
 const vertical_format = 6;
 
 let code_grid = [];
-
-// L = 01, M = 00, Q = 11, H = 10
-let errorLevelFormatBit;
+let errorLevelMap;
 
 const alpha = 2;
 let n_per_block = 16;
@@ -219,7 +217,7 @@ function mask(maskingMethod){
 
 
 function format(maskingMethod, errorLevel){
-    format_main = errorLevelFormatBit.get(errorLevel)+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
+    format_main = errorLevelMap.get(errorLevel)+padLeft(maskingMethod.toString(2), 3);//error correction level DOES NOT GO IN ORDER
 
     format_error = padRight(format_main, 15);
     format_error = extend_format(format_error);
@@ -273,12 +271,18 @@ function generateCode(){
 
 //#region independent of data
 function mapSetup(){
-    errorLevelFormatBit = new Map();
+    errorLevelMap = new Map();
+    
+    // L = 01, M = 00, Q = 11, H = 10
+    errorLevelMap.set('L', new Map());
+    errorLevelMap.set('M', new Map());
+    errorLevelMap.set('Q', new Map());
+    errorLevelMap.set('H', new Map());
 
-    errorLevelFormatBit.set('L', '01');
-    errorLevelFormatBit.set('M', '00');
-    errorLevelFormatBit.set('Q', '11');
-    errorLevelFormatBit.set('H', '10');
+    LMap = errorLevelMap.get('L');
+    MMap = errorLevelMap.get('M');
+    QMap = errorLevelMap.get('Q');
+    HMap = errorLevelMap.get('H');
 }
 
 function reset(){
