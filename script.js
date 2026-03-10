@@ -44,14 +44,11 @@ function mainData(){
     writeByte(padLeft((url.length).toString(2)));//length
 
     for (let i = 0; i < url.length; i++){
-        if (!writeByte(padLeft(url.charCodeAt(i).toString(2)))){
-            return false;
-        }
+        writeByte(padLeft(url.charCodeAt(i).toString(2)));
     }
-    return true;
 }
 
-function padding(errorLevel){
+function padding(errorLevel, errorBits){
      for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
@@ -59,7 +56,7 @@ function padding(errorLevel){
     }
 
     num = 1;
-    while (available_bits > 8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+7){//8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+    while (available_bits > errorBits){
         writeByte(padLeft((17+(219*num)).toString(2)));
         num = Math.abs(num-1);
     }
@@ -84,7 +81,6 @@ function messageCoefficients(){
         }
         nextPos(true);
     }
-    console.log("message: "+coefficients);
 
     return coefficients
 }
@@ -106,7 +102,7 @@ function ErrorCorrection(coefficients, errorLevel){
     //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
     for (let i=0; i<7; i++){
         nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetGrid func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -253,15 +249,20 @@ function format(maskingMethod, errorLevel){
 //main func
 function generateCode(){
     url = url_input.value;
-    errorLevel = getErrorLevel();
-
-    resetGrid();
     
-    if (!mainData()){
+    resetCode();
+    
+    [errorLevel, errorBits] = getErrorLevel();
+
+    console.log(available_bits);
+    if (available_bits-errorBits < url.length*8+8+4){
+        alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
     }
+    
+    mainData();
 
-    padding(errorLevel);
+    padding(errorLevel, errorBits);
 
     coeffiecients = messageCoefficients();
 
@@ -306,11 +307,11 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function resetGrid(){
+function resetCode(){
     code_grid = []
     direction = -1;
     col_offset = 0;
-    position = [22, 24];
+    position = [24, 24];
     available_bits = 25**2; 
 
     for (let i=0; i<25; i++){
@@ -393,18 +394,13 @@ function resetGrid(){
     }
     //#endregion
 
-    available_bits -= (code_grid[17][8] == -1);
     code_grid[17][8] = 3;//random one in all qr codes
-    //mode indicator 0100(+2 at each cause it's base not data) for binary mode(goes right to left, bottom to top.)
-    code_grid[24][24] = 2; 
-    code_grid[24][23] = 3;
-    code_grid[23][24] = 2;
-    code_grid[23][23] = 2;
-    available_bits -= 4;
-
-    drawable_canvas.fillStyle = "white";
-    drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
-    drawable_canvas.fillStyle = "black";
+    mode = "0100";
+    for (let i=0; i<4; i++){
+        nextPos();
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
+        available_bits -= 1;
+    }
 }
 
 function outline(start_r, start_c, size, value){
@@ -426,7 +422,7 @@ function outline(start_r, start_c, size, value){
 function getErrorLevel(){
     for (let levelOption of document.getElementsByClassName("error-correction")){
         if (levelOption.checked){
-            return levelOption.value;
+            return [levelOption.value, 8*(errorLevelMap.get(levelOption.value).get('n_per_block')[version]*errorLevelMap.get(levelOption.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
         }
     }
 }
@@ -436,20 +432,15 @@ function getErrorLevel(){
 //#region writing info
 function nextPos(codeReading){
     while (true){
-        if (position[1] < 0){
-            alert('Too much text! Chose lower Error Correction Level or higher Version');
-            return false;
-        }
-
         if (codeReading && code_grid[position[0]][position[1]-col_offset] < 2){
-            return true;
+            return;
         }
 
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
         } else if (code_grid[position[0]][position[1]-col_offset] == -1){
-            return true;
+            return;
         } else if (col_offset == 0){//right cell
             col_offset = 1;
         } else {//move up/down
@@ -470,14 +461,10 @@ function writeByte(byte){
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx]);
 
-        if (!nextPos(false)){
-            return false;
-        }
-
+        nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = bit;
         available_bits -= 1;
     }
-    return true;
 }
 //#endregion
 
@@ -541,6 +528,7 @@ function dividePolynomial(dividend, divisor){
     while (dividend[0] == 0){
         dividend.shift();
     }
+
     return dividend;
 }
 
@@ -622,6 +610,10 @@ function extend_format(format){
 
 //#region draw
 function displayCode(debug=false){
+    drawable_canvas.fillStyle = "white";
+    drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
+    drawable_canvas.fillStyle = "black";
+
     for (let i=0; i<25; i++){
         for (let j=0; j<25; j++){
             if (debug){
