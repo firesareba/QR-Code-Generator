@@ -16,14 +16,13 @@
                 <input class="settings" id="mask" type="number" min="0" max="7" value="0">
             </div>
             <div>
-                <label class="settings error-correction">L</label>
-                <input class="settings error-correction" id="L" type="radio" name="error-correction" value="L" checked="true">
-                <label class="settings error-correction">M</label>
-                <input class="settings error-correction" id="M" type="radio" name="error-correction" value="M">
-                <label class="settings error-correction">Q</label>
-                <input class="settings error-correction" id="Q" type="radio" name="error-correction" value="Q">
-                <label class="settings error-correction">H</label>
-                <input class="settings error-correction" id="H" type="radio" name="error-correction" value="H">
+                <label class="settings">Error Correction</label>
+                <select id="error-correction">
+                    <option value="L">Low (7%)</option>
+                    <option value="M">Medium (15%)</option>
+                    <option value="Q">Quartile (25%)</option>
+                    <option value="H">High (30%)</option>
+                </select>
             </div>
         </div>
 

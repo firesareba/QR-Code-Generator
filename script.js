@@ -12,6 +12,7 @@ let version = 2;
 //#region access html
 const url_input = document.getElementById("url");
 const mask_input = document.getElementById("mask");
+const error_level_input = document.getElementById("error-correction");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -32,20 +33,16 @@ mask_input.addEventListener(
     }
 );
 
-document.querySelectorAll('input[name="error-correction"]').forEach(radio => {
-    radio.addEventListener("change", function(event) {
-        generateCode();
-    });
-});
+error_level_input.addEventListener(
+    "change", function(event) {
+        generateCode()
+    }
+);
 //#endregion
 
 //#region steps
 function getErrorLevel(){
-    for (let levelOption of document.getElementsByClassName("error-correction")){
-        if (levelOption.checked){
-            return [levelOption.value, 8*(errorLevelMap.get(levelOption.value).get('n_per_block')[version]*errorLevelMap.get(levelOption.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
-        }
-    }
+    return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
 function mainData(){
@@ -262,7 +259,6 @@ function generateCode(){
     
     [errorLevel, errorBits] = getErrorLevel();
 
-    console.log(available_bits);
     if (available_bits-errorBits < url.length*8+8+4){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
