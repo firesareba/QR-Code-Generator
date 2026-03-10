@@ -6,13 +6,14 @@ let code_grid = [];
 let errorLevelMap;
 
 const alpha = 2;
-let version = 2;
 //#endregion
 
 //#region access html
 const url_input = document.getElementById("url");
 const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
+const version_input = document.getElementById("version");
+const version_label = document.getElementById("version-label");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -38,6 +39,18 @@ error_level_input.addEventListener(
         generateCode();
     }
 );
+
+version_input.addEventListener("input", function(e){
+    version_label.innerHTML = "Version: "+ version_input.value;
+});
+
+version_input.addEventListener("change", function(e){
+    if (version_input.value == 2){
+        generateCode();
+    } else {
+        alert("Still working on that");
+    }
+});
 //#endregion
 
 //#region steps
@@ -90,7 +103,7 @@ function messageCoefficients(size){
     return coefficients
 }
 
-function ErrorCorrection(coefficients, errorLevel){
+function ErrorCorrection(coefficients, errorLevel, version){
     coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
     for (let i=0; i<remainder.length; i++){
@@ -255,7 +268,8 @@ function format(maskingMethod, errorLevel){
 function generateCode(){
     url = url_input.value;
     
-    size = getSize();
+    version = version_input.value
+    size = getSize(version);
 
     resetCode(size);
     
@@ -272,7 +286,7 @@ function generateCode(){
 
     coeffiecients = messageCoefficients(size);
 
-    ErrorCorrection(coeffiecients, errorLevel);
+    ErrorCorrection(coeffiecients, errorLevel, version);
 
     maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod);
@@ -313,7 +327,7 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function getSize(){
+function getSize(version){
     return 4*version+17
 }
 
