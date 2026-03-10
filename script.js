@@ -44,8 +44,11 @@ function mainData(){
     writeByte(padLeft((url.length).toString(2)));//length
 
     for (let i = 0; i < url.length; i++){
-        writeByte(padLeft(url.charCodeAt(i).toString(2)));
+        if (!writeByte(padLeft(url.charCodeAt(i).toString(2)))){
+            return false;
+        }
     }
+    return true;
 }
 
 function padding(errorLevel){
@@ -89,8 +92,6 @@ function messageCoefficients(){
 function ErrorCorrection(coefficients, errorLevel){
     coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
-    console.log("generator: "+generatorPolynomial(errorLevel));
-    console.log("remainder: "+remainder);
     for (let i=0; i<remainder.length; i++){
         byte = ""
 
@@ -105,7 +106,7 @@ function ErrorCorrection(coefficients, errorLevel){
     //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
     for (let i=0; i<7; i++){
         nextPos(false);
-        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetGrid func, but don't want to hard code starting pos
     }
 }
 
@@ -222,7 +223,6 @@ function mask(maskingMethod){
 
 
 function format(maskingMethod, errorLevel){
-    console.log(errorLevel);
     format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
 
     format_error = padRight(format_main, 15);
@@ -255,9 +255,11 @@ function generateCode(){
     url = url_input.value;
     errorLevel = getErrorLevel();
 
-    resetCode();
+    resetGrid();
     
-    mainData();
+    if (!mainData()){
+        return;
+    }
 
     padding(errorLevel);
 
@@ -304,7 +306,7 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function resetCode(){
+function resetGrid(){
     code_grid = []
     direction = -1;
     col_offset = 0;
@@ -434,15 +436,20 @@ function getErrorLevel(){
 //#region writing info
 function nextPos(codeReading){
     while (true){
+        if (position[1] < 0){
+            alert('Too much text! Chose lower Error Correction Level or higher Version');
+            return false;
+        }
+
         if (codeReading && code_grid[position[0]][position[1]-col_offset] < 2){
-            return;
+            return true;
         }
 
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
         } else if (code_grid[position[0]][position[1]-col_offset] == -1){
-            return;
+            return true;
         } else if (col_offset == 0){//right cell
             col_offset = 1;
         } else {//move up/down
@@ -463,10 +470,14 @@ function writeByte(byte){
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx]);
 
-        nextPos(false);
+        if (!nextPos(false)){
+            return false;
+        }
+
         code_grid[position[0]][position[1]-col_offset] = bit;
         available_bits -= 1;
     }
+    return true;
 }
 //#endregion
 
@@ -530,8 +541,6 @@ function dividePolynomial(dividend, divisor){
     while (dividend[0] == 0){
         dividend.shift();
     }
-    // console.log("quotient: "+quotient)
-    // console.log("remainder: "+dividend)
     return dividend;
 }
 
