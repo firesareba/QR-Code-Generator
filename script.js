@@ -23,19 +23,19 @@ canvas.height = canvas.width;
 //#region listeners
 url_input.addEventListener(
     "change", function(event) {
-        generateCode()
+        generateCode();
     }
 );
 
 mask_input.addEventListener(
     "change", function(event) {
-        generateCode()
+        generateCode();
     }
 );
 
 error_level_input.addEventListener(
     "change", function(event) {
-        generateCode()
+        generateCode();
     }
 );
 //#endregion
@@ -53,7 +53,7 @@ function mainData(){
     }
 }
 
-function padding(errorLevel, errorBits){
+function padding(errorBits){
      for (let i=0; i<4; i++){
         nextPos(false);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
@@ -266,7 +266,7 @@ function generateCode(){
     
     mainData();
 
-    padding(errorLevel, errorBits);
+    padding(errorBits);
 
     coeffiecients = messageCoefficients();
 
