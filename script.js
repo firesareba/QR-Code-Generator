@@ -261,7 +261,7 @@ function generateCode(){
     
     [errorLevel, errorBits] = getErrorLevel();
 
-    if (available_bits-errorBits < url.length*8+8+4){
+    if (available_bits-errorBits < url.length*8+8){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
     }
