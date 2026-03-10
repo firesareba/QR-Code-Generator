@@ -67,10 +67,10 @@ function padding(errorBits){
     }
 }
 
-function messageCoefficients(){
-    position = [22, 24];
-    col_offset = 0;
+function messageCoefficients(size){
     direction = -1;
+    col_offset = 0;
+    position = [size-1, size-1];
 
     coefficients = [];
     currByte = "0100";
@@ -255,7 +255,9 @@ function format(maskingMethod, errorLevel){
 function generateCode(){
     url = url_input.value;
     
-    resetCode();
+    size = getSize();
+
+    resetCode(size);
     
     [errorLevel, errorBits] = getErrorLevel();
 
@@ -268,7 +270,7 @@ function generateCode(){
 
     padding(errorBits);
 
-    coeffiecients = messageCoefficients();
+    coeffiecients = messageCoefficients(size);
 
     ErrorCorrection(coeffiecients, errorLevel);
 
@@ -315,10 +317,8 @@ function getSize(){
     return 4*version+17
 }
 
-function resetCode(){
+function resetCode(size){
     code_grid = [];
-    size = getSize();
-    console.log(size);
     direction = -1;
     col_offset = 0;
     position = [size-1, size-1];
