@@ -40,6 +40,14 @@ document.querySelectorAll('input[name="error-correction"]').forEach(radio => {
 //#endregion
 
 //#region steps
+function getErrorLevel(){
+    for (let levelOption of document.getElementsByClassName("error-correction")){
+        if (levelOption.checked){
+            return [levelOption.value, 8*(errorLevelMap.get(levelOption.value).get('n_per_block')[version]*errorLevelMap.get(levelOption.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+        }
+    }
+}
+
 function mainData(){
     writeByte(padLeft((url.length).toString(2)));//length
 
@@ -416,14 +424,6 @@ function outline(start_r, start_c, size, value){
         code_grid[start_r+i][start_c] = value;//left column
         code_grid[start_r+i][start_c+size-1] = value;//right column
         code_grid[start_r+size-1][start_c+i] = value;//bottom row
-    }
-}
-
-function getErrorLevel(){
-    for (let levelOption of document.getElementsByClassName("error-correction")){
-        if (levelOption.checked){
-            return [levelOption.value, 8*(errorLevelMap.get(levelOption.value).get('n_per_block')[version]*errorLevelMap.get(levelOption.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
-        }
     }
 }
 //#endregion
