@@ -277,7 +277,7 @@ function generateCode(){
 
     format(maskingMethod, errorLevel);
 
-    displayCode();
+    displayCode(true);
 }
 
 
@@ -311,16 +311,22 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
+function getSize(){
+    return 4*version+17
+}
+
 function resetCode(){
-    code_grid = []
+    code_grid = [];
+    size = getSize();
+    console.log(size);
     direction = -1;
     col_offset = 0;
-    position = [24, 24];
-    available_bits = 25**2; 
+    position = [size-1, size-1];
+    available_bits = size**2; 
 
-    for (let i=0; i<25; i++){
+    for (let i=0; i<size; i++){
         code_grid.push([]);
-        for (let j=0; j<25; j++){
+        for (let j=0; j<size; j++){
             code_grid[i].push(-1);
         }
     }
@@ -331,8 +337,8 @@ function resetCode(){
         code_grid[8][i] = 3;    
         code_grid[i][8] = 3;
 
-        code_grid[8][24-i] = 3;//top right
-        code_grid[24-i][8] = 3;//bottom left
+        code_grid[8][size-1-i] = 3;//top right
+        code_grid[size-1-i][8] = 3;//bottom left
         
         available_bits -= 4;
     }
@@ -355,13 +361,13 @@ function resetCode(){
     //#endregion
 
     //#region top right
-    outline(0, 17, 8, 2);//outside
-    outline(1, 19, 5, 2);//inside
-    outline(0, 18, 7, 3);//middle
+    outline(0, size-8, 8, 2);//outside
+    outline(1, size-6, 5, 2);//inside
+    outline(0, size-7, 7, 3);//middle
 
     //middle
     for (let i=2; i<=4; i++){
-        for (let j=22; j>=20; j--){
+        for (let j=size-3; j>=size-5; j--){
             code_grid[i][j] = 3;
             available_bits -= 1;
         }
@@ -369,12 +375,12 @@ function resetCode(){
     //#endregion
 
     //#region bottom left
-    outline(17, 0, 8, 2);//outside
-    outline(19, 1, 5, 2);//inside
-    outline(18, 0, 7, 3);//middle
+    outline(size-8, 0, 8, 2);//outside
+    outline(size-6, 1, 5, 2);//inside
+    outline(size-7, 0, 7, 3);//middle
     
     //middle
-    for (let i=22; i>=20; i--){
+    for (let i=size-3; i>=size-5; i--){
         for (let j=2; j<=4; j++){
             code_grid[i][j] = 3;
             available_bits -= 1;
@@ -383,22 +389,22 @@ function resetCode(){
     //#endregion
 
     //#region smaller extra
-    outline(17, 17, 3, 2);//white
-    outline(16, 16, 5, 3);
+    outline(size-8, size-8, 3, 2);//white
+    outline(size-9, size-9, 5, 3);
 
-    code_grid[18][18] = 3;//center
+    code_grid[size-7][size-7] = 3;//center
     available_bits -= 1;
     //#endregion
 
     //#region timing strips
-    for (let i=8; i<=16; i++){
+    for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
         code_grid[6][i] = (i%2==0)+2;
         code_grid[i][6] = (i%2==0)+2;
     }
     //#endregion
 
-    code_grid[17][8] = 3;//random one in all qr codes
+    code_grid[size-8][8] = 3;//random one in all qr codes
     mode = "0100";
     for (let i=0; i<4; i++){
         nextPos();
