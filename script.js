@@ -358,6 +358,7 @@ function resetCode(size){
     available_bits -= 1;
     //#endregion
 
+    //#region finder patterns
     //#region top-left
     outline(0, 0, 8, 2);//outside
     outline(1, 1, 5, 2);//inside
@@ -399,15 +400,8 @@ function resetCode(size){
         }
     }
     //#endregion
-
-    //#region smaller extra
-    outline(size-8, size-8, 3, 2);//white
-    outline(size-9, size-9, 5, 3);
-
-    code_grid[size-7][size-7] = 3;//center
-    available_bits -= 1;
     //#endregion
-
+   
     //#region timing strips
     for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
@@ -416,13 +410,24 @@ function resetCode(size){
     }
     //#endregion
 
-    code_grid[size-8][8] = 3;//random one in all qr codes
+    //#region alignment patterns
+    outline(size-8, size-8, 3, 2);//white
+    outline(size-9, size-9, 5, 3);
+
+    code_grid[size-7][size-7] = 3;//center
+    available_bits -= 1;
+    //#endregion
+
+    //#region mode
     mode = "0100";
     for (let i=0; i<4; i++){
         nextPos();
         code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
         available_bits -= 1;
     }
+    //#endregion
+
+    code_grid[size-8][8] = 3;//random one in all qr codes
 }
 
 function outline(start_r, start_c, size, value){
