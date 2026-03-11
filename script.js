@@ -17,8 +17,6 @@ const version_label = document.getElementById("version-label");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
-canvas.width = 27*cell_size;
-canvas.height = canvas.width;
 //#endregion
 
 //#region listeners
@@ -293,7 +291,7 @@ function generateCode(){
 
     format(maskingMethod, errorLevel);
 
-    displayCode(true);
+    displayCode(size, true);
 }
 
 
@@ -625,13 +623,15 @@ function extend_format(format){
 
 
 //#region draw
-function displayCode(debug=false){
+function displayCode(size, debug=false){
+    canvas.width = (size+2)*cell_size;
+    canvas.height = canvas.width;
     drawable_canvas.fillStyle = "white";
-    drawable_canvas.fillRect(0, 0, 27*cell_size, 27*cell_size);
+    drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
     drawable_canvas.fillStyle = "black";
 
-    for (let i=0; i<25; i++){
-        for (let j=0; j<25; j++){
+    for (let i=0; i<size; i++){
+        for (let j=0; j<size; j++){
             if (debug){
                 if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
                     drawable_canvas.fillStyle = "black";
@@ -670,9 +670,9 @@ function displayCode(debug=false){
 }
 
 function drawGrid(){
-    for (let i=0; i<27; i++){
-        draw_line(0, i*cell_size, 27*cell_size, i*cell_size);
-        draw_line(i*cell_size, 0, i*cell_size, 27*cell_size,);
+    for (let i=0; i<size+2; i++){
+        draw_line(0, i*cell_size, (size+2)*cell_size, i*cell_size);
+        draw_line(i*cell_size, 0, i*cell_size, (size+2)*cell_size,);
     }
 }
 
