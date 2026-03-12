@@ -46,7 +46,7 @@ version_input.addEventListener("change", function(e){
     if (version_input.value == 2){
         generateCode();
     } else {
-        alert("Still working on that");
+        generateCode();
     }
 });
 //#endregion
@@ -56,24 +56,24 @@ function getErrorLevel(){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
-function mainData(){
-    writeByte(padLeft((url.length).toString(2)));//length
+function mainData(size){
+    writeByte(padLeft((url.length).toString(2)), size);//length
 
     for (let i = 0; i < url.length; i++){
-        writeByte(padLeft(url.charCodeAt(i).toString(2)));
+        writeByte(padLeft(url.charCodeAt(i).toString(2)), size);
     }
 }
 
-function padding(errorBits){
+function padding(errorBits, size){
      for (let i=0; i<4; i++){
-        nextPos(false);
+        nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
         available_bits -= 1;
     }
 
     num = 1;
     while (available_bits > errorBits){
-        writeByte(padLeft((17+(219*num)).toString(2)));
+        writeByte(padLeft((17+(219*num)).toString(2)), size);
         num = Math.abs(num-1);
     }
 }
@@ -95,13 +95,13 @@ function messageCoefficients(size){
             }
             code_grid[position[0]][position[1]-col_offset] += 4;
         }
-        nextPos(true);
+        nextPos(true, size);
     }
 
     return coefficients
 }
 
-function ErrorCorrection(coefficients, errorLevel, version){
+function ErrorCorrection(coefficients, errorLevel, version, size){
     coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
     for (let i=0; i<remainder.length; i++){
@@ -112,12 +112,12 @@ function ErrorCorrection(coefficients, errorLevel, version){
             byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
         }
 
-        writeByte(padLeft(byte));
+        writeByte(padLeft(byte), size);
     }
 
     //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
     for (let i=0; i<7; i++){
-        nextPos(false);
+        nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
@@ -278,13 +278,13 @@ function generateCode(){
         return;
     }
     
-    mainData();
+    mainData(size);
 
-    padding(errorBits);
+    padding(errorBits, size);
 
     coeffiecients = messageCoefficients(size);
 
-    ErrorCorrection(coeffiecients, errorLevel, version);
+    ErrorCorrection(coeffiecients, errorLevel, version, size);
 
     maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod);
@@ -421,7 +421,7 @@ function resetCode(size){
     //#region mode
     mode = "0100";
     for (let i=0; i<4; i++){
-        nextPos();
+        nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
         available_bits -= 1;
     }
@@ -449,11 +449,13 @@ function outline(start_r, start_c, size, value){
 
 
 //#region writing info
-function nextPos(codeReading){
+function nextPos(codeReading, size){
+    console.log(size);
     while (true){
         if (codeReading && code_grid[position[0]][position[1]-col_offset] < 2){
             return;
         }
+
 
         if (position[1] == vertical_format){
             position[1] -= 1;
@@ -467,7 +469,7 @@ function nextPos(codeReading){
             col_offset = 0;
         }
 
-        if (position[0] < 0 || 24 < position[0]){
+        if (position[0] < 0 || size-1 < position[0]){
             direction = -direction;
             position[0] += direction;
             position[1] -= 2;
@@ -476,11 +478,11 @@ function nextPos(codeReading){
     }
 }
 
-function writeByte(byte){
+function writeByte(byte, size){
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx]);
 
-        nextPos(false);
+        nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = bit;
         available_bits -= 1;
     }
