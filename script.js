@@ -65,7 +65,7 @@ function mainData(size){
 }
 
 function padding(errorBits, size){
-     for (let i=0; i<4; i++){
+    while ((available_bits-errorBits)%8 != 0){
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
         available_bits -= 1;
@@ -298,6 +298,10 @@ function generateCode(){
     mask(maskingMethod);
 
     format(maskingMethod, errorLevel);
+
+    if (version >= 7){
+        versionInfo(version);
+    }
 
     displayCode(size, false);
 }
