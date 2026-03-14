@@ -301,7 +301,7 @@ function generateCode(){
     
     if (version >= 7){
         writeVersionBits("999999999999999999"); 
-        console.log(code_grid[0][size-9])
+        console.log(code_grid[0][size-9]);
     }
 
     mainData(size);
