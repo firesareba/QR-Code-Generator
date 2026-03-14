@@ -267,6 +267,19 @@ function versionInfo(version){
     version_error = padRight(version_main, 18);
     version_error = errorString(version_error, "1111100100101", 12);
     version_combined = version_main+version_error;
+
+    writeVersionBits(version_combined);
+}
+
+function writeVersionBits(versionBits){
+    for(let i=0; i<3; i++){
+        for(let j=0; j<6; j++){
+            available_bits -= (code_grid[5-j][size-9-i] == -1);
+            available_bits -= (code_grid[size-9-i][j] == -1);
+            code_grid[5-j][size-9-i] = versionBits[i*6+j];//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = versionBits[i*6+j];
+        }
+    }
 }
 //#endregion
 
@@ -286,6 +299,11 @@ function generateCode(){
         return;
     }
     
+    if (version >= 7){
+        writeVersionBits("999999999999999999"); 
+        console.log(code_grid[0][size-9])
+    }
+
     mainData(size);
 
     padding(errorBits, size);
@@ -299,11 +317,11 @@ function generateCode(){
 
     format(maskingMethod, errorLevel);
 
-    if (version >= 7){
-        versionInfo(version);
-    }
+    // if (version >= 7){
+    //     versionInfo(version);
+    // }
 
-    displayCode(size, false);
+    displayCode(size, true);
 }
 
 
