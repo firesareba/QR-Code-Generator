@@ -238,7 +238,7 @@ function format(maskingMethod, errorLevel){
     format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
 
     format_error = padRight(format_main, 15);
-    format_error = extend_format(format_error);
+    format_error = errorString(format_error, "10100110111", 10);
     format_combined = format_main+format_error;
 
     format_final = stringXOR(format_combined, "101010000010010");
@@ -259,6 +259,14 @@ function format(maskingMethod, errorLevel){
     for (let i=0; i<8; i++){//top right
         code_grid[8][size-1-7+i] = parseInt(format_final[7+i])+8;
     }
+}
+
+function versionInfo(version){
+    version_main = padLeft(version.toString(2), 6);
+
+    version_error = padRight(version_main, 18);
+    version_error = errorString(version_error, "1111100100101", 12);
+    version_combined = version_main+version_error;
 }
 //#endregion
 
@@ -291,7 +299,7 @@ function generateCode(){
 
     format(maskingMethod, errorLevel);
 
-    displayCode(size, true);
+    displayCode(size, false);
 }
 
 
@@ -611,18 +619,18 @@ function stringXOR(a, b){
     return result;
 }
 
-function extend_format(format){
-    format = removeLeadingZeros(format);
+function errorString(mainString, generatorString, targLen){
+    mainString = removeLeadingZeros(mainString);
 
-    generator = padRight("10100110111", format.length);
+    generator = padRight(generatorString, mainString.length);
     
-    format = stringXOR(format, generator);
-    format = removeLeadingZeros(format);
+    mainString = stringXOR(mainString, generator);
+    mainString = removeLeadingZeros(mainString);
 
-    if (format.length > 10){
-        return extend_format(format);
+    if (mainString.length > targLen){
+        return errorString(mainString, generatorString, targLen);
     }
-    return padLeft(format, 10);
+    return padLeft(mainString, targLen);
 }
 
 //#endregion
