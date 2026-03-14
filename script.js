@@ -270,10 +270,10 @@ function versionInfo(version, size){
 
     temp_colored = ""
     for (let i=0; i<18; i++){
-        temp_colored += version_combined[i]+8;
+        temp_colored += parseInt(version_combined[i])+8;
     }
 
-    console.log(version_combined)
+    console.log(temp_colored)
 
     writeVersionBits(temp_colored, size); 
 }
@@ -294,20 +294,16 @@ function writeVersionBits(versionBits, size){
 function generateCode(){
     url = url_input.value;
     
-    version = version_input.value
+    version = parseInt(version_input.value);
     size = getSize(version);
 
-    resetCode(size);
+    resetCode(version, size);
     
     [errorLevel, errorBits] = getErrorLevel();
 
     if (available_bits-errorBits < url.length*8+8){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
-    }
-    
-    if (version >= 7){
-        writeVersionBits("333333333333333333", size); 
     }
 
     mainData(size);
@@ -327,7 +323,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, true);
+    displayCode(size, false);
 }
 
 
@@ -365,7 +361,7 @@ function getSize(version){
     return 4*version+17
 }
 
-function resetCode(size){
+function resetCode(size, version){
     code_grid = [];
     direction = -1;
     col_offset = 0;
@@ -464,6 +460,10 @@ function resetCode(size){
     //#endregion
 
     code_grid[size-8][8] = 3;//random one in all qr codes
+    
+    if (version >= 7){
+        writeVersionBits("333333333333333333", size); 
+    }
 }
 
 function outline(start_r, start_c, size, value){
