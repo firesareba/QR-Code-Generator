@@ -261,17 +261,24 @@ function format(maskingMethod, errorLevel){
     }
 }
 
-function versionInfo(version){
+function versionInfo(version, size){
     version_main = padLeft(version.toString(2), 6);
 
     version_error = padRight(version_main, 18);
     version_error = errorString(version_error, "1111100100101", 12);
     version_combined = version_main+version_error;
 
-    writeVersionBits(version_combined);
+    temp_colored = ""
+    for (let i=0; i<18; i++){
+        temp_colored += version_combined[i]+8;
+    }
+
+    console.log(version_combined)
+
+    writeVersionBits(temp_colored, size); 
 }
 
-function writeVersionBits(versionBits){
+function writeVersionBits(versionBits, size){
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
@@ -300,8 +307,7 @@ function generateCode(){
     }
     
     if (version >= 7){
-        writeVersionBits("999999999999999999"); 
-        console.log(code_grid[0][size-9]);
+        writeVersionBits("333333333333333333", size); 
     }
 
     mainData(size);
@@ -317,9 +323,9 @@ function generateCode(){
 
     format(maskingMethod, errorLevel);
 
-    // if (version >= 7){
-    //     versionInfo(version);
-    // }
+    if (version >= 7){
+        versionInfo(version, size);
+    }
 
     displayCode(size, true);
 }
