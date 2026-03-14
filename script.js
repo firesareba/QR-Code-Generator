@@ -273,8 +273,6 @@ function versionInfo(version, size){
         temp_colored += parseInt(version_combined[i])+8;
     }
 
-    console.log(temp_colored)
-
     writeVersionBits(temp_colored, size); 
 }
 
@@ -323,7 +321,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, false);
+    displayCode(size, true);
 }
 
 
@@ -361,7 +359,7 @@ function getSize(version){
     return 4*version+17
 }
 
-function resetCode(size, version){
+function resetCode(version, size){
     code_grid = [];
     direction = -1;
     col_offset = 0;
