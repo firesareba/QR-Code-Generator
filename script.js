@@ -52,6 +52,107 @@ version_input.addEventListener("change", function(e){
 //#endregion
 
 //#region steps
+function basePatterns(version, size){
+    code_grid = [];
+    direction = -1;
+    col_offset = 0;
+    position = [size-1, size-1];
+    available_bits = size**2; 
+
+    for (let i=0; i<size; i++){
+        code_grid.push([]);
+        for (let j=0; j<size; j++){
+            code_grid[i].push(-1);
+        }
+    }
+
+    //#region format strips
+    for (let i=0; i < 8; i++){
+        //topleft
+        code_grid[8][i] = 3;    
+        code_grid[i][8] = 3;
+
+        code_grid[8][size-1-i] = 3;//top right
+        code_grid[size-1-i][8] = 3;//bottom left
+        
+        available_bits -= 4;
+    }
+    code_grid[8][8] = 3;//corner in top left
+    available_bits -= 1;
+    //#endregion
+
+    //#region finder patterns
+    //#region top-left
+    outline(0, 0, 8, 2);//outside
+    outline(1, 1, 5, 2);//inside
+    outline(0, 0, 7, 3);//middle
+
+    //middle
+    for (let i=2; i<=4; i++){
+        for (let j=2; j<=4; j++){
+            code_grid[i][j] = 3;
+            available_bits -= 1;
+        }
+    }
+    //#endregion
+
+    //#region top right
+    outline(0, size-8, 8, 2);//outside
+    outline(1, size-6, 5, 2);//inside
+    outline(0, size-7, 7, 3);//middle
+
+    //middle
+    for (let i=2; i<=4; i++){
+        for (let j=size-3; j>=size-5; j--){
+            code_grid[i][j] = 3;
+            available_bits -= 1;
+        }
+    }
+    //#endregion
+
+    //#region bottom left
+    outline(size-8, 0, 8, 2);//outside
+    outline(size-6, 1, 5, 2);//inside
+    outline(size-7, 0, 7, 3);//middle
+    
+    //middle
+    for (let i=size-3; i>=size-5; i--){
+        for (let j=2; j<=4; j++){
+            code_grid[i][j] = 3;
+            available_bits -= 1;
+        }
+    }
+    //#endregion
+    //#endregion
+   
+    //#region timing strips
+    for (let i=8; i<=size-9; i++){
+        available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
+        code_grid[6][i] = (i%2==0)+2;
+        code_grid[i][6] = (i%2==0)+2;
+    }
+    //#endregion
+
+    //#region alignment patterns
+    drawAlignmentPattern([size-7, size-7]);
+    //#endregion
+
+    //#region mode
+    mode = "0100";
+    for (let i=0; i<4; i++){
+        nextPos(false, size);
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
+        available_bits -= 1;
+    }
+    //#endregion
+
+    code_grid[size-8][8] = 3;//random one in all qr codes
+    
+    if (version >= 7){
+        writeVersionBits("333333333333333333", size); 
+    }
+}
+
 function getErrorLevel(){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+7]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
@@ -295,7 +396,7 @@ function generateCode(){
     version = parseInt(version_input.value);
     size = getSize(version);
 
-    resetCode(version, size);
+    basePatterns(version, size);
     
     [errorLevel, errorBits] = getErrorLevel();
 
@@ -321,7 +422,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, false);
+    displayCode(size, true);
 }
 
 
@@ -359,105 +460,16 @@ function getSize(version){
     return 4*version+17
 }
 
-function resetCode(version, size){
-    code_grid = [];
-    direction = -1;
-    col_offset = 0;
-    position = [size-1, size-1];
-    available_bits = size**2; 
-
-    for (let i=0; i<size; i++){
-        code_grid.push([]);
-        for (let j=0; j<size; j++){
-            code_grid[i].push(-1);
+function validAlignmentPattern(center){
+    for (let i=center-2; i<=center+2; i++){
+        for (let j=center-2; j<=center+2; j++){
+            if (code_grid[i][j] != -1){
+                return false;
+            }
         }
     }
-
-    //#region format strips
-    for (let i=0; i < 8; i++){
-        //topleft
-        code_grid[8][i] = 3;    
-        code_grid[i][8] = 3;
-
-        code_grid[8][size-1-i] = 3;//top right
-        code_grid[size-1-i][8] = 3;//bottom left
-        
-        available_bits -= 4;
-    }
-    code_grid[8][8] = 3;//corner in top left
-    available_bits -= 1;
-    //#endregion
-
-    //#region finder patterns
-    //#region top-left
-    outline(0, 0, 8, 2);//outside
-    outline(1, 1, 5, 2);//inside
-    outline(0, 0, 7, 3);//middle
-
-    //middle
-    for (let i=2; i<=4; i++){
-        for (let j=2; j<=4; j++){
-            code_grid[i][j] = 3;
-            available_bits -= 1;
-        }
-    }
-    //#endregion
-
-    //#region top right
-    outline(0, size-8, 8, 2);//outside
-    outline(1, size-6, 5, 2);//inside
-    outline(0, size-7, 7, 3);//middle
-
-    //middle
-    for (let i=2; i<=4; i++){
-        for (let j=size-3; j>=size-5; j--){
-            code_grid[i][j] = 3;
-            available_bits -= 1;
-        }
-    }
-    //#endregion
-
-    //#region bottom left
-    outline(size-8, 0, 8, 2);//outside
-    outline(size-6, 1, 5, 2);//inside
-    outline(size-7, 0, 7, 3);//middle
     
-    //middle
-    for (let i=size-3; i>=size-5; i--){
-        for (let j=2; j<=4; j++){
-            code_grid[i][j] = 3;
-            available_bits -= 1;
-        }
-    }
-    //#endregion
-    //#endregion
-   
-    //#region timing strips
-    for (let i=8; i<=size-9; i++){
-        available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
-        code_grid[6][i] = (i%2==0)+2;
-        code_grid[i][6] = (i%2==0)+2;
-    }
-    //#endregion
-
-    //#region alignment patterns
-    drawAlignmentPattern([size-7, size-7]);
-    //#endregion
-
-    //#region mode
-    mode = "0100";
-    for (let i=0; i<4; i++){
-        nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
-        available_bits -= 1;
-    }
-    //#endregion
-
-    code_grid[size-8][8] = 3;//random one in all qr codes
-    
-    if (version >= 7){
-        writeVersionBits("333333333333333333", size); 
-    }
+    return true;
 }
 
 function drawAlignmentPattern(center){
