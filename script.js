@@ -321,7 +321,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, true);
+    displayCode(size, false);
 }
 
 
@@ -441,11 +441,7 @@ function resetCode(version, size){
     //#endregion
 
     //#region alignment patterns
-    outline(size-8, size-8, 3, 2);//white
-    outline(size-9, size-9, 5, 3);
-
-    code_grid[size-7][size-7] = 3;//center
-    available_bits -= 1;
+    drawAlignmentPattern([size-7, size-7]);
     //#endregion
 
     //#region mode
@@ -462,6 +458,14 @@ function resetCode(version, size){
     if (version >= 7){
         writeVersionBits("333333333333333333", size); 
     }
+}
+
+function drawAlignmentPattern(center){
+    outline(center[0]-1, center[1]-1, 3, 2);//white
+    outline(center[0]-2, center[1]-2, 5, 3);
+
+    code_grid[center[0]][center[1]] = 3;//center
+    available_bits -= 1;
 }
 
 function outline(start_r, start_c, size, value){
