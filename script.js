@@ -176,11 +176,10 @@ function mainData(size){
 function padding(errorBits, size){
     for (let i=0; i<4; i++){
         if ((available_bits-errorBits)%8 != 0){
-            break;
+            nextPos(false, size);
+            code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
+            available_bits -= 1;
         }
-        nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
-        available_bits -= 1;
     }
 
     num = 1;
@@ -228,7 +227,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     }
 
     //Left over bits are just 0s
-    nextPos(false, size);
+    // nextPos(false, size);
     while (code_grid[position[0]][position[1]-col_offset] == -1){
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = 0;
@@ -434,7 +433,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, true);
+    displayCode(size, false);
 }
 
 
