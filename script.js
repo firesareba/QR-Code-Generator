@@ -82,6 +82,12 @@ function basePatterns(version, size){
     available_bits -= 1;
     //#endregion
 
+    //#region alignment patterns
+    if (version > 1){
+        alignmentPatterns(version, size);
+    }
+    //#endregion
+
     //#region finder patterns
     //#region top-left
     outline(0, 0, 8, 2);//outside
@@ -134,12 +140,6 @@ function basePatterns(version, size){
     }
     //#endregion
 
-    //#region alignment patterns
-    if (version > 1){
-        alignmentPatterns(version);
-    }
-    //#endregion
-
     //#region mode
     mode = "0100";
     for (let i=0; i<4; i++){
@@ -156,9 +156,27 @@ function basePatterns(version, size){
     }
 }
 
-function alignmentPatterns(version){
-    if (validAlignmentPattern([size-7, size-7])){
-        drawAlignmentPattern([size-7, size-7]);
+function alignmentPatterns(version, size){
+    numLines = Math.floor(version/7)+2;
+    lastLine = size-7;
+    lineSpacing = Math.ceil((lastLine-6)/(numLines-1));
+    lineSpacing = Math.ceil(lineSpacing/2)*2;
+
+    for (let j=2; j<=numLines; j++){
+        if (validAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing])){
+            drawAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing]);
+        }
+    }
+
+    for (let i=2; i<=numLines; i++){
+        if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6])){
+            drawAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6]);
+        }
+        for (let j=2; j<=numLines; j++){
+            if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing])){
+                drawAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing]);
+            }
+        }
     }
 }
 
@@ -431,7 +449,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, false);
+    displayCode(size, true);
 }
 
 
@@ -470,8 +488,8 @@ function getSize(version){
 }
 
 function validAlignmentPattern(center){
-    for (let i=center-2; i<=center+2; i++){
-        for (let j=center-2; j<=center+2; j++){
+    for (let i=center[0]-2; i<=center[0]+2; i++){
+        for (let j=center[1]-2; j<=center[1]+2; j++){
             if (code_grid[i][j] != -1){
                 return false;
             }
