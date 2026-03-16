@@ -2,6 +2,7 @@
 const cell_size = 50;
 const vertical_format = 6;
 
+let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
 let errorLevelMap;
 
@@ -161,8 +162,8 @@ function alignmentPatterns(version){
     }
 }
 
-function getErrorLevel(){
-    return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])];
+function getErrorLevel(version){
+    return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
 function mainData(size){
@@ -174,16 +175,14 @@ function mainData(size){
 }
 
 function padding(errorBits, size){
-    for (let i=0; i<4; i++){
-        if ((available_bits-errorBits)%8 != 0){
-            nextPos(false, size);
-            code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
-            available_bits -= 1;
-        }
+    while ((available_bits-errorBits)%8 != 0){
+        nextPos(false, size);
+        code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
+        available_bits -= 1;
     }
 
     num = 1;
-    while (available_bits-8 >= errorBits){
+    while (available_bits > errorBits){
         writeByte(padLeft((17+(219*num)).toString(2)), size);
         num = Math.abs(num-1);
     }
@@ -226,11 +225,10 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
         writeByte(padLeft(byte), size);
     }
 
-    //Left over bits are just 0s
-    // nextPos(false, size);
-    while (code_grid[position[0]][position[1]-col_offset] == -1){
+    //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
+    for (let i=0; i<leftoverBits[version]; i++){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 0;
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -409,7 +407,7 @@ function generateCode(){
 
     basePatterns(version, size);
     
-    [errorLevel, errorBits] = getErrorLevel();
+    [errorLevel, errorBits] = getErrorLevel(version);
 
     if (available_bits-errorBits < url.length*8+8){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
@@ -479,7 +477,7 @@ function validAlignmentPattern(center){
             }
         }
     }
-
+    
     return true;
 }
 
