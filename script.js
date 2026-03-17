@@ -3,6 +3,7 @@ const cell_size = 50;
 const vertical_format = 6;
 
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+let orderedColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 let debugColors = ["white", "black", "antiquewhite", "grey", "white", "black", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
 let code_grid = [];
 let errorLevelMap;
