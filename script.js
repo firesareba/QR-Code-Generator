@@ -4,7 +4,7 @@ const vertical_format = 6;
 
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let orderedColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
-let debugColors = ["white", "black", "antiquewhite", "grey", "white", "black", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
+let debugColors = ["white", "black", "antiquewhite", "grey", "white", "red", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
 let code_grid = [];
 let errorLevelMap;
 
@@ -440,6 +440,17 @@ function generateCode(){
     }
 
     displayCode(size, true);
+
+    for (let i=0; i<size; i++){
+        for (let j=0; j<size; j++){
+            if (Math.floor(code_grid[i][j]/2) == 0){
+                console.log("01 still used");
+            } else if (Math.floor(code_grid[i][j]/2) == 2){
+                console.log("02 still used");
+            }
+        }
+    }
+
 }
 
 
