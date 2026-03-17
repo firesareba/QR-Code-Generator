@@ -198,6 +198,10 @@ function getErrorLevel(version){
 }
 
 function mainData(size){
+    offsetedByte = ""
+    for (let i=0; i< padLeft((url.length).toString(2)).length; i++){
+        offsetedByte += parseInt(padLeft((url.length).toString(2))[i])+dataOffset*2;
+    }
     writeByte(padLeft((url.length).toString(2)), size);//length
 
     for (let i = 0; i < url.length; i++){
@@ -260,7 +264,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
 function mask0(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -270,7 +274,7 @@ function mask0(){
 function mask1(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -280,7 +284,7 @@ function mask1(){
 function mask2(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -290,7 +294,7 @@ function mask2(){
 function mask3(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -300,7 +304,7 @@ function mask3(){
 function mask4(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -310,7 +314,7 @@ function mask4(){
 function mask5(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -320,7 +324,7 @@ function mask5(){
 function mask6(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -330,7 +334,7 @@ function mask6(){
 function mask7(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != 1){
+            if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
