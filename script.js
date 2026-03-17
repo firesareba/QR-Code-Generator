@@ -3,6 +3,7 @@ const cell_size = 50;
 const vertical_format = 6;
 
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+let debugColors = ["white", "black", "antiquewhite", "grey", "white", "black", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
 let code_grid = [];
 let errorLevelMap;
 
@@ -195,13 +196,13 @@ function mainData(size){
 function padding(errorBits, size){
     while ((available_bits-errorBits)%8 != 0){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 0;//padded terminator bits
+        code_grid[position[0]][position[1]-col_offset] = 10;//padded terminator bits
         available_bits -= 1;
     }
 
     num = 1;
     while (available_bits > errorBits){
-        writeByte(padLeft((17+(219*num)).toString(2)), size);
+        writeByte(padLeft((17+(219*num)).toString(2)), size, 10);
         num = Math.abs(num-1);
     }
 }
@@ -233,17 +234,10 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
     for (let i=0; i<remainder.length; i++){
-        byte = ""
-
-        //make green
-        for (let j=0; j < remainder[i].toString(2).length; j++){
-            byte += (parseInt(remainder[i].toString(2)[j])+6).toString();
-        }
-
-        writeByte(padLeft(byte), size);
+        writeByte(padLeft(remainder[i].toString(2)), size, 6);
     }
 
-    //Left over 7 bits are just 0s, after version 10 or smth they start holding info about verison num
+    //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
@@ -396,21 +390,16 @@ function versionInfo(version, size){
     version_error = errorString(version_error, "1111100100101", 12);
     version_combined = version_main+version_error;
 
-    temp_colored = ""
-    for (let i=0; i<18; i++){
-        temp_colored += parseInt(version_combined[i])+8;
-    }
-
-    writeVersionBits(temp_colored, size); 
+    writeVersionBits(version_combined, size, 12); 
 }
 
-function writeVersionBits(versionBits, size){
+function writeVersionBits(versionBits, size, offset){
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = versionBits[i*6+j];//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = versionBits[i*6+j];
+            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset;//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset;
         }
     }
 }
@@ -554,9 +543,9 @@ function nextPos(codeReading, size){
     }
 }
 
-function writeByte(byte, size){
+function writeByte(byte, size, offset=0){
     for (let idx=0; idx<8; idx++){
-        bit = parseInt(byte[idx]);
+        bit = parseInt(byte[idx])+offset;
 
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = bit;
@@ -716,37 +705,17 @@ function displayCode(size, debug=false){
     for (let i=0; i<size; i++){
         for (let j=0; j<size; j++){
             if (debug){
-                if (code_grid[i][j] == 5 || code_grid[i][j] == 1){
-                    drawable_canvas.fillStyle = "black";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == 2){
-                    drawable_canvas.fillStyle = "antiquewhite";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == 3){
-                    drawable_canvas.fillStyle = "grey";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == 6){
-                    drawable_canvas.fillStyle = "green";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == 7){
-                    drawable_canvas.fillStyle = "limegreen";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                }  else if (code_grid[i][j] == 8){
-                    drawable_canvas.fillStyle = "yellow";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == 9){
-                    drawable_canvas.fillStyle = "blue";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
-                } else if (code_grid[i][j] == -1){
+                if (code_grid[i][j] == -1){
                     drawable_canvas.fillStyle = "red";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+                } else {
+                    drawable_canvas.fillStyle = debugColors[code_grid[i][j]];
                 }
             } else {
                 if (code_grid[i][j]%2 == 1){
                     drawable_canvas.fillStyle = "black";
-                    drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
                 }
             }
+            drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
         }
     }
     drawGrid();
