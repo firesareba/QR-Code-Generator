@@ -1,13 +1,20 @@
 //#region Vars
-const cell_size = 50;
-const vertical_format = 6;
+let baseOffset = 1;
+let dataOffset = 0;
+let dataReadingOffset = 2;
+let paddingOffset = 5;
+let errorOffset = 3;
+let formatOffset = 4;
+let versionOffset = 6;
 
-let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+let debugColors = ["white", "black", "antiquewhite", "grey", "white", "black", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
 let orderedColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
-let debugColors = ["white", "black", "antiquewhite", "grey", "white", "red", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
+let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
 let errorLevelMap;
 
+const cell_size = 50;
+const vertical_format = 6;
 const alpha = 2;
 //#endregion
 
@@ -72,15 +79,15 @@ function basePatterns(version, size){
     //#region format strips
     for (let i=0; i < 8; i++){
         //topleft
-        code_grid[8][i] = 3;    
-        code_grid[i][8] = 3;
+        code_grid[8][i] = 1+baseOffset*2;    
+        code_grid[i][8] = 1+baseOffset*2;
 
-        code_grid[8][size-1-i] = 3;//top right
-        code_grid[size-1-i][8] = 3;//bottom left
+        code_grid[8][size-1-i] = 1+baseOffset*2;//top right
+        code_grid[size-1-i][8] = 1+baseOffset*2;//bottom left
         
         available_bits -= 4;
     }
-    code_grid[8][8] = 3;//corner in top left
+    code_grid[8][8] = 1+baseOffset*2;//corner in top left
     available_bits -= 1;
     //#endregion
 
@@ -92,42 +99,42 @@ function basePatterns(version, size){
 
     //#region finder patterns
     //#region top-left
-    outline(0, 0, 8, 2);//outside
-    outline(1, 1, 5, 2);//inside
-    outline(0, 0, 7, 3);//middle
+    outline(0, 0, 8, 0+baseOffset*2);//outside
+    outline(1, 1, 5, 0+baseOffset*2);//inside
+    outline(0, 0, 7, 1+baseOffset*2);//middle
 
     //middle
     for (let i=2; i<=4; i++){
         for (let j=2; j<=4; j++){
-            code_grid[i][j] = 3;
+            code_grid[i][j] = 1+baseOffset*2;
             available_bits -= 1;
         }
     }
     //#endregion
 
     //#region top right
-    outline(0, size-8, 8, 2);//outside
-    outline(1, size-6, 5, 2);//inside
-    outline(0, size-7, 7, 3);//middle
+    outline(0, size-8, 8, 0+baseOffset*2);//outside
+    outline(1, size-6, 5, 0+baseOffset*2);//inside
+    outline(0, size-7, 7, 1+baseOffset*2);//middle
 
     //middle
     for (let i=2; i<=4; i++){
         for (let j=size-3; j>=size-5; j--){
-            code_grid[i][j] = 3;
+            code_grid[i][j] = 1+baseOffset*2;
             available_bits -= 1;
         }
     }
     //#endregion
 
     //#region bottom left
-    outline(size-8, 0, 8, 2);//outside
-    outline(size-6, 1, 5, 2);//inside
-    outline(size-7, 0, 7, 3);//middle
+    outline(size-8, 0, 8, 0+baseOffset*2);//outside
+    outline(size-6, 1, 5, 0+baseOffset*2);//inside
+    outline(size-7, 0, 7, 1+baseOffset*2);//middle
     
     //middle
     for (let i=size-3; i>=size-5; i--){
         for (let j=2; j<=4; j++){
-            code_grid[i][j] = 3;
+            code_grid[i][j] = 1+baseOffset*2;
             available_bits -= 1;
         }
     }
@@ -137,8 +144,8 @@ function basePatterns(version, size){
     //#region timing strips
     for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
-        code_grid[6][i] = (i%2==0)+2;
-        code_grid[i][6] = (i%2==0)+2;
+        code_grid[6][i] = (i%2==0)+baseOffset*2;
+        code_grid[i][6] = (i%2==0)+baseOffset*2;
     }
     //#endregion
 
@@ -146,15 +153,19 @@ function basePatterns(version, size){
     mode = "0100";
     for (let i=0; i<4; i++){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+2;
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
         available_bits -= 1;
     }
     //#endregion
 
-    code_grid[size-8][8] = 3;//random one in all qr codes
+    code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
     if (version >= 7){
-        writeVersionBits("333333333333333333", size); 
+        holder = "";
+        for (let i=0; i<18; i++){
+            holder += 1+baseOffset*2;
+        }
+        writeVersionBits("holder", size); 
     }
 }
 
@@ -166,17 +177,17 @@ function alignmentPatterns(version, size){
 
     for (let j=2; j<=numLines; j++){
         if (validAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing])){
-            drawAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing]);
+            setAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing]);
         }
     }
 
     for (let i=2; i<=numLines; i++){
         if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6])){
-            drawAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6]);
+            setAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6]);
         }
         for (let j=2; j<=numLines; j++){
             if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing])){
-                drawAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing]);
+                setAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing]);
             }
         }
     }
@@ -241,7 +252,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 4;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -440,17 +451,6 @@ function generateCode(){
     }
 
     displayCode(size, true);
-
-    for (let i=0; i<size; i++){
-        for (let j=0; j<size; j++){
-            if (Math.floor(code_grid[i][j]/2) == 0){
-                console.log("01 still used");
-            } else if (Math.floor(code_grid[i][j]/2) == 2){
-                console.log("02 still used");
-            }
-        }
-    }
-
 }
 
 
@@ -500,11 +500,11 @@ function validAlignmentPattern(center){
     return true;
 }
 
-function drawAlignmentPattern(center){
-    outline(center[0]-1, center[1]-1, 3, 2);//white
-    outline(center[0]-2, center[1]-2, 5, 3);
+function setAlignmentPattern(center){
+    outline(center[0]-1, center[1]-1, 3, 0+baseOffset*2);//white
+    outline(center[0]-2, center[1]-2, 5, 1+baseOffset*2);
 
-    code_grid[center[0]][center[1]] = 3;//center
+    code_grid[center[0]][center[1]] = 1+baseOffset*2;//center
     available_bits -= 1;
 }
 
