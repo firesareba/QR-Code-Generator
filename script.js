@@ -1,13 +1,11 @@
 //#region Vars
 let baseOffset = 0;
 let dataOffset = 1;
-let dataReadingOffset = 2;
-let paddingOffset = 3;
-let paddingReadingOffset = 4;
-let errorOffset = 5;
-let formatOffset = 6;
-let versionOffset = 7;
-let debugColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+let paddingOffset = 2;
+let errorOffset = 3;
+let formatOffset = 4;
+let versionOffset = 5;
+let debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
@@ -152,7 +150,7 @@ function basePatterns(version, size){
     //#region mode
     mode = "0100";
     for (let i=0; i<4; i++){
-        nextPos(false, size);
+        nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
         available_bits -= 1;
     }
@@ -204,7 +202,7 @@ function mainData(url, size){
 function padding(errorBits, size){
     let terminators = 0;
     while ((available_bits-errorBits)%8 != 0){
-        nextPos(false, size);
+        nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = paddingOffset*2;//padded terminator bits
         terminators += 1;
         available_bits -= 1;
@@ -260,7 +258,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
 
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
-        nextPos(false, size);
+        nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = dataOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
@@ -536,13 +534,8 @@ function outline(start_r, start_c, size, value){
 
 
 //#region writing info
-function nextPos(codeReading, size){
+function nextPos(size){
     while (true){
-        if (codeReading && (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset || Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == paddingOffset)){
-            return;
-        }
-
-
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
@@ -568,7 +561,7 @@ function writeByte(byte, size, offset=0){
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx])+offset*2;
 
-        nextPos(false, size);
+        nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = bit;
         available_bits -= 1;
     }
