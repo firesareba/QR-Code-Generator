@@ -245,12 +245,16 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
         bitStream += padLeft((17+(219*(i%2))).toString(2));
     }
 
+    let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
     let currByte = "";
     for (let i=0; i<bitStream.length; i++){
         currByte += bitStream[i];
         if (currByte.length == 8){
-            if (coefficients[coefficients.length-1].length == bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
+            if (coefficients[coefficients.length-1].length == bytesPerBlock){
                 coefficients.push([]);
+                if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
+                    bytesPerBlock += 1;
+                }
             }
             coefficients[coefficients.length-1].push(parseInt(currByte, 2));
             currByte = "";
@@ -271,12 +275,15 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
 }
 
 function errorCorrection(coefficients, errorLevel, version, size){
-    coefficients = coefficients[0];
-    
-    let remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel, version));
+    let remainder;
+    let generator = generatorPolynomial(errorLevel, version);
 
-    for (let i=0; i<remainder.length; i++){
-        writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
+    for (let block=0; block<coefficients.length; block++){
+        remainder = dividePolynomial(coefficients[block], generator);
+    
+        for (let i=0; i<remainder.length; i++){
+            writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
+        }
     }
 
     //Left over bits are just 0s
