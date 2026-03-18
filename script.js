@@ -191,8 +191,13 @@ function getErrorLevel(version){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
-function mainData(url, size){
-    writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
+function mainData(url, version, size){
+    if (version < 10){
+        writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
+    } else {
+        writeByte(padLeft((url.length).toString(2), 16).slice(0, 8), size, dataOffset);//length1
+        writeByte(padLeft((url.length).toString(2), 16).slice(8), size, dataOffset);//length2
+    }
 
     for (let i = 0; i < url.length; i++){
         writeByte(padLeft(url.charCodeAt(i).toString(2)), size, dataOffset);
@@ -218,11 +223,15 @@ function padding(errorBits, size){
     return [terminators, paddingBytes];
 }
 
-function messageCoefficients(url, terminators, paddingBytes){
+function messageCoefficients(url, terminators, paddingBytes, version){
     let coefficients = [];
     let bitStream = "0100";
 
-    bitStream += padLeft((url.length).toString(2));//length
+    if (version < 10){
+        bitStream += padLeft((url.length).toString(2));//length
+    } else {
+        bitStream += padLeft((url.length).toString(2), 16);//length
+    }
 
     for (let i = 0; i < url.length; i++){
         bitStream += padLeft(url.charCodeAt(i).toString(2));
@@ -440,11 +449,11 @@ function generateCode(){
         return;
     }
 
-    mainData(url, size);
+    mainData(url, version, size);
 
     let [terminators, paddingBytes] = padding(errorBits, size);
 
-    let coeffiecients = messageCoefficients(url, terminators, paddingBytes);
+    let coeffiecients = messageCoefficients(url, terminators, paddingBytes, version);
 
     ErrorCorrection(coeffiecients, errorLevel, version, size);
 
