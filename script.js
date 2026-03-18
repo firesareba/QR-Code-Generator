@@ -193,7 +193,7 @@ function getErrorLevel(version){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
-function mainData(size){
+function mainData(url, size){
     writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
 
     for (let i = 0; i < url.length; i++){
@@ -202,37 +202,50 @@ function mainData(size){
 }
 
 function padding(errorBits, size){
+    let terminators = 0;
     while ((available_bits-errorBits)%8 != 0){
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = paddingOffset*2;//padded terminator bits
+        terminators += 1;
         available_bits -= 1;
     }
 
     num = 1;
+    let paddingBytes = 0;
     while (available_bits > errorBits){
         writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
         num = Math.abs(num-1);
+        paddingBytes += 1;
     }
+    return [terminators, paddingBytes];
 }
 
-function messageCoefficients(size){
-    direction = -1;
-    col_offset = 0;
-    position = [size-1, size-1];
-
+function messageCoefficients(url, terminators, paddingBytes){
     coefficients = [];
-    currByte = "0100";
+    bitStream = "0100";
 
-    while (code_grid[position[0]][position[1]-col_offset] != -1){
-        if (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset || Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == paddingOffset){
-            currByte += code_grid[position[0]][position[1]-col_offset]%2;
-            if (currByte.length == 8){
-                coefficients.push(parseInt(currByte, 2));
-                currByte = "";
-            }
-            code_grid[position[0]][position[1]-col_offset] += 2;//don't know how to fix this, but needs to be something offset, will try to bypass completely
+    bitStream += padLeft((url.length).toString(2));//length
+
+    for (let i = 0; i < url.length; i++){
+        bitStream += padLeft(url.charCodeAt(i).toString(2));
+    }
+
+    for (let i=0; i<terminators; i++){
+        bitStream += "0";
+    }
+    for (let i=1; i<=paddingBytes; i++){
+        bitStream += padLeft((17+(219*(i%2))).toString(2));
+        num = Math.abs(num-1);
+    }
+
+    currByte = "";
+    for (let i=0; i<bitStream.length; i++){
+        currByte += bitStream[i];
+        if (currByte.length == 8){
+            coefficients.push(parseInt(currByte, 2));
+            currByte = "";
         }
-        nextPos(true, size);
+        code_grid[position[0]][position[1]-col_offset] += 4;
     }
 
     return coefficients
@@ -429,11 +442,11 @@ function generateCode(){
         return;
     }
 
-    mainData(size);
+    mainData(url, size);
 
-    padding(errorBits, size);
+    [terminators, paddingBytes] = padding(errorBits, size);
 
-    coeffiecients = messageCoefficients(size);
+    coeffiecients = messageCoefficients(url, terminators, paddingBytes);
 
     ErrorCorrection(coeffiecients, errorLevel, version, size);
 
