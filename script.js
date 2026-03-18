@@ -257,11 +257,22 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
         }
     }
 
+    while (coefficients[coefficients.length-1].length < bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
+        coefficients[coefficients.length-1].push(0);
+    }
+
+    for (let b=0; b<coefficients.length; b++){
+        for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
+            coefficients[b].push(0);
+        }
+    }
+
     return coefficients
 }
 
-function ErrorCorrection(coefficients, errorLevel, version, size){
-    coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
+function errorCorrection(coefficients, errorLevel, version, size){
+    coefficients = coefficients[0];
+    
     let remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel, version));
 
     for (let i=0; i<remainder.length; i++){
@@ -465,7 +476,7 @@ function generateCode(){
         console.log(coeffiecients[i])
     }
 
-    ErrorCorrection(coeffiecients, errorLevel, version, size);
+    errorCorrection(coeffiecients, errorLevel, version, size);
 
     let maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod, size);
@@ -672,7 +683,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 
 function generatorPolynomial(errorLevel, version){
     let curr = [1];
-    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version]; i++){
+    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
         curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
