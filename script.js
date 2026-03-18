@@ -261,16 +261,16 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
         }
     }
 
-    while (coefficients[coefficients.length-1].length < bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
-        coefficients[coefficients.length-1].push(0);
-    }
-
-    return coefficients
+    return [coefficients, bitStream.length];
 }
 
-function errorCorrection(coefficients, errorLevel, version, size){
+function errorCorrection(coefficients, errorLevel, streamLength, version, size){
     let remainder;
     let generator = generatorPolynomial(errorLevel, version);
+
+    while (coefficients[coefficients.length-1].length < streamLength/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
+        coefficients[coefficients.length-1].push(0);
+    }
 
     for (let block=0; block<coefficients.length; block++){
         for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
@@ -475,13 +475,13 @@ function generateCode(){
 
     let [terminators, paddingBytes] = padding(errorBits, size);
 
-    let coeffiecients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
+    let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
     for(let i=0; i<coeffiecients.length; i++){
         console.log(coeffiecients[i])
     }
 
-    errorCorrection(coeffiecients, errorLevel, version, size);
+    errorCorrection(coeffiecients, errorLevel, streamLength, version, size);
 
     let maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod, size);
