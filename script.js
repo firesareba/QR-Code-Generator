@@ -430,10 +430,10 @@ function generateCode(){
     
     let version = parseInt(version_input.value);
     let size = getSize(version);
+    let [errorLevel, errorBits] = getErrorLevel(version);
 
     basePatterns(version, size);
     
-    let [errorLevel, errorBits] = getErrorLevel(version);
 
     if (available_bits-errorBits < url.length*8+8){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
