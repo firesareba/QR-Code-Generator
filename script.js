@@ -225,7 +225,7 @@ function padding(errorBits, size){
 }
 
 function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let coefficients = [];//[[]];
+    let coefficients = [[]];
     let bitStream = "0100";
 
     if (version < 10){
@@ -249,10 +249,10 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     for (let i=0; i<bitStream.length; i++){
         currByte += bitStream[i];
         if (currByte.length == 8){
-            // if (coefficients[coefficients.length-1].length == errorLevelMap.get(errorLevel).get('n_per_block')[version]){
-            //     coefficients.push([]);
-            // }
-            coefficients.push(parseInt(currByte, 2));// coefficients[coefficients.length-1].push(parseInt(currByte, 2));
+            if (coefficients[coefficients.length-1].length == bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
+                coefficients.push([]);
+            }
+            coefficients[coefficients.length-1].push(parseInt(currByte, 2));
             currByte = "";
         }
     }
@@ -445,6 +445,8 @@ function generateCode(){
     let size = getSize(version);
     let [errorLevel, errorBits] = getErrorLevel(version);
 
+    console.clear();
+
     basePatterns(version, size);
     
 
@@ -458,6 +460,10 @@ function generateCode(){
     let [terminators, paddingBytes] = padding(errorBits, size);
 
     let coeffiecients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
+
+    for(let i=0; i<coeffiecients.length; i++){
+        console.log(coeffiecients[i])
+    }
 
     ErrorCorrection(coeffiecients, errorLevel, version, size);
 
