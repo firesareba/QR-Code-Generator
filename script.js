@@ -21,8 +21,8 @@ const alpha = 2;
 const url_input = document.getElementById("url");
 const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
-const version_input = document.getElementById("version");
 const version_label = document.getElementById("version-label");
+const version_input = document.getElementById("version");
 const debug_input = document.getElementById("debug");
 
 const canvas = document.getElementById("code-canvas")
@@ -37,7 +37,7 @@ url_input.addEventListener(
 );
 
 mask_input.addEventListener(
-    "change", function(event) {
+    "input", function(event) {
         generateCode();
     }
 );
@@ -59,6 +59,7 @@ debug_input.addEventListener(
     }
 );
 //#endregion
+
 
 //#region steps
 function basePatterns(version, size){
@@ -432,6 +433,7 @@ function writeVersionBits(versionBits, size, offset){
     }
 }
 //#endregion
+
 
 //main func
 function generateCode(){
