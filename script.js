@@ -258,7 +258,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = errorOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = dataOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
