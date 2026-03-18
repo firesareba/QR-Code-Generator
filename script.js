@@ -265,12 +265,6 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
         coefficients[coefficients.length-1].push(0);
     }
 
-    for (let b=0; b<coefficients.length; b++){
-        for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
-            coefficients[b].push(0);
-        }
-    }
-
     return coefficients
 }
 
@@ -279,6 +273,10 @@ function errorCorrection(coefficients, errorLevel, version, size){
     let generator = generatorPolynomial(errorLevel, version);
 
     for (let block=0; block<coefficients.length; block++){
+        for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
+            coefficients[block].push(0);
+        }
+
         remainder = dividePolynomial(coefficients[block], generator);
     
         for (let i=0; i<remainder.length; i++){
