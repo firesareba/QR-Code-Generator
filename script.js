@@ -1,14 +1,13 @@
 //#region Vars
-let baseOffset = 1;
-let dataOffset = 0;
+let baseOffset = 0;
+let dataOffset = 1;
 let dataReadingOffset = 2;
-let paddingOffset = 5;
-let errorOffset = 3;
-let formatOffset = 4;
+let paddingOffset = 3;
+let errorOffset = 4;
+let formatOffset = 5;
 let versionOffset = 6;
 
-let debugColors = ["white", "black", "antiquewhite", "grey", "white", "black", "limegreen", "green", "yellow", "orange", "violet", "purple", "cyan", "blue"]
-let orderedColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+let debugColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
 let errorLevelMap;
@@ -228,13 +227,13 @@ function messageCoefficients(size){
     currByte = "0100";
 
     while (code_grid[position[0]][position[1]-col_offset] != -1){
-        if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
+        if (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset){
             currByte += code_grid[position[0]][position[1]-col_offset]%2;
             if (currByte.length == 8){
                 coefficients.push(parseInt(currByte, 2));
                 currByte = "";
             }
-            code_grid[position[0]][position[1]-col_offset] += 4;//don't know how to fix this, but needs to be something offset, will try to bypass completely
+            code_grid[position[0]][position[1]-col_offset] += 2;//don't know how to fix this, but needs to be something offset, will try to bypass completely
         }
         nextPos(true, size);
     }
@@ -529,7 +528,7 @@ function outline(start_r, start_c, size, value){
 //#region writing info
 function nextPos(codeReading, size){
     while (true){
-        if (codeReading && code_grid[position[0]][position[1]-col_offset] < 2){
+        if (codeReading && Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset){
             return;
         }
 
