@@ -229,12 +229,12 @@ function messageCoefficients(size){
 
     while (code_grid[position[0]][position[1]-col_offset] != -1){
         if (code_grid[position[0]][position[1]-col_offset] == 0 || code_grid[position[0]][position[1]-col_offset] == 1){
-            currByte += code_grid[position[0]][position[1]-col_offset];
+            currByte += code_grid[position[0]][position[1]-col_offset]%2;
             if (currByte.length == 8){
                 coefficients.push(parseInt(currByte, 2));
                 currByte = "";
             }
-            code_grid[position[0]][position[1]-col_offset] += 4;
+            code_grid[position[0]][position[1]-col_offset] += 4;//don't know how to fix this, but needs to be something offset, will try to bypass completely
         }
         nextPos(true, size);
     }
@@ -246,13 +246,13 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
     remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
     for (let i=0; i<remainder.length; i++){
-        writeByte(padLeft(remainder[i].toString(2)), size, 6);
+        writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
     }
 
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 0;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = errorOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -378,20 +378,20 @@ function format(maskingMethod, errorLevel){
     format_final = stringXOR(format_combined, "101010000010010");
 
     for (let i=0; i<6; i++){//top left
-        code_grid[8][i] =  parseInt(format_final[i])+8;
+        code_grid[8][i] =  parseInt(format_final[i])+formatOffset*2;
     }
-    code_grid[8][7] =  parseInt(format_final[6])+8;
-    code_grid[8][8] =  parseInt(format_final[7])+8;
-    code_grid[7][8] =  parseInt(format_final[8])+8;
+    code_grid[8][7] =  parseInt(format_final[6])+formatOffset*2;
+    code_grid[8][8] =  parseInt(format_final[7])+formatOffset*2;
+    code_grid[7][8] =  parseInt(format_final[8])+formatOffset*2;
     for (let i=0; i<6; i++){
-        code_grid[5-i][8] =  parseInt(format_final[i+9])+8;
+        code_grid[5-i][8] =  parseInt(format_final[i+9])+formatOffset*2;
     }
 
     for (let i=0; i<7; i++){//botom left
-        code_grid[size-1-i][8] = parseInt(format_final[i])+8;
+        code_grid[size-1-i][8] = parseInt(format_final[i])+formatOffset*2;
     }
     for (let i=0; i<8; i++){//top right
-        code_grid[8][size-1-7+i] = parseInt(format_final[7+i])+8;
+        code_grid[8][size-1-7+i] = parseInt(format_final[7+i])+formatOffset*2;
     }
 }
 
@@ -402,7 +402,7 @@ function versionInfo(version, size){
     version_error = errorString(version_error, "1111100100101", 12);
     version_combined = version_main+version_error;
 
-    writeVersionBits(version_combined, size, 12); 
+    writeVersionBits(version_combined, size, versionOffset); 
 }
 
 function writeVersionBits(versionBits, size, offset){
@@ -410,8 +410,8 @@ function writeVersionBits(versionBits, size, offset){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset;//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset;
+            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset*2;//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset*2;
         }
     }
 }
