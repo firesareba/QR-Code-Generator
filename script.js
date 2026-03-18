@@ -6,8 +6,8 @@ let paddingOffset = 3;
 let errorOffset = 4;
 let formatOffset = 5;
 let versionOffset = 6;
-
 let debugColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
 let errorLevelMap;
@@ -23,6 +23,7 @@ const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
 const version_input = document.getElementById("version");
 const version_label = document.getElementById("version-label");
+const debug_input = document.getElementById("debug");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -58,6 +59,12 @@ version_input.addEventListener("change", function(e){
         generateCode();
     }
 });
+
+debug_input.addEventListener(
+    "change", function(event) {
+        generateCode();
+    }
+);
 //#endregion
 
 //#region steps
@@ -449,7 +456,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, true);
+    displayCode(size, debug_input.checked);
 }
 
 
@@ -706,7 +713,7 @@ function errorString(mainString, generatorString, targLen){
 
 
 //#region draw
-function displayCode(size, debug=false){
+function displayCode(size, debug){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
     drawable_canvas.fillStyle = "white";
@@ -724,6 +731,8 @@ function displayCode(size, debug=false){
             } else {
                 if (code_grid[i][j]%2 == 1){
                     drawable_canvas.fillStyle = "black";
+                } else {
+                    drawable_canvas.fillStyle = "white";
                 }
             }
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
