@@ -198,23 +198,23 @@ function getErrorLevel(version){
 }
 
 function mainData(size){
-    writeByte(padLeft((url.length).toString(2)), size);//length
+    writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
 
     for (let i = 0; i < url.length; i++){
-        writeByte(padLeft(url.charCodeAt(i).toString(2)), size);
+        writeByte(padLeft(url.charCodeAt(i).toString(2)), size, dataOffset);
     }
 }
 
 function padding(errorBits, size){
     while ((available_bits-errorBits)%8 != 0){
         nextPos(false, size);
-        code_grid[position[0]][position[1]-col_offset] = 10;//padded terminator bits
+        code_grid[position[0]][position[1]-col_offset] = paddingOffset*2;//padded terminator bits
         available_bits -= 1;
     }
 
     num = 1;
     while (available_bits > errorBits){
-        writeByte(padLeft((17+(219*num)).toString(2)), size, 10);
+        writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
         num = Math.abs(num-1);
     }
 }
@@ -557,7 +557,7 @@ function nextPos(codeReading, size){
 
 function writeByte(byte, size, offset=0){
     for (let idx=0; idx<8; idx++){
-        bit = parseInt(byte[idx])+offset;
+        bit = parseInt(byte[idx])+offset*2;
 
         nextPos(false, size);
         code_grid[position[0]][position[1]-col_offset] = bit;
