@@ -167,11 +167,7 @@ function basePatterns(version, size){
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
     if (version >= 7){
-        holder = "";
-        for (let i=0; i<18; i++){
-            holder += 1+baseOffset*2;
-        }
-        writeVersionBits("holder", size); 
+        writeVersionBits("111111111111111111", size, baseOffset); 
     }
 }
 
@@ -234,7 +230,7 @@ function messageCoefficients(size){
     currByte = "0100";
 
     while (code_grid[position[0]][position[1]-col_offset] != -1){
-        if (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset){
+        if (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset || Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == paddingOffset){
             currByte += code_grid[position[0]][position[1]-col_offset]%2;
             if (currByte.length == 8){
                 coefficients.push(parseInt(currByte, 2));
@@ -535,7 +531,7 @@ function outline(start_r, start_c, size, value){
 //#region writing info
 function nextPos(codeReading, size){
     while (true){
-        if (codeReading && Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset){
+        if (codeReading && (Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == dataOffset || Math.floor(code_grid[position[0]][position[1]-col_offset]/2) == paddingOffset)){
             return;
         }
 
