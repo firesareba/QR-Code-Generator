@@ -3,10 +3,11 @@ let baseOffset = 0;
 let dataOffset = 1;
 let dataReadingOffset = 2;
 let paddingOffset = 3;
-let errorOffset = 4;
-let formatOffset = 5;
-let versionOffset = 6;
-let debugColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+let paddingReadingOffset = 4;
+let errorOffset = 5;
+let formatOffset = 6;
+let versionOffset = 7;
+let debugColors = ["antiquewhite", "grey", "white", "black", "white", "black", "violet", "purple", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
@@ -31,7 +32,7 @@ const drawable_canvas = canvas.getContext("2d");
 
 //#region listeners
 url_input.addEventListener(
-    "change", function(event) {
+    "input", function(event) {
         generateCode();
     }
 );
@@ -50,14 +51,7 @@ error_level_input.addEventListener(
 
 version_input.addEventListener("input", function(e){
     version_label.innerHTML = "Version: "+ version_input.value;
-});
-
-version_input.addEventListener("change", function(e){
-    if (version_input.value == 2){
-        generateCode();
-    } else {
-        generateCode();
-    }
+    generateCode();
 });
 
 debug_input.addEventListener(
