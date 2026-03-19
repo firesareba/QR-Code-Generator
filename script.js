@@ -471,15 +471,13 @@ function generateCode(){
         return;
     }
 
-    mainData(url, version, size);
+    let terminators = (available_bits-errorBits)%8;
+    let paddingBytes = Math.floor((available_bits-8*(version>=10)-8*(url.length)-errorBits)/8)-1;
 
-    let [terminators, paddingBytes] = padding(errorBits, size);
+    mainData(url, version, size);
+    padding(errorBits, size);
 
     let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
-
-    for(let i=0; i<coeffiecients.length; i++){
-        console.log(coeffiecients[i])
-    }
 
     errorCorrection(coeffiecients, errorLevel, streamLength, version, size);
 
