@@ -445,13 +445,14 @@ function versionInfo(version, size){
     writeVersionBits(version_combined, size, versionOffset); 
 }
 
-function writeVersionBits(versionBits, size, offset){
+function writeVersionBits(versionBits, size, offset=0){
+    versionBits = offsetString(versionBits, offset);
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset*2;//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset*2;
+            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j]);
         }
     }
 }
@@ -533,6 +534,15 @@ function getSize(version){
     return 4*version+17
 }
 
+function offsetString(binaryString, offset){
+    let offsetedString = "";
+    for (let i=0; i<binaryString.length; i++){
+        offsetedString += parseInt(binaryString[i])+offset*2;
+    }
+    
+    return offsetedString;
+}
+
 function validAlignmentPattern(center){
     for (let i=center[0]-2; i<=center[0]+2; i++){
         for (let j=center[1]-2; j<=center[1]+2; j++){
@@ -596,9 +606,11 @@ function nextPos(size){
 }
 
 function writeByte(byte, size, offset=0){
+    byte = offsetString(byte, offset);
+
     let bit;
     for (let idx=0; idx<8; idx++){
-        bit = parseInt(byte[idx])+offset*2;
+        bit = parseInt(byte[idx]);
 
         nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = bit;
