@@ -224,9 +224,8 @@ function padding(errorBits, size){
     return [terminators, paddingBytes];
 }
 
-function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let coefficients = [[]];
-    let bitStream = "0100";
+function getBitStream(url, terminators, paddingBytes, version){
+    let bitStream = mode;
 
     if (version < 10){
         bitStream += padLeft((url.length).toString(2));//length
@@ -244,6 +243,12 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     for (let i=1; i<=paddingBytes; i++){
         bitStream += padLeft((17+(219*(i%2))).toString(2));
     }
+    return bitStream
+}
+
+function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
+    let coefficients = [[]];
+    let bitStream = getBitStream(url, terminators, paddingBytes, version);
 
     let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
     let currByte = "";
