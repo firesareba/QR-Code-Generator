@@ -224,31 +224,62 @@ function padding(errorBits, size){
     return [terminators, paddingBytes];
 }
 
-function getBitStream(url, terminators, paddingBytes, version){
-    let bitStream = mode;
+function getBitStream(url, terminators, paddingBytes, errorLevel, version){
+    //#region wrongOrder(data should go block0byte0, block1byte0...)
+    let bitStream = offsetString(mode, baseOffset);
 
     if (version < 10){
-        bitStream += padLeft((url.length).toString(2));//length
+        bitStream += offsetString(padLeft((url.length).toString(2)), dataOffset);//length
     } else {
-        bitStream += padLeft((url.length).toString(2), 16);//length
+        bitStream += offsetString(padLeft((url.length).toString(2), 16), dataOffset);//length
     }
 
     for (let i = 0; i < url.length; i++){
-        bitStream += padLeft(url.charCodeAt(i).toString(2));
+        bitStream += offsetString(padLeft(url.charCodeAt(i).toString(2)), dataOffset);
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream += "0";
+        bitStream += paddingOffset*2;
     }
     for (let i=1; i<=paddingBytes; i++){
-        bitStream += padLeft((17+(219*(i%2))).toString(2));
+        bitStream += offsetString(padLeft((17+(219*(i%2))).toString(2)), paddingOffset);
     }
-    return bitStream
+    //#endregion
+    //#region blockify stream
+    let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
+    let currByte = "";
+    let coefficients = [[]];
+    for (let i=0; i<bitStream.length; i++){
+        currByte += bitStream[i];
+        if (currByte.length == 8){
+            if (coefficients[coefficients.length-1].length == bytesPerBlock){
+                coefficients.push([]);
+                if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
+                    bytesPerBlock += 1;
+                }
+            }
+            coefficients[coefficients.length-1].push(currByte);
+            currByte = "";
+        }
+    }
+    //#endregion
+    //#region order stream
+    let orderedStream = "";
+    for (let byte=0; byte<bytesPerBlock; byte++){
+        for (let block=0; block<coefficients.length; block++){
+            if (coefficients[block].length > byte){
+                orderedStream += coefficients[block][byte];
+            }
+        }
+    }
+    //#endregion
+
+    return orderedStream
 }
 
 function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
     let coefficients = [[]];
-    let bitStream = getBitStream(url, terminators, paddingBytes, version);
+    let bitStream = unOffsetString(getBitStream(url, terminators, paddingBytes, errorLevel, version));
 
     let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
     let currByte = "";
@@ -269,7 +300,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     return [coefficients, bitStream.length];
 }
 
-function errorCorrection(coefficients, errorLevel, streamLength, version, size){
+function errorCorrection(coefficients, errorLevel, streamLength, version, size){//VERY IMPORtANT: Lagging out when block > 1, last working version was 89c0ff3
     let remainder;
     let generator = generatorPolynomial(errorLevel, version);
 
@@ -541,6 +572,15 @@ function offsetString(binaryString, offset){
     }
     
     return offsetedString;
+}
+
+function unOffsetString(binaryString){
+    let unoffsetedString = "";
+    for (let i=0; i<binaryString.length; i++){
+        unoffsetedString += parseInt(binaryString[i])%2;
+    }
+    
+    return unoffsetedString;
 }
 
 function validAlignmentPattern(center){
