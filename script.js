@@ -55,7 +55,7 @@ version_input.addEventListener("input", function(e){
 
 debug_input.addEventListener(
     "change", function(event) {
-        generateCode();
+        displayCode(getSize(parseInt(version_input.value)), debug_input.checked);
     }
 );
 //#endregion
@@ -316,6 +316,9 @@ function errorCorrection(coefficients, errorLevel, streamLength, version, size){
         remainder = dividePolynomial(coefficients[block], generator);
     
         for (let i=0; i<remainder.length; i++){
+            console.clear()
+            console.log(position[0], position[1]-col_offset, version)
+            displayCode(size, debug_input.checked);
             writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
         }
     }
@@ -508,11 +511,8 @@ function generateCode(){
         return;
     }
 
-    let terminators = (available_bits-errorBits)%8;
-    let paddingBytes = Math.floor((available_bits-8*(version>=10)-8*(url.length)-errorBits)/8)-1;
-
     mainData(url, version, size);
-    padding(errorBits, size);
+    let [terminators, paddingBytes] = padding(errorBits, size);
 
     let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
@@ -623,7 +623,7 @@ function outline(start_r, start_c, size, value){
 
 //#region writing info
 function nextPos(size){
-    while (true){
+    while (position[0] >=0 && position[1] >= 0){
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
@@ -642,6 +642,9 @@ function nextPos(size){
             position[1] -= 2;
             col_offset = 0;
         }
+    }
+    if (position[0] < 0 || position[1] < 0){
+        console.log("OUT OF SPACE", version);
     }
 }
 
