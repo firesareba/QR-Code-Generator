@@ -274,18 +274,19 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     return coefficients;
 }
 
-function errorBlock(blockCoefficients, errorLevel, version, size){
-    blockCoefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
-    let remainder = dividePolynomial(blockCoefficients, generatorPolynomial(errorLevel, version));
-
-    for (let i=0; i<remainder.length; i++){
-        writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
-    }
-}
-
 function ErrorCorrection(coefficients, errorLevel, version, size){
+    let errorCoefficients = [];
+    let blockCoefficients;
     for (let block = 0; block<coefficients.length; block++){
-        errorBlock(coefficients[block], errorLevel, version, size);
+        blockCoefficients = coefficients[block];
+        blockCoefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version]).fill(0));
+        errorCoefficients.push(dividePolynomial(blockCoefficients, generatorPolynomial(errorLevel, version)));
+    }
+
+    for (let b=0; b<errorCoefficients[0].length; b++){
+        for (let block=0; block<errorCoefficients.length; block++){
+            writeByte(padLeft(errorCoefficients[block][b].toString(2)), size, errorOffset);
+        }
     }
 
     //Left over bits are just 0s
@@ -581,7 +582,7 @@ function offsetString(binaryString, offset){
 
 //#region writing info
 function nextPos(size){
-    while (true){
+    while (position[0] >=0 && position[1] >= 0){
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
@@ -600,6 +601,9 @@ function nextPos(size){
             position[1] -= 2;
             col_offset = 0;
         }
+    }
+    if (position[0] < 0 || position[1] < 0){
+        console.log("OUT OF SPACE");
     }
 }
 
@@ -700,7 +704,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 
 function generatorPolynomial(errorLevel, version){
     let curr = [1];
-    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version]; i++){
+    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
         curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
