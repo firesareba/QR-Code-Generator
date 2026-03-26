@@ -76,6 +76,7 @@ function basePatterns(version, size){
         }
     }
 
+    let x = available_bits;
     //#region format strips
     for (let i=0; i < 8; i++){
         //topleft
@@ -90,13 +91,17 @@ function basePatterns(version, size){
     code_grid[8][8] = 1+baseOffset*2;//corner in top left
     available_bits -= 1;
     //#endregion
+    console.log(x-available_bits);
 
+    x = available_bits;
     //#region alignment patterns
     if (version > 1){
         alignmentPatterns(version, size);
     }
     //#endregion
+    console.log(x-available_bits);
 
+    x = available_bits;
     //#region finder patterns
     //#region top-left
     outline(0, 0, 8, 0+baseOffset*2);//outside
@@ -140,7 +145,9 @@ function basePatterns(version, size){
     }
     //#endregion
     //#endregion
-   
+    console.log(x-available_bits);
+
+    x = available_bits;
     //#region timing strips
     for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
@@ -148,14 +155,7 @@ function basePatterns(version, size){
         code_grid[i][6] = (i%2==0)+baseOffset*2;
     }
     //#endregion
-
-    //#region mode
-    for (let i=0; i<4; i++){
-        nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
-        available_bits -= 1;
-    }
-    //#endregion
+    console.log(x-available_bits)
 
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
@@ -193,6 +193,12 @@ function getErrorLevel(version){
 }
 
 function mainData(url, version, size){
+    for (let i=0; i<4; i++){//mode
+        nextPos(size);
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
+        available_bits -= 1;
+    }
+
     if (version < 10){
         writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
     } else {
@@ -508,6 +514,7 @@ function generateCode(){
     console.log(version)
 
     basePatterns(version, size);
+    console.log(available_bits);
     
 
     if (available_bits-errorBits < url.length*8+8+8*(version>=10)){
@@ -517,7 +524,7 @@ function generateCode(){
 
     mainData(url, version, size);
     let [terminators, paddingBytes] = padding(errorBits, size);
-    console.log(terminators, paddingBytes);
+    console.log("terminators: ", terminators, "Padding Bytes: ", paddingBytes);
 
     let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
@@ -717,7 +724,7 @@ function gf_log_of(a){
 function dividePolynomial(dividend, divisor){
     let quotient = []
 
-    for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
+    for (let calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
         var multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
