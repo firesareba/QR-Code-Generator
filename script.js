@@ -224,9 +224,8 @@ function padding(errorBits, size){
     return [terminators, paddingBytes];
 }
 
-function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let coefficients = [];//[[]];
-    let bitStream = "0100";
+function getBitStream(url, terminators, paddingBytes, version){
+    let bitStream = mode;
 
     if (version < 10){
         bitStream += padLeft((url.length).toString(2));//length
@@ -245,14 +244,18 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
         bitStream += padLeft((17+(219*(i%2))).toString(2));
     }
 
+    return bitStream
+}
+
+function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
+    let coefficients = [];
+    let bitStream = getBitStream(url, terminators, paddingBytes, version);
+
     let currByte = "";
     for (let i=0; i<bitStream.length; i++){
         currByte += bitStream[i];
         if (currByte.length == 8){
-            // if (coefficients[coefficients.length-1].length == errorLevelMap.get(errorLevel).get('n_per_block')[version]){
-            //     coefficients.push([]);
-            // }
-            coefficients.push(parseInt(currByte, 2));// coefficients[coefficients.length-1].push(parseInt(currByte, 2));
+            coefficients.push(parseInt(currByte, 2));
             currByte = "";
         }
     }
