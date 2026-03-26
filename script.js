@@ -477,9 +477,12 @@ function generateCode(){
         return;
     }
 
-    mainData(url, version, size);
+    let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
+    let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
+    let paddingBytes = dataBitsLeft/8;//bits to bytes
 
-    let [terminators, paddingBytes] = padding(errorBits, size);
+    mainData(url, version, size);
+    padding(errorBits, size);
 
     let coeffiecients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
