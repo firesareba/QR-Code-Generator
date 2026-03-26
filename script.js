@@ -252,7 +252,11 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     for (let block = 0; block<coefficients.length; block++){
         blockCoefficients = coefficients[block];
         blockCoefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version]).fill(0));
-        errorCoefficients.push(dividePolynomial(blockCoefficients, generatorPolynomial(errorLevel, version)));
+        let remainder = dividePolynomial(blockCoefficients, generatorPolynomial(errorLevel, version));
+        while (remainder.length < errorLevelMap.get(errorLevel).get('n_per_block')[version]){
+            remainder.unshift(0);
+        }
+        errorCoefficients.push(remainder);
     }
 
     for (let b=0; b<errorCoefficients[0].length; b++){
@@ -269,10 +273,14 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
 }
 
 //#region mask
+function importantBit(row, col){
+    return Math.floor(code_grid[row][col]/2) == baseOffset || Math.floor(code_grid[row][col]/2) == formatOffset || Math.floor(code_grid[row][col]/2) == versionOffset;
+}
+
 function mask0(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((row + col) % 2 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -282,7 +290,7 @@ function mask0(size){
 function mask1(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((row) % 2 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -292,7 +300,7 @@ function mask1(size){
 function mask2(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((col) % 3 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -302,7 +310,7 @@ function mask2(size){
 function mask3(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((row + col) % 3 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -312,7 +320,7 @@ function mask3(size){
 function mask4(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -322,7 +330,7 @@ function mask4(size){
 function mask5(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if (((row * col) % 2) + ((row * col) % 3) == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -332,7 +340,7 @@ function mask5(size){
 function mask6(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -342,7 +350,7 @@ function mask6(size){
 function mask7(size){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
-            if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
+            if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && !importantBit(row, col)){
                 code_grid[row][col] = (code_grid[row][col]-(Math.floor(code_grid[row][col]/2)*2) + 1)%2 + (Math.floor(code_grid[row][col]/2)*2);
             }
         }
@@ -442,6 +450,7 @@ function generateCode(){
     let [errorLevel, errorBits] = getErrorLevel(version);
 
     basePatterns(version, size);
+    console.clear();
     
 
     if (available_bits-errorBits < url.length*8+8){
@@ -453,11 +462,11 @@ function generateCode(){
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
     let paddingBytes = dataBitsLeft/8;//bits to bytes
 
-    let coeffiecients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
+    let coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
-    writeData(coeffiecients, size);
+    writeData(coefficients, size);
 
-    ErrorCorrection(coeffiecients, errorLevel, version, size);
+    ErrorCorrection(coefficients, errorLevel, version, size);
 
     let maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod, size);
