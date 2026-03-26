@@ -274,12 +274,18 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     return coefficients;
 }
 
-function ErrorCorrection(coefficients, errorLevel, version, size){
-    coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
-    let remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel, version));
+function errorBlock(blockCoefficients, errorLevel, version, size){
+    blockCoefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
+    let remainder = dividePolynomial(blockCoefficients, generatorPolynomial(errorLevel, version));
 
     for (let i=0; i<remainder.length; i++){
         writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
+    }
+}
+
+function ErrorCorrection(coefficients, errorLevel, version, size){
+    for (let block = 0; block<coefficients.length; block++){
+        errorBlock(coefficients[block], errorLevel, version, size);
     }
 
     //Left over bits are just 0s
