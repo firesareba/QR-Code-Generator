@@ -246,19 +246,32 @@ function getBitStream(url, terminators, paddingBytes, version){
 }
 
 function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let coefficients = [];
+    let codewords = [];
     let bitStream = getBitStream(url, terminators, paddingBytes, version);
 
     let currByte = "";
     for (let i=0; i<bitStream.length; i++){
         currByte += bitStream[i];
         if (currByte.length == 8){
-            coefficients.push(parseInt(currByte, 2));
+            codewords.push(parseInt(currByte, 2));
             currByte = "";
         }
     }
 
-    return coefficients
+    let coefficients = [[]];
+    let num_blocks = errorLevelMap.get(errorLevel).get("num_blocks")[version];
+    let bytesPerBlock = Math.floor(codewords.length/num_blocks);
+    for (let b=0; b<codewords.length; b++){
+        if (coefficients[coefficients.length-1].length == bytesPerBlock){
+            if (bytesPerBlock == Math.floor(codewords.length/num_blocks) && num_blocks-coefficients.length == codewords.length%num_blocks){
+                bytesPerBlock += 1;
+            }
+            coefficients.push([])
+        }
+        coefficients[coefficients.length-1].push(codewords[b]);
+    }
+
+    return coefficients;
 }
 
 function ErrorCorrection(coefficients, errorLevel, version, size){
