@@ -1,17 +1,16 @@
 //#region Vars
-const baseOffset = 0;
-const dataOffset = 1;
-const paddingOffset = 2;
-const errorOffset = 3;
-const formatOffset = 4;
-const versionOffset = 5;
-const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+let baseOffset = 0;
+let dataOffset = 1;
+let paddingOffset = 2;
+let errorOffset = 3;
+let formatOffset = 4;
+let versionOffset = 5;
+let debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
-const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+let leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 let code_grid = [];
 let errorLevelMap;
 
-const mode = "0100";
 const cell_size = 50;
 const vertical_format = 6;
 const alpha = 2;
@@ -21,8 +20,8 @@ const alpha = 2;
 const url_input = document.getElementById("url");
 const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
-const version_label = document.getElementById("version-label");
 const version_input = document.getElementById("version");
+const version_label = document.getElementById("version-label");
 const debug_input = document.getElementById("debug");
 
 const canvas = document.getElementById("code-canvas")
@@ -37,7 +36,7 @@ url_input.addEventListener(
 );
 
 mask_input.addEventListener(
-    "input", function(event) {
+    "change", function(event) {
         generateCode();
     }
 );
@@ -55,11 +54,10 @@ version_input.addEventListener("input", function(e){
 
 debug_input.addEventListener(
     "change", function(event) {
-        displayCode(getSize(parseInt(version_input.value)), debug_input.checked);
+        generateCode();
     }
 );
 //#endregion
-
 
 //#region steps
 function basePatterns(version, size){
@@ -68,7 +66,6 @@ function basePatterns(version, size){
     col_offset = 0;
     position = [size-1, size-1];
     available_bits = size**2; 
-    console.log(available_bits);
 
     for (let i=0; i<size; i++){
         code_grid.push([]);
@@ -77,7 +74,6 @@ function basePatterns(version, size){
         }
     }
 
-    let x = available_bits;
     //#region format strips
     for (let i=0; i < 8; i++){
         //topleft
@@ -92,17 +88,13 @@ function basePatterns(version, size){
     code_grid[8][8] = 1+baseOffset*2;//corner in top left
     available_bits -= 1;
     //#endregion
-    console.log("format", x-available_bits);
 
-    x = available_bits;
     //#region alignment patterns
     if (version > 1){
         alignmentPatterns(version, size);
     }
     //#endregion
-    console.log("alignment", x-available_bits);
 
-    x = available_bits;
     //#region finder patterns
     //#region top-left
     outline(0, 0, 8, 0+baseOffset*2);//outside
@@ -146,9 +138,7 @@ function basePatterns(version, size){
     }
     //#endregion
     //#endregion
-    console.log("finder", x-available_bits);
-
-    x = available_bits;
+   
     //#region timing strips
     for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
@@ -156,7 +146,15 @@ function basePatterns(version, size){
         code_grid[i][6] = (i%2==0)+baseOffset*2;
     }
     //#endregion
-    console.log("timing", x-available_bits);
+
+    //#region mode
+    mode = "0100";
+    for (let i=0; i<4; i++){
+        nextPos(size);
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
+        available_bits -= 1;
+    }
+    //#endregion
 
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
@@ -166,9 +164,9 @@ function basePatterns(version, size){
 }
 
 function alignmentPatterns(version, size){
-    let numLines = Math.floor(version/7)+2;
-    let lastLine = size-7;
-    let lineSpacing = Math.ceil((lastLine-6)/(numLines-1));
+    numLines = Math.floor(version/7)+2;
+    lastLine = size-7;
+    lineSpacing = Math.ceil((lastLine-6)/(numLines-1));
     lineSpacing = Math.ceil(lineSpacing/2)*2;
 
     for (let j=2; j<=numLines; j++){
@@ -193,19 +191,8 @@ function getErrorLevel(version){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
-function mainData(url, version, size){
-    for (let i=0; i<4; i++){//mode
-        nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
-        available_bits -= 1;
-    }
-
-    if (version < 10){
-        writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
-    } else {
-        writeByte(padLeft((url.length).toString(2), 16).slice(0, 8), size, dataOffset);//length1
-        writeByte(padLeft((url.length).toString(2), 16).slice(8), size, dataOffset);//length2
-    }
+function mainData(url, size){
+    writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
 
     for (let i = 0; i < url.length; i++){
         writeByte(padLeft(url.charCodeAt(i).toString(2)), size, dataOffset);
@@ -221,13 +208,8 @@ function padding(errorBits, size){
         available_bits -= 1;
     }
 
-    let num = 1;
+    num = 1;
     let paddingBytes = 0;
-    // for (let i=0; i<82; i++){
-    //     writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
-    //     num = Math.abs(num-1);
-    //     paddingBytes += 1;
-    // }
     while (available_bits > errorBits){
         writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
         num = Math.abs(num-1);
@@ -236,101 +218,42 @@ function padding(errorBits, size){
     return [terminators, paddingBytes];
 }
 
-function getBitStream(url, terminators, paddingBytes, errorLevel, version){
-    //#region wrongOrder(data should go block0byte0, block1byte0...)
-    let bitStream = offsetString(mode, baseOffset);
+function messageCoefficients(url, terminators, paddingBytes){
+    coefficients = [];
+    bitStream = "0100";
 
-    if (version < 10){
-        bitStream += offsetString(padLeft((url.length).toString(2)), dataOffset);//length
-    } else {
-        bitStream += offsetString(padLeft((url.length).toString(2), 16), dataOffset);//length
-    }
+    bitStream += padLeft((url.length).toString(2));//length
 
     for (let i = 0; i < url.length; i++){
-        bitStream += offsetString(padLeft(url.charCodeAt(i).toString(2)), dataOffset);
+        bitStream += padLeft(url.charCodeAt(i).toString(2));
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream += paddingOffset*2;
+        bitStream += "0";
     }
     for (let i=1; i<=paddingBytes; i++){
-        bitStream += offsetString(padLeft((17+(219*(i%2))).toString(2)), paddingOffset);
+        bitStream += padLeft((17+(219*(i%2))).toString(2));
+        num = Math.abs(num-1);
     }
-    //#endregion
-    //#region blockify stream
-    // let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
-    // let currByte = "";
-    // let coefficients = [[]];
-    // for (let i=0; i<bitStream.length; i++){
-    //     currByte += bitStream[i];
-    //     if (currByte.length == 8){
-    //         if (coefficients[coefficients.length-1].length == bytesPerBlock){
-    //             coefficients.push([]);
-    //             if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
-    //                 bytesPerBlock += 1;
-    //             }
-    //         }
-    //         coefficients[coefficients.length-1].push(currByte);
-    //         currByte = "";
-    //     }
-    // }
-    //#endregion
-    //#region order stream
-    // let orderedStream = "";
-    // for (let byte=0; byte<bytesPerBlock; byte++){
-    //     for (let block=0; block<coefficients.length; block++){
-    //         if (coefficients[block].length > byte){
-    //             orderedStream += coefficients[block][byte];
-    //         }
-    //     }
-    // }
-    //#endregion
 
-    return bitStream
-}
-
-function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let coefficients = [[]];
-    let bitStream = unOffsetString(getBitStream(url, terminators, paddingBytes, errorLevel, version));
-
-    let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
-    let currByte = "";
+    currByte = "";
     for (let i=0; i<bitStream.length; i++){
         currByte += bitStream[i];
         if (currByte.length == 8){
-            if (coefficients[coefficients.length-1].length == bytesPerBlock){
-                coefficients.push([]);
-                if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
-                    bytesPerBlock += 1;
-                }
-            }
-            coefficients[coefficients.length-1].push(parseInt(currByte, 2));
+            coefficients.push(parseInt(currByte, 2));
             currByte = "";
         }
+        code_grid[position[0]][position[1]-col_offset] += 4;
     }
 
-    return [coefficients, bitStream.length];
+    return coefficients
 }
 
-function errorCorrection(coefficients, errorLevel, streamLength, version, size){//VERY IMPORtANT: Lagging out when block > 1, last working version was 89c0ff3
-    let remainder;
-    let generator = generatorPolynomial(errorLevel, version);
-
-    while (coefficients[coefficients.length-1].length < streamLength/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]){
-        coefficients[coefficients.length-1].push(0);
-    }
-
-    for (let block=0; block<coefficients.length; block++){
-        for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
-            coefficients[block].push(0);
-        }
-
-        remainder = dividePolynomial(coefficients[block], generator);
-    
-        for (let i=0; i<remainder.length; i++){
-            displayCode(size, debug_input.checked);
-            writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
-        }
+function ErrorCorrection(coefficients, errorLevel, version, size){
+    coefficients.push(...new Array(errorLevelMap.get(errorLevel).get('n_per_block')[version] * errorLevelMap.get(errorLevel).get('num_blocks')[version]).fill(0));
+    remainder = dividePolynomial(coefficients, generatorPolynomial(errorLevel));
+    for (let i=0; i<remainder.length; i++){
+        writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
     }
 
     //Left over bits are just 0s
@@ -341,7 +264,7 @@ function errorCorrection(coefficients, errorLevel, streamLength, version, size){
 }
 
 //#region mask
-function mask0(size){
+function mask0(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((row + col) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -351,7 +274,7 @@ function mask0(size){
     }
 }
 
-function mask1(size){
+function mask1(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((row) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -361,7 +284,7 @@ function mask1(size){
     }
 }
 
-function mask2(size){
+function mask2(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -371,7 +294,7 @@ function mask2(size){
     }
 }
 
-function mask3(size){
+function mask3(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((row + col) % 3 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -381,7 +304,7 @@ function mask3(size){
     }
 }
 
-function mask4(size){
+function mask4(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((Math.floor(row / 2) + Math.floor(col / 3) ) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -391,7 +314,7 @@ function mask4(size){
     }
 }
 
-function mask5(size){
+function mask5(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if (((row * col) % 2) + ((row * col) % 3) == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -401,7 +324,7 @@ function mask5(size){
     }
 }
 
-function mask6(size){
+function mask6(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((((row * col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -411,7 +334,7 @@ function mask6(size){
     }
 }
 
-function mask7(size){
+function mask7(){
     for (let row=0; row <= size-1; row++){
         for (let col=0; col <= size-1; col++){
             if ((((row + col) % 2) + ((row * col) % 3)) % 2 == 0 && Math.floor(code_grid[row][col]/2) != baseOffset){
@@ -421,45 +344,45 @@ function mask7(size){
     }
 }
 
-function mask(maskingMethod, size){
+function mask(maskingMethod){
     switch (maskingMethod){
         case 0:
-            mask0(size);
+            mask0();
             break;
         case 1:
-            mask1(size);
+            mask1();
             break;
         case 2:
-            mask2(size);
+            mask2();
             break;
         case 3:
-            mask3(size);
+            mask3();
             break;
         case 4:
-            mask4(size);
+            mask4();
             break;
         case 5:
-            mask5(size);
+            mask5();
             break;
         case 6:
-            mask6(size);
+            mask6();
             break;
         case 7:
-            mask7(size);
+            mask7();
             break;
     }
 }
 //#endregion
 
 
-function format(maskingMethod, errorLevel, size){
-    let format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
+function format(maskingMethod, errorLevel){
+    format_main = errorLevelMap.get(errorLevel).get('formatBits')+padLeft(maskingMethod.toString(2), 3);
 
-    let format_error = padRight(format_main, 15);
+    format_error = padRight(format_main, 15);
     format_error = errorString(format_error, "10100110111", 10);
-    let format_combined = format_main+format_error;
+    format_combined = format_main+format_error;
 
-    let format_final = stringXOR(format_combined, "101010000010010");
+    format_final = stringXOR(format_combined, "101010000010010");
 
     for (let i=0; i<6; i++){//top left
         code_grid[8][i] =  parseInt(format_final[i])+formatOffset*2;
@@ -480,60 +403,56 @@ function format(maskingMethod, errorLevel, size){
 }
 
 function versionInfo(version, size){
-    let version_main = padLeft(version.toString(2), 6);
+    version_main = padLeft(version.toString(2), 6);
 
-    let version_error = padRight(version_main, 18);
-    version_error = errorString(version_error, "1111100100101", versionOffset);
-    let version_combined = version_main+version_error;
+    version_error = padRight(version_main, 18);
+    version_error = errorString(version_error, "1111100100101", 12);
+    version_combined = version_main+version_error;
 
     writeVersionBits(version_combined, size, versionOffset); 
 }
 
-function writeVersionBits(versionBits, size, offset=0){
-    offsetVersionBits = offsetString(versionBits, offset);
-    console.log(offsetString("1011", 5));
+function writeVersionBits(versionBits, size, offset){
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(offsetVersionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(offsetVersionBits[i*6+j]);
+            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset*2;//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset*2;
         }
     }
 }
 //#endregion
 
-
 //main func
 function generateCode(){
-    let url = url_input.value;
+    url = url_input.value;
     
-    let version = parseInt(version_input.value);
-    let size = getSize(version);
-    let [errorLevel, errorBits] = getErrorLevel(version);
-
-    console.clear();
+    version = parseInt(version_input.value);
+    size = getSize(version);
 
     basePatterns(version, size);
+    console.clear();
     
+    [errorLevel, errorBits] = getErrorLevel(version);
 
-    if (available_bits-errorBits < url.length*8+8+8*(version>=10)){
+    if (available_bits-errorBits < url.length*8+8){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
     }
 
-    mainData(url, version, size);
-    let [terminators, paddingBytes] = padding(errorBits, size);
-    // console.log("terminators: ", terminators, "Padding Bytes: ", paddingBytes);
+    mainData(url, size);
 
-    let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
+    [terminators, paddingBytes] = padding(errorBits, size);
 
-    errorCorrection(coeffiecients, errorLevel, streamLength, version, size);
+    coeffiecients = messageCoefficients(url, terminators, paddingBytes);
 
-    let maskingMethod = parseInt(mask_input.value)
-    mask(maskingMethod, size);
+    ErrorCorrection(coeffiecients, errorLevel, version, size);
 
-    format(maskingMethod, errorLevel, size);
+    maskingMethod = parseInt(mask_input.value)
+    mask(maskingMethod);
+
+    format(maskingMethod, errorLevel);
 
     if (version >= 7){
         versionInfo(version, size);
@@ -577,24 +496,6 @@ function getSize(version){
     return 4*version+17
 }
 
-function offsetString(binaryString, offset){
-    let offsetedString = "";
-    for (let i=0; i<binaryString.length; i++){
-        offsetedString += (parseInt(binaryString[i])+offset*2).toString();
-    }
-    
-    return offsetedString;
-}
-
-function unOffsetString(binaryString){
-    let unoffsetedString = "";
-    for (let i=0; i<binaryString.length; i++){
-        unoffsetedString += parseInt(binaryString[i])%2;
-    }
-    
-    return unoffsetedString;
-}
-
 function validAlignmentPattern(center){
     for (let i=center[0]-2; i<=center[0]+2; i++){
         for (let j=center[1]-2; j<=center[1]+2; j++){
@@ -635,7 +536,7 @@ function outline(start_r, start_c, size, value){
 
 //#region writing info
 function nextPos(size){
-    while (position[0] >=0 && position[1] >= 0){
+    while (true){
         if (position[1] == vertical_format){
             position[1] -= 1;
             col_offset = 0;
@@ -655,17 +556,11 @@ function nextPos(size){
             col_offset = 0;
         }
     }
-    if (position[0] < 0 || position[1] < 0){
-        console.log("OUT OF SPACE");
-    }
 }
 
 function writeByte(byte, size, offset=0){
-    byte = offsetString(byte, offset);
-
-    let bit;
     for (let idx=0; idx<8; idx++){
-        bit = parseInt(byte[idx]);
+        bit = parseInt(byte[idx])+offset*2;
 
         nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = bit;
@@ -722,10 +617,10 @@ function gf_log_of(a){
 
 
 function dividePolynomial(dividend, divisor){
-    let quotient = []
+    quotient = []
 
-    for (let calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
-        var multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
+    for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
+        multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
             dividend[calcIdx+i] = gf_sub(dividend[calcIdx+i], gf_mul(divisor[i], multiplier));
@@ -739,15 +634,15 @@ function dividePolynomial(dividend, divisor){
 }
 
 function multiplyPolynomial(multiplicand, multiplier){
-    let product = new Array(multiplicand.length+multiplier.length-1).fill(0);
+    product = new Array(multiplicand.length+multiplier.length-1).fill(0);
 
     for (let i=0; i < multiplicand.length; i++){
         for (let j=0; j < multiplier.length; j++){
-            var multiplicand_degree = (multiplicand.length-i) -1;
+            multiplicand_degree = (multiplicand.length-i) -1;
             multiplier_degree = (multiplier.length-j) -1;
-            var product_degree = multiplicand_degree + multiplier_degree;
+            product_degree = multiplicand_degree + multiplier_degree;
 
-            var product_idx = (product.length-product_degree) -1;
+            product_idx = (product.length-product_degree) -1;
 
             product[product_idx] = gf_add(product[product_idx], gf_mul(multiplicand[i], multiplier[j]));
         }
@@ -756,9 +651,9 @@ function multiplyPolynomial(multiplicand, multiplier){
     return product;
 }
 
-function generatorPolynomial(errorLevel, version){
-    let curr = [1];
-    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
+function generatorPolynomial(errorLevel){
+    curr = [1];
+    for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version]; i++){
         curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
@@ -789,9 +684,9 @@ function removeLeadingZeros(binaryString){
 }
 
 function stringXOR(a, b){
-    let result = "";
+    result = "";
     for (let i=0; i < a.length; i++){//b.len = a.len
-            var bit = (parseInt(a[i]) + parseInt(b[i]))%2;
+            bit = (parseInt(a[i]) + parseInt(b[i]))%2;
             result += bit.toString();
     }
     return result;
@@ -800,7 +695,7 @@ function stringXOR(a, b){
 function errorString(mainString, generatorString, targLen){
     mainString = removeLeadingZeros(mainString);
 
-    let generator = padRight(generatorString, mainString.length);
+    generator = padRight(generatorString, mainString.length);
     
     mainString = stringXOR(mainString, generator);
     mainString = removeLeadingZeros(mainString);
@@ -840,10 +735,10 @@ function displayCode(size, debug){
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
         }
     }
-    drawGrid(size);
+    drawGrid();
 }
 
-function drawGrid(size){
+function drawGrid(){
     for (let i=0; i<size+2; i++){
         draw_line(0, i*cell_size, (size+2)*cell_size, i*cell_size);
         draw_line(i*cell_size, 0, i*cell_size, (size+2)*cell_size,);
