@@ -149,14 +149,6 @@ function basePatterns(version, size){
     }
     //#endregion
 
-    //#region mode
-    for (let i=0; i<4; i++){
-        nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+baseOffset*2;
-        available_bits -= 1;
-    }
-    //#endregion
-
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
     if (version >= 7){
@@ -193,6 +185,12 @@ function getErrorLevel(version){
 }
 
 function mainData(url, version, size){
+    for (let i=0; i<4; i++){
+        nextPos(size);
+        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+dataOffset*2;
+        available_bits -= 1;
+    }
+
     if (version < 10){
         writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
     } else {
@@ -398,22 +396,23 @@ function format(maskingMethod, errorLevel, size){
     let format_combined = format_main+format_error;
 
     let format_final = stringXOR(format_combined, "101010000010010");
+    format_final = offsetString(format_final, formatOffset)
 
     for (let i=0; i<6; i++){//top left
-        code_grid[8][i] =  parseInt(format_final[i])+formatOffset*2;
+        code_grid[8][i] =  parseInt(format_final[i]);
     }
-    code_grid[8][7] =  parseInt(format_final[6])+formatOffset*2;
-    code_grid[8][8] =  parseInt(format_final[7])+formatOffset*2;
-    code_grid[7][8] =  parseInt(format_final[8])+formatOffset*2;
+    code_grid[8][7] =  parseInt(format_final[6]);
+    code_grid[8][8] =  parseInt(format_final[7]);
+    code_grid[7][8] =  parseInt(format_final[8]);
     for (let i=0; i<6; i++){
-        code_grid[5-i][8] =  parseInt(format_final[i+9])+formatOffset*2;
+        code_grid[5-i][8] =  parseInt(format_final[i+9]);
     }
 
     for (let i=0; i<7; i++){//botom left
-        code_grid[size-1-i][8] = parseInt(format_final[i])+formatOffset*2;
+        code_grid[size-1-i][8] = parseInt(format_final[i]);
     }
     for (let i=0; i<8; i++){//top right
-        code_grid[8][size-1-7+i] = parseInt(format_final[7+i])+formatOffset*2;
+        code_grid[8][size-1-7+i] = parseInt(format_final[7+i]);
     }
 }
 
@@ -428,12 +427,14 @@ function versionInfo(version, size){
 }
 
 function writeVersionBits(versionBits, size, offset){
+    versionBits = offsetString(versionBits, offset);
+
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j])+offset*2;//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j])+offset*2;
+            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j]);
         }
     }
 }
@@ -546,6 +547,16 @@ function outline(start_r, start_c, size, value){
         code_grid[start_r+size-1][start_c+i] = value;//bottom row
     }
 }
+
+function offsetString(binaryString, offset){
+    let offsetedArray = [];
+    for (let i=0; i<binaryString.length; i++){
+        offsetedArray[i] = (parseInt(binaryString[i])%2)+offset*2;
+    }
+
+    return offsetedArray;
+}
+
 //#endregion
 
 
@@ -574,9 +585,10 @@ function nextPos(size){
 }
 
 function writeByte(byte, size, offset=0){
+    byte = offsetString(byte, offset);
     let bit;
     for (let idx=0; idx<8; idx++){
-        bit = parseInt(byte[idx])+offset*2;
+        bit = parseInt(byte[idx]);
 
         nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = bit;
