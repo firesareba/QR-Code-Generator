@@ -619,7 +619,7 @@ function gf_log_of(a){
 function dividePolynomial(dividend, divisor){
     quotient = []
 
-    for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
+    for (let calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
         multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
