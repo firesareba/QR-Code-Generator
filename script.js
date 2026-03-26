@@ -184,44 +184,6 @@ function getErrorLevel(version){
     return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
-function mainData(url, version, size){
-    for (let i=0; i<4; i++){
-        nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = parseInt(mode[i])+dataOffset*2;
-        available_bits -= 1;
-    }
-
-    if (version < 10){
-        writeByte(padLeft((url.length).toString(2)), size, dataOffset);//length
-    } else {
-        writeByte(padLeft((url.length).toString(2), 16).slice(0, 8), size, dataOffset);//length1
-        writeByte(padLeft((url.length).toString(2), 16).slice(8), size, dataOffset);//length2
-    }
-
-    for (let i = 0; i < url.length; i++){
-        writeByte(padLeft(url.charCodeAt(i).toString(2)), size, dataOffset);
-    }
-}
-
-function padding(errorBits, size){
-    let terminators = 0;
-    while ((available_bits-errorBits)%8 != 0){
-        nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = paddingOffset*2;//padded terminator bits
-        terminators += 1;
-        available_bits -= 1;
-    }
-
-    let num = 1;
-    let paddingBytes = 0;
-    while (available_bits > errorBits){
-        writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
-        num = Math.abs(num-1);
-        paddingBytes += 1;
-    }
-    return [terminators, paddingBytes];
-}
-
 function getBitStream(url, terminators, paddingBytes, version){
     let bitStream = mode;
 
@@ -272,6 +234,16 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     }
 
     return coefficients;
+}
+
+function writeData(coefficients, size){
+    for (let b=0; b<coefficients[coefficients.length-1].length; b++){
+        for (let block=0; block<coefficients.length; block++){
+            if (coefficients[block].length > b){
+                writeByte(padLeft(coefficients[block][b].toString(2)), size, dataOffset);
+            }
+        }
+    }
 }
 
 function ErrorCorrection(coefficients, errorLevel, version, size){
@@ -481,10 +453,9 @@ function generateCode(){
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
     let paddingBytes = dataBitsLeft/8;//bits to bytes
 
-    mainData(url, version, size);
-    padding(errorBits, size);
-
     let coeffiecients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
+
+    writeData(coeffiecients, size);
 
     ErrorCorrection(coeffiecients, errorLevel, version, size);
 
