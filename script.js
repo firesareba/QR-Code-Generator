@@ -68,6 +68,7 @@ function basePatterns(version, size){
     col_offset = 0;
     position = [size-1, size-1];
     available_bits = size**2; 
+    console.log(available_bits);
 
     for (let i=0; i<size; i++){
         code_grid.push([]);
@@ -91,7 +92,7 @@ function basePatterns(version, size){
     code_grid[8][8] = 1+baseOffset*2;//corner in top left
     available_bits -= 1;
     //#endregion
-    console.log(x-available_bits);
+    console.log("format", x-available_bits);
 
     x = available_bits;
     //#region alignment patterns
@@ -99,7 +100,7 @@ function basePatterns(version, size){
         alignmentPatterns(version, size);
     }
     //#endregion
-    console.log(x-available_bits);
+    console.log("alignment", x-available_bits);
 
     x = available_bits;
     //#region finder patterns
@@ -145,7 +146,7 @@ function basePatterns(version, size){
     }
     //#endregion
     //#endregion
-    console.log(x-available_bits);
+    console.log("finder", x-available_bits);
 
     x = available_bits;
     //#region timing strips
@@ -155,7 +156,7 @@ function basePatterns(version, size){
         code_grid[i][6] = (i%2==0)+baseOffset*2;
     }
     //#endregion
-    console.log(x-available_bits)
+    console.log("timing", x-available_bits);
 
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
@@ -482,20 +483,21 @@ function versionInfo(version, size){
     let version_main = padLeft(version.toString(2), 6);
 
     let version_error = padRight(version_main, 18);
-    version_error = errorString(version_error, "1111100100101", 12);
+    version_error = errorString(version_error, "1111100100101", versionOffset);
     let version_combined = version_main+version_error;
 
     writeVersionBits(version_combined, size, versionOffset); 
 }
 
-function writeVersionBits(versionBits, size){
-    versionBits = offsetString(versionBits, baseOffset);
+function writeVersionBits(versionBits, size, offset=0){
+    offsetVersionBits = offsetString(versionBits, offset);
+    console.log(offsetString("1011", 5));
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
             available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j]);
+            code_grid[5-j][size-9-i] = parseInt(offsetVersionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-9-i][j] = parseInt(offsetVersionBits[i*6+j]);
         }
     }
 }
@@ -511,10 +513,8 @@ function generateCode(){
     let [errorLevel, errorBits] = getErrorLevel(version);
 
     console.clear();
-    console.log(version)
 
     basePatterns(version, size);
-    console.log(available_bits);
     
 
     if (available_bits-errorBits < url.length*8+8+8*(version>=10)){
@@ -524,7 +524,7 @@ function generateCode(){
 
     mainData(url, version, size);
     let [terminators, paddingBytes] = padding(errorBits, size);
-    console.log("terminators: ", terminators, "Padding Bytes: ", paddingBytes);
+    // console.log("terminators: ", terminators, "Padding Bytes: ", paddingBytes);
 
     let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
@@ -580,7 +580,7 @@ function getSize(version){
 function offsetString(binaryString, offset){
     let offsetedString = "";
     for (let i=0; i<binaryString.length; i++){
-        offsetedString += parseInt(binaryString[i])+offset*2;
+        offsetedString += (parseInt(binaryString[i])+offset*2).toString();
     }
     
     return offsetedString;
