@@ -216,16 +216,16 @@ function padding(errorBits, size){
 
     let num = 1;
     let paddingBytes = 0;
-    for (let i=0; i<82; i++){
-        writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
-        num = Math.abs(num-1);
-        paddingBytes += 1;
-    }
-    // while (available_bits > errorBits){
+    // for (let i=0; i<82; i++){
     //     writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
     //     num = Math.abs(num-1);
     //     paddingBytes += 1;
     // }
+    while (available_bits > errorBits){
+        writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
+        num = Math.abs(num-1);
+        paddingBytes += 1;
+    }
     return [terminators, paddingBytes];
 }
 
@@ -482,8 +482,8 @@ function versionInfo(version, size){
     writeVersionBits(version_combined, size, versionOffset); 
 }
 
-function writeVersionBits(versionBits, size, offset=0){
-    versionBits = offsetString(versionBits, offset);
+function writeVersionBits(versionBits, size){
+    versionBits = offsetString(versionBits, baseOffset);
     for(let i=0; i<3; i++){
         for(let j=0; j<6; j++){
             available_bits -= (code_grid[5-j][size-9-i] == -1);
