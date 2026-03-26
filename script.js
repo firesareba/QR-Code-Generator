@@ -216,11 +216,16 @@ function padding(errorBits, size){
 
     let num = 1;
     let paddingBytes = 0;
-    while (available_bits > errorBits){
+    for (let i=0; i<82; i++){
         writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
         num = Math.abs(num-1);
         paddingBytes += 1;
     }
+    // while (available_bits > errorBits){
+    //     writeByte(padLeft((17+(219*num)).toString(2)), size, paddingOffset);
+    //     num = Math.abs(num-1);
+    //     paddingBytes += 1;
+    // }
     return [terminators, paddingBytes];
 }
 
@@ -246,35 +251,35 @@ function getBitStream(url, terminators, paddingBytes, errorLevel, version){
     }
     //#endregion
     //#region blockify stream
-    let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
-    let currByte = "";
-    let coefficients = [[]];
-    for (let i=0; i<bitStream.length; i++){
-        currByte += bitStream[i];
-        if (currByte.length == 8){
-            if (coefficients[coefficients.length-1].length == bytesPerBlock){
-                coefficients.push([]);
-                if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
-                    bytesPerBlock += 1;
-                }
-            }
-            coefficients[coefficients.length-1].push(currByte);
-            currByte = "";
-        }
-    }
+    // let bytesPerBlock = Math.floor(bitStream.length/8/errorLevelMap.get(errorLevel).get('num_blocks')[version]);
+    // let currByte = "";
+    // let coefficients = [[]];
+    // for (let i=0; i<bitStream.length; i++){
+    //     currByte += bitStream[i];
+    //     if (currByte.length == 8){
+    //         if (coefficients[coefficients.length-1].length == bytesPerBlock){
+    //             coefficients.push([]);
+    //             if (Math.floor((bitStream.length/8-(i+1)/8)/bytesPerBlock) == (bitStream.length/8-(i+1)/8)%bytesPerBlock){
+    //                 bytesPerBlock += 1;
+    //             }
+    //         }
+    //         coefficients[coefficients.length-1].push(currByte);
+    //         currByte = "";
+    //     }
+    // }
     //#endregion
     //#region order stream
-    let orderedStream = "";
-    for (let byte=0; byte<bytesPerBlock; byte++){
-        for (let block=0; block<coefficients.length; block++){
-            if (coefficients[block].length > byte){
-                orderedStream += coefficients[block][byte];
-            }
-        }
-    }
+    // let orderedStream = "";
+    // for (let byte=0; byte<bytesPerBlock; byte++){
+    //     for (let block=0; block<coefficients.length; block++){
+    //         if (coefficients[block].length > byte){
+    //             orderedStream += coefficients[block][byte];
+    //         }
+    //     }
+    // }
     //#endregion
 
-    return orderedStream
+    return bitStream
 }
 
 function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
@@ -316,8 +321,6 @@ function errorCorrection(coefficients, errorLevel, streamLength, version, size){
         remainder = dividePolynomial(coefficients[block], generator);
     
         for (let i=0; i<remainder.length; i++){
-            console.clear()
-            console.log(position[0], position[1]-col_offset, version)
             displayCode(size, debug_input.checked);
             writeByte(padLeft(remainder[i].toString(2)), size, errorOffset);
         }
@@ -502,17 +505,19 @@ function generateCode(){
     let [errorLevel, errorBits] = getErrorLevel(version);
 
     console.clear();
+    console.log(version)
 
     basePatterns(version, size);
     
 
-    if (available_bits-errorBits < url.length*8+8){
+    if (available_bits-errorBits < url.length*8+8+8*(version>=10)){
         alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
         return;
     }
 
     mainData(url, version, size);
     let [terminators, paddingBytes] = padding(errorBits, size);
+    console.log(terminators, paddingBytes);
 
     let [coeffiecients, streamLength] = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
@@ -644,7 +649,7 @@ function nextPos(size){
         }
     }
     if (position[0] < 0 || position[1] < 0){
-        console.log("OUT OF SPACE", version);
+        console.log("OUT OF SPACE");
     }
 }
 
