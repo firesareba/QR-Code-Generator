@@ -421,10 +421,7 @@ function versionInfo(version, size){
     let version_error = removeLeadingZeros(padRight(version_main, 18));
     let generator = "1111100100101";
 
-    while (version_error.length > 12){
-        version_error = removeLeadingZeros(stringXOR(version_error, generator));
-    }
-    version_error = padRight(version_error, 12);
+    version_error = errorString(version_error, generator, 12);
 
     let version_combined = version_main+version_error;
     console.log(version, version_combined);
