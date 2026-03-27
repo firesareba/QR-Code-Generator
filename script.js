@@ -660,6 +660,7 @@ function dividePolynomial(dividend, divisor){
             dividend[calcIdx+i] = gf_sub(dividend[calcIdx+i], gf_mul(divisor[i], multiplier));
         }
     }
+    
     while (dividend[0] == 0){
         dividend.shift();
     }
