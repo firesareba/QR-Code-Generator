@@ -208,36 +208,48 @@ function getBitStream(url, terminators, paddingBytes, version){
     return bitStream
 }
 
-function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
-    let codewords = [];
+function messageCodewords(url, terminators, paddingBytes, errorLevel, version){
+    let unorderedCodewords = [];
     let bitStream = getBitStream(url, terminators, paddingBytes, version);
 
     let currByte = [];
     for (let i=0; i<bitStream.length; i++){
         currByte.push(bitStream[i]);
         if (currByte.length == 8){
-            codewords.push(currByte);
+            unorderedCodewords.push(currByte);
             currByte = [];
         }
     }
 
-    let coefficients = [[]];
+    let orderedCodewords = [[]];
     let num_blocks = errorLevelMap.get(errorLevel).get("num_blocks")[version];
-    let bytesPerBlock = Math.floor(codewords.length/num_blocks);
-    for (let b=0; b<codewords.length; b++){
-        if (coefficients[coefficients.length-1].length == bytesPerBlock){
-            if (bytesPerBlock == Math.floor(codewords.length/num_blocks) && num_blocks-coefficients.length == codewords.length%num_blocks){
+    let bytesPerBlock = Math.floor(unorderedCodewords.length/num_blocks);
+    for (let b=0; b<unorderedCodewords.length; b++){
+        if (orderedCodewords[orderedCodewords.length-1].length == bytesPerBlock){
+            if (bytesPerBlock == Math.floor(unorderedCodewords.length/num_blocks) && num_blocks-orderedCodewords.length == unorderedCodewords.length%num_blocks){
                 bytesPerBlock += 1;
             }
-            coefficients.push([])
+            orderedCodewords.push([])
         }
-        coefficients[coefficients.length-1].push(parseInt(unoffsetBinary(codewords[b]).join(""), 2));
+        orderedCodewords[orderedCodewords.length-1].push(unorderedCodewords[b]);
+    }
+
+    return orderedCodewords;
+}
+
+function messageCoefficients(url, terminators, paddingBytes, errorLevel, version){
+    let coefficients = messageCodewords(url, terminators, paddingBytes, errorLevel, version);
+    for (let i=0; i<coefficients.length; i++){
+        for (let j=0; j<coefficients[i].length; j++){
+            coefficients[i][j] = parseInt(unoffsetBinary(coefficients[i][j]).join(""), 2);
+        }
     }
 
     return coefficients;
 }
 
-function writeData(coefficients, size){
+function writeData(url, terminators, paddingBytes, errorLevel, version, size){
+    coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version)
     for (let b=0; b<coefficients[coefficients.length-1].length; b++){
         for (let block=0; block<coefficients.length; block++){
             if (coefficients[block].length > b){
@@ -469,7 +481,7 @@ function generateCode(){
 
     let coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
-    writeData(coefficients, size);
+    writeData(url, terminators, paddingBytes, errorLevel, version, size);
 
     ErrorCorrection(coefficients, errorLevel, version, size);
 
