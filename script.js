@@ -214,7 +214,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
 
     let currByte = [];
     for (let i=0; i<bitStream.length; i++){
-        currByte.push(bitStream[i]%2);
+        currByte.push(bitStream[i]);
         if (currByte.length == 8){
             codewords.push(currByte);
             currByte = [];
@@ -231,7 +231,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
             }
             coefficients.push([])
         }
-        coefficients[coefficients.length-1].push(parseInt(codewords[b].join(""), 2));
+        coefficients[coefficients.length-1].push(parseInt(unoffsetString(codewords[b]).join(""), 2));
     }
 
     return coefficients;
@@ -559,10 +559,19 @@ function outline(start_r, start_c, size, value){
 function offsetString(binaryString, offset){
     let offsetedArray = [];
     for (let i=0; i<binaryString.length; i++){
-        offsetedArray[i] = (parseInt(binaryString[i])%2)+offset*2;
+        offsetedArray.push((parseInt(binaryString[i])%2)+offset*2);
     }
 
     return offsetedArray;
+}
+
+function unoffsetString(binaryString){
+    let unoffsetedArray = [];
+    for (let i=0; i<binaryString.length; i++){
+        unoffsetedArray.push((parseInt(binaryString[i])%2));
+    }
+
+    return unoffsetedArray;
 }
 
 //#endregion
