@@ -212,12 +212,12 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
     let codewords = [];
     let bitStream = getBitStream(url, terminators, paddingBytes, version);
 
-    let currByte = "";
+    let currByte = [];
     for (let i=0; i<bitStream.length; i++){
-        currByte += bitStream[i];
+        currByte.push(bitStream[i]);
         if (currByte.length == 8){
-            codewords.push(parseInt(currByte, 2));
-            currByte = "";
+            codewords.push(currByte);
+            currByte = [];
         }
     }
 
@@ -231,7 +231,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
             }
             coefficients.push([])
         }
-        coefficients[coefficients.length-1].push(codewords[b]);
+        coefficients[coefficients.length-1].push(parseInt(codewords[b].join(""), 2));
     }
 
     return coefficients;
