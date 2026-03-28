@@ -8,6 +8,7 @@ const versionOffset = 5;
 const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+
 let code_grid = [];
 let errorLevelMap;
 
@@ -152,7 +153,16 @@ function basePatterns(version, size){
     code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
     
     if (version >= 7){
-        writeVersionBits("111111111111111111", size, baseOffset); 
+        versionBits = "111111111111111111";
+
+        for(let i=0; i<3; i++){
+            for(let j=0; j<6; j++){
+                available_bits -= (code_grid[5-j][size-9-i] == -1);
+                available_bits -= (code_grid[size-9-i][j] == -1);
+                code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
+                code_grid[size-9-i][j] = parseInt(versionBits[i*6+j]);
+            }
+        }
     }
 }
 
@@ -424,22 +434,26 @@ function versionInfo(version, size){
     version_error = errorString(version_error, generator, 12);
 
     let version_combined = version_main+version_error;
+    version_combined = version_combined.split('').reverse().join('');
     console.log(version, version_combined);
-    version_combined = "100110011110000010";
 
     writeVersionBits(version_combined, size, versionOffset); 
 }
 
-function writeVersionBits(versionBits, size, offset){
+function writeVersionBits(versionBits, size, offset) {
     versionBits = offsetString(versionBits, offset);
+    
+    let bit;
+    for (let i = 0; i < 18; i++) {
+        bit = (parseInt(versionBits[i]) % 2) + offset * 2;
+        
+        let row1 = size - 11 + (i % 3);
+        let col1 = Math.floor(i / 3);
+        code_grid[row1][col1] = bit;
 
-    for(let i=0; i<3; i++){
-        for(let j=0; j<6; j++){
-            available_bits -= (code_grid[5-j][size-9-i] == -1);
-            available_bits -= (code_grid[size-9-i][j] == -1);
-            code_grid[5-j][size-9-i] = parseInt(versionBits[i*6+j]);//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-9-i][j] = parseInt(versionBits[i*6+j]);
-        }
+        let row2 = Math.floor(i / 3);
+        let col2 = size - 11 + (i % 3);
+        code_grid[row2][col2] = bit;
     }
 }
 //#endregion
