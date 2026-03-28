@@ -186,23 +186,23 @@ function getErrorLevel(version){
 }
 
 function getBitStream(url, terminators, paddingBytes, version){
-    let bitStream = mode;
+    let bitStream = [...mode];
 
     if (version < 10){
-        bitStream += padLeft((url.length).toString(2));//length
+        bitStream.push(...offsetString(padLeft((url.length).toString(2)), dataOffset));//length
     } else {
-        bitStream += padLeft((url.length).toString(2), 16);//length
+        bitStream.push(...offsetString(padLeft((url.length).toString(2), 16), dataOffset));//length
     }
 
     for (let i = 0; i < url.length; i++){
-        bitStream += padLeft(url.charCodeAt(i).toString(2));
+        bitStream.push(...offsetString(padLeft(url.charCodeAt(i).toString(2)), dataOffset));
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream += "0";
+        bitStream.push(paddingOffset*2);
     }
     for (let i=1; i<=paddingBytes; i++){
-        bitStream += padLeft((17+(219*(i%2))).toString(2));
+        bitStream.push(...offsetString(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
     }
 
     return bitStream
@@ -214,7 +214,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
 
     let currByte = [];
     for (let i=0; i<bitStream.length; i++){
-        currByte.push(bitStream[i]);
+        currByte.push(bitStream[i]%2);
         if (currByte.length == 8){
             codewords.push(currByte);
             currByte = [];
