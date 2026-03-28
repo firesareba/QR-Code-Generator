@@ -189,20 +189,20 @@ function getBitStream(url, terminators, paddingBytes, version){
     let bitStream = [...mode];
 
     if (version < 10){
-        bitStream.push(...offsetString(padLeft((url.length).toString(2)), dataOffset));//length
+        bitStream.push(...offsetBinary(padLeft((url.length).toString(2)), dataOffset));//length
     } else {
-        bitStream.push(...offsetString(padLeft((url.length).toString(2), 16), dataOffset));//length
+        bitStream.push(...offsetBinary(padLeft((url.length).toString(2), 16), dataOffset));//length
     }
 
     for (let i = 0; i < url.length; i++){
-        bitStream.push(...offsetString(padLeft(url.charCodeAt(i).toString(2)), dataOffset));
+        bitStream.push(...offsetBinary(padLeft(url.charCodeAt(i).toString(2)), dataOffset));
     }
 
     for (let i=0; i<terminators; i++){
         bitStream.push(paddingOffset*2);
     }
     for (let i=1; i<=paddingBytes; i++){
-        bitStream.push(...offsetString(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
+        bitStream.push(...offsetBinary(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
     }
 
     return bitStream
@@ -231,7 +231,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
             }
             coefficients.push([])
         }
-        coefficients[coefficients.length-1].push(parseInt(unoffsetString(codewords[b]).join(""), 2));
+        coefficients[coefficients.length-1].push(parseInt(unoffsetBinary(codewords[b]).join(""), 2));
     }
 
     return coefficients;
@@ -397,7 +397,7 @@ function format(maskingMethod, errorLevel, size){
     let format_combined = format_main+format_error;
 
     let format_final = stringXOR(format_combined, "101010000010010");
-    format_final = offsetString(format_final, formatOffset)
+    format_final = offsetBinary(format_final, formatOffset)
 
     for (let i=0; i<6; i++){//top left
         code_grid[8][i] =  parseInt(format_final[i]);
@@ -432,7 +432,7 @@ function versionInfo(version, size){
 }
 
 function writeVersionBits(versionBits, size, offset){
-    versionBits = offsetString(versionBits, offset);
+    versionBits = offsetBinary(versionBits, offset);
     
     for(let i=0; i<6; i++){
         for(let j=0; j<3; j++){
@@ -556,7 +556,7 @@ function outline(start_r, start_c, size, value){
     }
 }
 
-function offsetString(binaryString, offset){
+function offsetBinary(binaryString, offset){
     let offsetedArray = [];
     for (let i=0; i<binaryString.length; i++){
         offsetedArray.push((parseInt(binaryString[i])%2)+offset*2);
@@ -565,7 +565,7 @@ function offsetString(binaryString, offset){
     return offsetedArray;
 }
 
-function unoffsetString(binaryString){
+function unoffsetBinary(binaryString){
     let unoffsetedArray = [];
     for (let i=0; i<binaryString.length; i++){
         unoffsetedArray.push((parseInt(binaryString[i])%2));
@@ -605,7 +605,7 @@ function nextPos(size){
 }
 
 function writeByte(byte, size, offset=0){
-    byte = offsetString(byte, offset);
+    byte = offsetBinary(byte, offset);
     let bit;
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx]);
