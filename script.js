@@ -249,11 +249,11 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
 }
 
 function writeData(url, terminators, paddingBytes, errorLevel, version, size){
-    coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version)
+    coefficients = messageCodewords(url, terminators, paddingBytes, errorLevel, version)
     for (let b=0; b<coefficients[coefficients.length-1].length; b++){
         for (let block=0; block<coefficients.length; block++){
             if (coefficients[block].length > b){
-                writeByte(padLeft(coefficients[block][b].toString(2)), size, dataOffset);
+                writeByte(padLeft(coefficients[block][b]), size);
             }
         }
     }
@@ -616,8 +616,10 @@ function nextPos(size){
     }
 }
 
-function writeByte(byte, size, offset=0){
-    byte = offsetBinary(byte, offset);
+function writeByte(byte, size, offset=-1){
+    if (offset != -1){
+        byte = offsetBinary(byte, offset);
+    }
     let bit;
     for (let idx=0; idx<8; idx++){
         bit = parseInt(byte[idx]);
