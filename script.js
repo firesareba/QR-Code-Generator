@@ -850,8 +850,13 @@ function displayCode(size, debug){
         drawGrid(size);
     }
 
-    // if (logo.src){
-        let logo_modules = 5//Math.floor((size-17)/4);
+    if (logo.src){
+        let logo_modules = 4*size/21;
+        if (Math.floor(logo_modules)%2 == 1){
+            logo_modules = Math.floor(logo_modules);
+        } else {
+            logo_modules = Math.ceil(logo_modules);
+        }
 
         let ratio;
         if (logo.height > logo.width){
@@ -869,9 +874,9 @@ function displayCode(size, debug){
         drawPoint = [canvas.width/2-cell_size*(logo_modules+2)/2, canvas.height/2-cell_size*(logo_modules+2)/2];
         drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*(logo_modules+2), cell_size*(logo_modules+2));
 
-        // drawPoint = [canvas.width/2-logo.width/2, canvas.height/2-logo.height/2];
-        // drawable_canvas.drawImage(logo, drawPoint[0], drawPoint[1], logo.width, logo.height);
-    // }
+        drawPoint = [canvas.width/2-logo.width/2, canvas.height/2-logo.height/2];
+        drawable_canvas.drawImage(logo, drawPoint[0], drawPoint[1], logo.width, logo.height);
+    }
 }
 
 function drawGrid(size){
@@ -903,4 +908,4 @@ function drawOverlay(size){
 
 mapSetup();
 generateCode();
-drawOverlay(4*1+21)
+drawOverlay(4*1+17)

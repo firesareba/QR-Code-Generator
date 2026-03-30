@@ -22,6 +22,7 @@ label.input.error-correction {
 }
 #overlay-canvas{
     z-index: 2;
+    opacity: 0%;
 }
 
 canvas {
