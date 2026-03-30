@@ -12,7 +12,7 @@ const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,
 let code_grid = [];
 let errorLevelMap;
 
-const mode = "0100";
+const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
 const vertical_format = 6;
 const alpha = 2;
@@ -28,6 +28,14 @@ const debug_input = document.getElementById("debug");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
+//#endregion
+
+//#region bypass cookies
+url_input.value = "";
+mask_input.value = "0";
+error_level_input.value = "L";
+version_input.value = 2;
+debug_input.checked = false;
 //#endregion
 
 //#region listeners
@@ -438,7 +446,6 @@ function versionInfo(version, size){
 
     let version_combined = version_main+version_error;
     version_combined = version_combined.split('').reverse().join('');
-    console.log(version, version_combined);
 
     writeVersionBits(version_combined, size, versionOffset); 
 }
@@ -478,6 +485,7 @@ function generateCode(){
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
     let paddingBytes = dataBitsLeft/8;//bits to bytes
+    console.log(terminators)
 
     let coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 
