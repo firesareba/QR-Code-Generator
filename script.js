@@ -851,7 +851,7 @@ function displayCode(size, debug){
     }
 
     if (logo.src){
-        let logo_modules = 4*size/21;
+        let logo_modules = 5*size/21;
         if (Math.floor(logo_modules)%2 == 1){
             logo_modules = Math.floor(logo_modules);
         } else {
