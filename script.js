@@ -40,7 +40,7 @@ url_input.value = "";
 mask_input.value = "0";
 error_level_input.value = "L";
 version_input.value = 2;
-debug_input.checked = true;
+debug_input.checked = false;
 //#endregion
 
 //#region listeners
@@ -851,12 +851,10 @@ function displayCode(size, debug){
     }
 
     if (logo.src){
-        let logo_modules = 5*size/21-((size-17)/4)*0.5;
-        if (Math.floor(logo_modules)%2 == 1){
-            logo_modules = Math.floor(logo_modules);
-        } else {
-            logo_modules = Math.ceil(logo_modules);
-        }
+        let logo_modules = Math.floor(5*size/21);
+        logo_modules -= (logo_modules%2 != 1);
+        logo_modules -= Math.round(((size-17)/4)*0.3/2)*2
+
 
         let ratio;
         if (logo.height > logo.width){
