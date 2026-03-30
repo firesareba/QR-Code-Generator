@@ -11,6 +11,7 @@ const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,
 
 let code_grid = [];
 let errorLevelMap;
+let logo = new Image();
 
 const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
@@ -26,6 +27,7 @@ const version_label = document.getElementById("version-label");
 const version_input = document.getElementById("version");
 const debug_input = document.getElementById("debug");
 const download_input = document.getElementById("download");
+const logo_input = document.getElementById("logo");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -58,10 +60,12 @@ error_level_input.addEventListener(
     }
 );
 
-version_input.addEventListener("input", function(e){
+version_input.addEventListener(
+    "input", function(e){
     version_label.innerHTML = "Version: "+ version_input.value;
     generateCode();
-});
+    }
+);
 
 debug_input.addEventListener(
     "change", function(event) {
@@ -83,6 +87,22 @@ download_input.addEventListener(
         document.body.appendChild(a);
         a.click();
         a.remove();
+    }
+);
+
+logo_input.addEventListener(
+    'change', function(e) {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            dataURL = event.target.result;
+            logo.src = dataURL;
+            logo.onload = function() {
+                generateCode();
+            };
+        }
+        
+        reader.readAsDataURL(e.target.files[0]);
     }
 );
 //#endregion
@@ -823,7 +843,31 @@ function displayCode(size, debug){
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
         }
     }
-    drawGrid(size);
+
+    if (debug){
+        drawGrid(size);
+    }
+
+    if (logo.src){
+        let ratio;
+        if (logo.height > logo.width){
+            ratio = logo.width/logo.height;
+            logo.height = cell_size*5;
+            logo.width = cell_size*5*ratio
+        } else {
+            ratio = logo.height/logo.width;
+            logo.height = cell_size*5*ratio
+            logo.width = cell_size*5;
+        }
+
+        let drawPoint;
+        drawable_canvas.fillStyle = "white";
+        drawPoint = [canvas.width/2-cell_size*6/2, canvas.height/2-cell_size*6/2];
+        drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*6, cell_size*6);
+
+        drawPoint = [canvas.width/2-logo.width/2, canvas.height/2-logo.height/2];
+        drawable_canvas.drawImage(logo, drawPoint[0], drawPoint[1], logo.width, logo.height);
+    }
 }
 
 function drawGrid(size){
