@@ -11,10 +11,12 @@
                 <label class="input">Enter URL Here:</label>
                 <input class="input" id="url" type="text">
             </div>
+
             <div>
                 <label class="input">Mask version:</label>
                 <input class="input" id="mask" type="number" min="0" max="7" value="0">
             </div>
+
             <div>
                 <label class="input">Error Correction:</label>
                 <select id="error-correction">
@@ -24,21 +26,31 @@
                     <option value="H">High (30%)</option>
                 </select>
             </div>
+
             <div>
                 <label class="input" id="version-label">Version: 2</label>
                 <input class="input"id="version" type="range" min="1" max="40" value="2">
             </div>
+
             <div>
                 <label class="input">Debug Mode:</label>
                 <input class="input" id="debug" type="checkbox">
             </div>
+
             <div>
                 <input class="input" id="download" type="button" value="Download">
             </div>
+
             <div>
                 <input class="input" id="logo" type="file">
             </div>
-
+            
+            <div>
+                <label class="input">Zero Color:</label>
+                <input class="input" id="zeroBit" type="color" value="#00ffff">
+                <label class="input">One Color:</label>
+                <input class="input" id="oneBit" type="color" value="#00ffff">
+            </div>
         </div>
 
         <canvas id="code-canvas"></canvas>

@@ -6,6 +6,8 @@ const errorOffset = 3;
 const formatOffset = 4;
 const versionOffset = 5;
 const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+let zeroColor = "white";
+let oneColor = "black";
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -98,7 +100,7 @@ logo_input.addEventListener(
             dataURL = event.target.result;
             logo.src = dataURL;
             logo.onload = function() {
-                generateCode();
+                displayCode(getSize(), debug_input.checked);
             };
         }
         
@@ -508,7 +510,7 @@ function generateCode(){
     let url = url_input.value;
     
     let version = parseInt(version_input.value);
-    let size = getSize(version);
+    let size = getSize();
     let [errorLevel, errorBits] = getErrorLevel(version);
 
     basePatterns(version, size);
@@ -573,8 +575,8 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function getSize(version){
-    return 4*version+17
+function getSize(){
+    return 4*parseInt(version_input.value)+17
 }
 
 function validAlignmentPattern(center){
@@ -818,12 +820,12 @@ function errorString(mainString, generatorString, targLen){
 
 
 //#region draw
-function displayCode(size, debug){
+function displayCode(size, debug=false){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
-    drawable_canvas.fillStyle = "white";
+    drawable_canvas.fillStyle = zeroColor;
     drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
-    drawable_canvas.fillStyle = "black";
+    drawable_canvas.fillStyle = oneColor;
 
     for (let i=0; i<size; i++){
         for (let j=0; j<size; j++){
@@ -835,9 +837,9 @@ function displayCode(size, debug){
                 }
             } else {
                 if (code_grid[i][j]%2 == 1){
-                    drawable_canvas.fillStyle = "black";
+                    drawable_canvas.fillStyle = oneColor;
                 } else {
-                    drawable_canvas.fillStyle = "white";
+                    drawable_canvas.fillStyle = zeroColor;
                 }
             }
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
@@ -866,7 +868,7 @@ function displayCode(size, debug){
         }
 
         let drawPoint;
-        drawable_canvas.fillStyle = "white";
+        drawable_canvas.fillStyle = zeroColor;
         drawPoint = [canvas.width/2-cell_size*(logo_modules+2)/2, canvas.height/2-cell_size*(logo_modules+2)/2];
         drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*(logo_modules+2), cell_size*(logo_modules+2));
 
