@@ -25,6 +25,7 @@ const error_level_input = document.getElementById("error-correction");
 const version_label = document.getElementById("version-label");
 const version_input = document.getElementById("version");
 const debug_input = document.getElementById("debug");
+const download_input = document.getElementById("download");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -65,6 +66,23 @@ version_input.addEventListener("input", function(e){
 debug_input.addEventListener(
     "change", function(event) {
         generateCode();
+    }
+);
+
+download_input.addEventListener(
+    "click", function(event) {
+        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+
+        var a = document.createElement('a');
+        a.href = dataURL;
+        if (url_input.value.length > 10){
+            a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
+        } else {
+            a.download = "'"+url_input.value+"'-qr-code.jpeg";
+        }
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
     }
 );
 //#endregion
@@ -485,7 +503,6 @@ function generateCode(){
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
     let paddingBytes = dataBitsLeft/8;//bits to bytes
-    console.log(terminators)
 
     let coefficients = messageCoefficients(url, terminators, paddingBytes, errorLevel, version);
 

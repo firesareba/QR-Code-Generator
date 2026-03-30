@@ -8,12 +8,12 @@ a {
     color: antiquewhite;
 }
 
-.settings-holder{
+.input-holder{
     display: flex;
     gap: 40px;
 }
 
-label.settings.error-correction {
+label.input.error-correction {
     padding-left: 10px;
 }
 
