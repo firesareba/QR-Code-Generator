@@ -31,8 +31,6 @@ const logo_input = document.getElementById("logo");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
-const overlay_canvas = document.getElementById("overlay-canvas")
-const overlay_drawable_canvas = overlay_canvas.getContext("2d");
 //#endregion
 
 //#region bypass cookies
@@ -891,19 +889,7 @@ function draw_line(x1, y1, x2, y2, type) {
     drawable_canvas.lineTo(x2, y2);
     drawable_canvas.stroke();
 }
-
-function drawOverlay(size){
-    overlay_canvas.width = (size+2)*cell_size;
-    overlay_canvas.height = overlay_canvas.width;
-
-    let logo_modules = 5;
-    let drawPoint;
-    overlay_drawable_canvas.fillStyle = "red";
-    drawPoint = [overlay_canvas.width/2-cell_size*(logo_modules+2)/2, overlay_canvas.height/2-cell_size*(logo_modules+2)/2];
-    overlay_drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*(logo_modules+2), cell_size*(logo_modules+2));
-}
 //#endregion
 
 mapSetup();
 generateCode();
-drawOverlay(4*1+17)
