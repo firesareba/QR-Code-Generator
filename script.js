@@ -6,8 +6,6 @@ const errorOffset = 3;
 const formatOffset = 4;
 const versionOffset = 5;
 const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
-let zeroColor = "white";
-let oneColor = "black";
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -30,6 +28,8 @@ const version_input = document.getElementById("version");
 const debug_input = document.getElementById("debug");
 const download_input = document.getElementById("download");
 const logo_input = document.getElementById("logo");
+const zeroBit_input = document.getElementById("zeroBit");
+const oneBit_input = document.getElementById("oneBit");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -41,6 +41,8 @@ mask_input.value = "0";
 error_level_input.value = "L";
 version_input.value = 2;
 debug_input.checked = false;
+zeroBit_input.value = "#ffffff";
+oneBit_input.value = "#000000"
 //#endregion
 
 //#region listeners
@@ -107,6 +109,19 @@ logo_input.addEventListener(
         reader.readAsDataURL(e.target.files[0]);
     }
 );
+
+zeroBit_input.addEventListener(
+    "change", function(event){
+        displayCode(getSize(), debug_input.checked);
+    }
+);
+
+oneBit_input.addEventListener(
+    "change", function(event){
+        displayCode(getSize(), debug_input.checked);
+    }
+);
+
 //#endregion
 
 
@@ -823,9 +838,9 @@ function errorString(mainString, generatorString, targLen){
 function displayCode(size, debug=false){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
-    drawable_canvas.fillStyle = zeroColor;
+    drawable_canvas.fillStyle = zeroBit_input.value;
     drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
-    drawable_canvas.fillStyle = oneColor;
+    drawable_canvas.fillStyle = oneBit_input.value;
 
     for (let i=0; i<size; i++){
         for (let j=0; j<size; j++){
@@ -837,9 +852,9 @@ function displayCode(size, debug=false){
                 }
             } else {
                 if (code_grid[i][j]%2 == 1){
-                    drawable_canvas.fillStyle = oneColor;
+                    drawable_canvas.fillStyle = oneBit_input.value;
                 } else {
-                    drawable_canvas.fillStyle = zeroColor;
+                    drawable_canvas.fillStyle = zeroBit_input.value;
                 }
             }
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
@@ -868,7 +883,7 @@ function displayCode(size, debug=false){
         }
 
         let drawPoint;
-        drawable_canvas.fillStyle = zeroColor;
+        drawable_canvas.fillStyle = zeroBit_input.value;
         drawPoint = [canvas.width/2-cell_size*(logo_modules+2)/2, canvas.height/2-cell_size*(logo_modules+2)/2];
         drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*(logo_modules+2), cell_size*(logo_modules+2));
 
