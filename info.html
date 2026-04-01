@@ -6,65 +6,86 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <div class="input-holder">
-            <div>
-                <label class="input">Enter URL Here:</label>
-                <input class="input" id="url" type="text">
+        <div class="main">
+            <div class="input-holder">
+                <div>
+                    <label class="input">Enter URL Here:</label>
+                    <input class="input" id="url" type="text">
+                </div>
+
+                <div>
+                    <label class="input">Mask version:</label>
+                    <input class="input" id="mask" type="number" min="0" max="7" value="0">
+                </div>
+
+                <div>
+                    <label class="input">Error Correction:</label>
+                    <select id="error-correction">
+                        <option value="L">Low (7%)</option>
+                        <option value="M">Medium (15%)</option>
+                        <option value="Q">Quartile (25%)</option>
+                        <option value="H">High (30%)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="input" id="version-label">Version: 2</label>
+                    <input class="input"id="version" type="range" min="1" max="40" value="2">
+                </div>
             </div>
 
-            <div>
-                <label class="input">Mask version:</label>
-                <input class="input" id="mask" type="number" min="0" max="7" value="0">
-            </div>
+            <canvas id="code-canvas"></canvas>
 
-            <div>
-                <label class="input">Error Correction:</label>
-                <select id="error-correction">
-                    <option value="L">Low (7%)</option>
-                    <option value="M">Medium (15%)</option>
-                    <option value="Q">Quartile (25%)</option>
-                    <option value="H">High (30%)</option>
-                </select>
-            </div>
+            <h1>Base Patterns</h1>
+            <p>
+                These are the patterns that tell the scanner "I'm a QR Code". They are shown in <strong style="color:rgb(205, 205, 205)">Off-white and Grey</strong>. They come in 3 sub groups: Finder Patterns, Timing Strips, and Alignment Patterns
+                <br>The <strong>Finder Patterns</strong> are the most recognizable, the 3 square shapes in the corners. These are used to define the orientation of the qr code relative to the scanner.
+                <br>The <strong>Timing Strips</strong> are used to identify the rows and columns during scanning.
+                <br>The <strong>Alignment Patterns</strong> appear in Versions 2 and above, and my understanding is they are used to correct for warping, if the paper curls or something. As such, there are more as the Version increases
+            </p>
 
-            <div>
-                <label class="input" id="version-label">Version: 2</label>
-                <input class="input"id="version" type="range" min="1" max="40" value="2">
-            </div>
+            <h1>Main Data</h1>
+            <p>
+                Before getting into the Data, we need to understand how the bitstream moves.
+                Imagine splitting the grid into groups of 2 columns. Start in the bottom right corner. Once filled, move to the other cell in the same row, same column group. Then, move up to the right. If you hit an already filled square, skip it. Once you finish a column pair, go to the next column pair and reverse ONLY the y direction. So if you were going right to left, bottom to top, go right to left, top to bottom. NEVER go left to right.
+                The Data is represented in <strong style="color:rgb(255, 255, 255)">Black and White</strong>
+                This consists of 3 parts: Mode, Length, and Data
+                <br>The <strong>Mode</strong> is a 4 bit identifier that tells the scanner how the data is encoded. The 4 modes are Binary(Used in my generator), Numeric, Alphanumeric, and Japanese Kanji.
+                <br>The <strong>Length</strong> is 1 byte for Versions 1 through 9, and 2 bytes for Versions 10 and above. This stores how long the actual Data is. This will make more sense once you read Padding
+                <br>The <strong>Data</strong> is the part that stores your url. It converts each character to its ASCII binary code, padding 0s till its 1 byte(8 bits).
+            </p>
+
+            <h1>Padding</h1>
+            <p>In every QR Code, there is a amount of space set aside for the data. This space is NOT dependent on the length of the data. We use padding to fill the leftover space. 
+                <br>First, we add the <strong>Terminators</strong>(Shown in <strong style="color:rgb(255, 0, 0)">Red</strong>). These just get the remaining data bits to a multiple of 8, so that bytes will fit evenly in it. There are at most 4.
+                <br>The remaining space is filled with <strong>Padding Bytes</strong>(Shown in <strong style="color:rgb(179, 0, 179)">Purple</strong>). These are the numbers 17 and 236 represented in binary(and padded to 1 byte), alternating, in that order.
+            </p>
+
+            <h1>Error Correction</h1>
+            <p>
+                (Shown in <strong style="color:rgb(0, 255, 0)">Green</strong>)
+            </p>
+            
+            <h1>Maksing</h1>
+            <p>
+                Large patches of black or white can be interpreted as large error patches. To combat this, bits are reversed based on a pattern. All non-essential bits(data, padding, and error correction) are masked. Some patterns include a checkerboard, or every 3rd column.
+            </p>
+
+            <h1>Version Information</h1>
+            <p>
+                For Versions 7 and above, the timing strips are no longer enough to determine the Version number. 
+                <br><strong>Version Information</strong> (Shown in <strong style="color:rgb(0, 217, 255)">Blue</strong>) stores the version as 6 padded bits in binary. Since this is critical information, it is stored identically in 2 places.
+                <br>It also has error correction. However, it is not Reed-Solomon, the one that the main data uses. It uses Bose-Chaudhuri-Hocquenghem algorithm to expand the 6 bits into 18 BCH is based on Hamming distance.
+                <br>Consider you only want to transmit 0 or 1. If a bit flip occurs, you will get the wrong answer. Instead, you represent it as 000 and 111, which are 3D coordinates. If a single bit flips, you were probably trying to transmit the corner which is closer to this new distance.
+                Now take this concept and expand it to a 18 Dimensional object. Mathematically it is very simple.
+            </p>
+
+            <h1>Format Information</h1>
+            <p>
+                <strong>Format Strips</strong> (Shown in <strong style="color:rgb(255, 196, 0)">Orange</strong>) store the mask method and error correction level.
+                Format Strips are very similar to Version info. They are stored in 2 spots, and use BCH error correction.
+            </p>
         </div>
-
-        <canvas id="code-canvas"></canvas>
-
-        <h1>Base Patterns</h1>
-        <p>
-
-        </p>
-
-        <h1>Main Data</h1>
-        <p>
-           
-        <h1>Padding</h1>
-        </p>
-
-        <h1>Error Correction</h1>
-        <p>
-            
-        </p>
-        
-        <h1>Maksing</h1>
-        <p>
-            
-        </p>
-
-        <h1>Version Information</h1>
-        <p>
-            
-        </p>
-
-        <h1>Format Information</h1>
-        <p>
-            
-        </p>
 
         <footer>
             Generator on <a href="./index.html">Main Page</a>
