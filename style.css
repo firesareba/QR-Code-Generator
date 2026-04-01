@@ -8,32 +8,26 @@ a {
     color: antiquewhite;
 }
 
-.input-holder{
-    display: flex;
-    gap: 40px;
-}
-
-.not-url-input-holder{
-    width: 100vw;
-    margin-bottom: 50px;
-}
-
-.input-holder.not-url{
-    display: inline-block;
-}
-
-.url-input-holder{
-    margin-bottom: 30px;
-}
-
 input[type='color']{
     margin: 10px;
     border: 1px solid rgb(255, 255, 255);
     border-radius: 30%;
 }
 
-label.input.error-correction {
-    padding-left: 10px;
+.non-footer{
+    margin-bottom: 50px;
+}
+
+.non-footer div{
+    display: inline-block;
+}
+
+.url{
+    margin-bottom: 10px;
+}
+
+.url input{
+    width: 100%
 }
 
 #code-canvas {
@@ -47,8 +41,4 @@ footer {
     left: 10px;
     font-size: 30px;
     background-color: black;
-}
-
-.main{
-    margin-bottom: 75px;
 }
