@@ -53,6 +53,7 @@
                 <br>The <strong>Mode</strong> is a 4 bit identifier that tells the scanner how the data is encoded. The 4 modes are Binary(Used in my generator), Numeric, Alphanumeric, and Japanese Kanji.
                 <br>The <strong>Length</strong> is 1 byte for Versions 1 through 9, and 2 bytes for Versions 10 and above. This stores how long the actual Data is. This will make more sense once you read Padding
                 <br>The <strong>Data</strong> is the part that stores your url. It converts each character to its ASCII binary code, padding 0s till its 1 byte(8 bits).
+                This comprises the bitstream. However, we do not write the bit stream in one long sequence. We break the code into blocks. Then, write byte 1 of block 1, byte 1 of block 2 and so on.
             </p>
 
             <h1>Padding</h1>
@@ -63,7 +64,12 @@
 
             <h1>Error Correction</h1>
             <p>
-                (Shown in <strong style="color:rgb(0, 255, 0)">Green</strong>)
+                Error Correction (Shown in <strong style="color:rgb(0, 255, 0)">Green</strong>) accounts for if your QR Code is damaged. This way, it can still scan even if there is a stain or something.
+                <br>Think of everything byte in the data space (including padding) as a number represented in binary. You can think of this as a polynomial. Now we can add some more terms to this polynomial so it is divisible by a generator polynomial. 
+                If a number is read wrong by the scanner, it will no longer be divisible. We can loop over every coefficient to see which one was incorrect. 
+                <br>To determine what the Error Correction bytes should be, we can use polynomial division. Divide the polynomial you get from data codewords by a generator polynomial. We want the remainder to be 0, so we just move the remainder to the other side. This means the remainder of Data Polynomial/Generator Polynomial is the Error Polynomail.
+                <br>In bigger versions, the Data Polynomial is split into multiple blocks. These blocks are treated as individual polynomials which run the error correction algorithm individualy. That way, if a small part of the QR Code is damaged, we don't have to loop over ALL the coefficients, as that would be inefficient.
+                This is called <strong>Reed-Solomon Error Correction</strong>. Error Correction is NOT interleaved.
             </p>
             
             <h1>Maksing</h1>
