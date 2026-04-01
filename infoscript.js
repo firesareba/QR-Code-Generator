@@ -1,17 +1,17 @@
 //#region Vars
 const baseOffset = 0;
 const dataOffset = 1;
-const paddingOffset = 2;
-const errorOffset = 3;
-const formatOffset = 4;
-const versionOffset = 5;
-const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+const extraOffset = 2;
+const paddingOffset = 3;
+const errorOffset = 4;
+const formatOffset = 5;
+const versionOffset = 6;
+const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
 let code_grid = [];
 let errorLevelMap;
-let logo = new Image();
 
 const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
@@ -25,11 +25,6 @@ const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
 const version_label = document.getElementById("version-label");
 const version_input = document.getElementById("version");
-const debug_input = document.getElementById("debug");
-const download_input = document.getElementById("download");
-const logo_input = document.getElementById("logo");
-const zeroBit_input = document.getElementById("zeroBit");
-const oneBit_input = document.getElementById("oneBit");
 
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
@@ -40,9 +35,6 @@ url_input.value = "";
 mask_input.value = "0";
 error_level_input.value = "L";
 version_input.value = 2;
-debug_input.checked = false;
-zeroBit_input.value = "#ffffff";
-oneBit_input.value = "#000000"
 //#endregion
 
 //#region listeners
@@ -68,57 +60,6 @@ version_input.addEventListener(
     "input", function(e){
     version_label.innerHTML = "Version: "+ version_input.value;
     generateCode();
-    }
-);
-
-debug_input.addEventListener(
-    "change", function(event) {
-        generateCode();
-    }
-);
-
-download_input.addEventListener(
-    "click", function(event) {
-        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
-
-        var a = document.createElement('a');
-        a.href = dataURL;
-        if (url_input.value.length > 10){
-            a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
-        } else {
-            a.download = "'"+url_input.value+"'-qr-code.jpeg";
-        }
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-    }
-);
-
-logo_input.addEventListener(
-    'change', function(e) {
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            dataURL = event.target.result;
-            logo.src = dataURL;
-            logo.onload = function() {
-                displayCode(getSize(), debug_input.checked);
-            };
-        }
-        
-        reader.readAsDataURL(e.target.files[0]);
-    }
-);
-
-zeroBit_input.addEventListener(
-    "change", function(event){
-        displayCode(getSize(), debug_input.checked);
-    }
-);
-
-oneBit_input.addEventListener(
-    "change", function(event){
-        displayCode(getSize(), debug_input.checked);
     }
 );
 
@@ -262,7 +203,7 @@ function getBitStream(url, terminators, paddingBytes, version){
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream.push(paddingOffset*2);
+        bitStream.push(extraOffset*2);
     }
     for (let i=1; i<=paddingBytes; i++){
         bitStream.push(...offsetBinary(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
@@ -344,7 +285,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = dataOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = extraOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
@@ -556,7 +497,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, debug_input.checked);
+    displayCode(size);
 }
 
 
@@ -835,9 +776,12 @@ function errorString(mainString, generatorString, targLen){
 
 
 //#region draw
-function displayCode(size, debug=false){
+function displayCode(size){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
+
+    drawable_canvas.fillStyle = "#ffffff";
+    drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
 
     for (let i=0; i<size; i++){
         for (let j=0; j<size; j++){
@@ -850,9 +794,7 @@ function displayCode(size, debug=false){
         }
     }
 
-    if (debug){
-        drawGrid(size);
-    }
+    drawGrid(size);
 }
 
 function drawGrid(size){

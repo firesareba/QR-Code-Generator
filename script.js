@@ -1,11 +1,12 @@
 //#region Vars
 const baseOffset = 0;
 const dataOffset = 1;
-const paddingOffset = 2;
-const errorOffset = 3;
-const formatOffset = 4;
-const versionOffset = 5;
-const debugColors = ["antiquewhite", "grey", "white", "black", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+const extraOffset = 2;
+const paddingOffset = 3;
+const errorOffset = 4;
+const formatOffset = 5;
+const versionOffset = 6;
+const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -262,7 +263,7 @@ function getBitStream(url, terminators, paddingBytes, version){
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream.push(paddingOffset*2);
+        bitStream.push(extraOffset*2);
     }
     for (let i=1; i<=paddingBytes; i++){
         bitStream.push(...offsetBinary(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
@@ -344,7 +345,7 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
     //Left over bits are just 0s
     for (let i=0; i<leftoverBits[version]; i++){
         nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = dataOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = extraOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
