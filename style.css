@@ -13,8 +13,21 @@ a {
     gap: 40px;
 }
 
+.not-url-input-holder{
+    width: 100vw;
+    margin-bottom: 50px;
+}
+
+.input-holder.not-url{
+    display: inline-block;
+}
+
+.url-input-holder{
+    margin-bottom: 30px;
+}
+
 input[type='color']{
-    margin: 1px;
+    margin: 10px;
     border: 1px solid rgb(255, 255, 255);
     border-radius: 30%;
 }

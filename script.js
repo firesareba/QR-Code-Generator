@@ -6,7 +6,6 @@ const paddingOffset = 3;
 const errorOffset = 4;
 const formatOffset = 5;
 const versionOffset = 6;
-const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -26,7 +25,6 @@ const mask_input = document.getElementById("mask");
 const error_level_input = document.getElementById("error-correction");
 const version_label = document.getElementById("version-label");
 const version_input = document.getElementById("version");
-const debug_input = document.getElementById("debug");
 const download_input = document.getElementById("download");
 const logo_input = document.getElementById("logo");
 const zeroBit_input = document.getElementById("zeroBit");
@@ -41,7 +39,6 @@ url_input.value = "";
 mask_input.value = "0";
 error_level_input.value = "L";
 version_input.value = 2;
-debug_input.checked = false;
 zeroBit_input.value = "#ffffff";
 oneBit_input.value = "#000000"
 //#endregion
@@ -72,12 +69,6 @@ version_input.addEventListener(
     }
 );
 
-debug_input.addEventListener(
-    "change", function(event) {
-        generateCode();
-    }
-);
-
 download_input.addEventListener(
     "click", function(event) {
         var dataURL = canvas.toDataURL("image/jpeg", 1.0);
@@ -103,7 +94,7 @@ logo_input.addEventListener(
             dataURL = event.target.result;
             logo.src = dataURL;
             logo.onload = function() {
-                displayCode(getSize(), debug_input.checked);
+                displayCode(getSize());
             };
         }
         
@@ -113,13 +104,13 @@ logo_input.addEventListener(
 
 zeroBit_input.addEventListener(
     "change", function(event){
-        displayCode(getSize(), debug_input.checked);
+        displayCode(getSize());
     }
 );
 
 oneBit_input.addEventListener(
     "change", function(event){
-        displayCode(getSize(), debug_input.checked);
+        displayCode(getSize());
     }
 );
 
@@ -557,7 +548,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, debug_input.checked);
+    displayCode(size);
 }
 
 
