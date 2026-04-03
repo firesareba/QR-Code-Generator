@@ -14,12 +14,21 @@ input[type='color']{
     border-radius: 30%;
 }
 
+.container{
+    display:flexbox;
+    border: 2px solid darkred;
+}
+
 .non-footer{
     margin-bottom: 50px;
 }
 
 .non-footer div{
-    display: inline-block;
+    flex-direction: row;
+}
+
+.url-display div{
+    flex-direction: column;
 }
 
 .url{
@@ -27,7 +36,7 @@ input[type='color']{
 }
 
 .url input{
-    width: 100%
+    /* width: 100% */
 }
 
 #code-canvas {
