@@ -516,9 +516,7 @@ function writeVersionBits(versionBits, size, offset){
 function generateCode(){
     let url = url_input.value;
     
-    let version = parseInt(version_input.value);
-    let [errorLevel, errorBits] = getErrorLevel(version);
-    validateSettings(version, errorLevel);
+    let [version, errorLevel, errorBits] = getValidSettings();
     let size = getSize();
 
     basePatterns(version, size);
@@ -548,12 +546,42 @@ function generateCode(){
 
 
 //#region independent of data
-function validateSettings(version, errorLevel){
-    finder_bits = 8**2*3;
-    timing_bits = (getSize()-8*2)*2;
-    version_bits = 18*2*(version >= 7);
-    alignment_bits = ;
-    total_bits = finder_bits+timing_bits+version_bits+alignment_bits+1;
+function getValidSettings(){
+    let version = parseInt(version_input.value);
+    let [errorLevel, errorBits] = getErrorLevel(version);
+
+    return [version, errorLevel, errorBits];
+}
+
+function baseBits(version, size){
+    let finder_bits = 8**2*3;
+    let format_bits = 15*2;
+    let version_bits = 18*2*(version >= 7);
+    let alignment_bits = 0;
+
+    let numLines = Math.floor(version/7)+2;
+    let lastLine = size-7;
+    let lineSpacing = Math.ceil((lastLine-6)/(numLines-1));
+    lineSpacing = Math.ceil(lineSpacing/2)*2;
+
+    for (let j=2; j<=numLines; j++){
+        if (validAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing])){
+            alignment_bits += 5**2;
+        }
+    }
+
+    for (let i=2; i<=numLines; i++){
+        if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6])){
+            alignment_bits += 5**2;
+        }
+        for (let j=2; j<=numLines; j++){
+            if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing])){
+                alignment_bits += 5**2;
+            }
+        }
+    }
+
+    return finder_bits+format_bits+version_bits+1;
 }
 
 function mapSetup(){
