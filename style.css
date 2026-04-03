@@ -19,7 +19,7 @@ input[type='color']{
   align-items: stretch;   
   flex-shrink: 0;         
   position: relative;     
-  border: 1px dashed red;
+  /* border: 1px dashed red; */
 }
 
 .non-footer{
@@ -39,10 +39,20 @@ input[type='color']{
 .data-settings{
     flex-direction: column;
     flex: 1;
+    margin: 10px;
+}
+
+.data-settings div{
+    flex: 1;
 }
 
 .ui-settings{
     flex-direction: column;
+    flex: 1;
+    margin: 10px;
+}
+
+.ui-settings div{
     flex: 1;
 }
 
