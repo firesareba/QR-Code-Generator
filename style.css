@@ -14,21 +14,36 @@ input[type='color']{
     border-radius: 30%;
 }
 
-.container{
-    display:flexbox;
-    border: 2px solid darkred;
+.container {
+  display: flex;             /* Required: Web needs this to enable flex */ 
+  align-items: stretch;      /* React Native default behavior */
+  flex-shrink: 0;            /* Standard behavior in RN */
+  position: relative;        /* RN Views are relative by default */
+  border: 1px dashed red;
 }
 
 .non-footer{
-    margin-bottom: 50px;
-}
-
-.non-footer div{
     flex-direction: row;
 }
 
-.url-display div{
+.url-display{
     flex-direction: column;
+    flex: 4;
+}
+
+.custom-settings{
+    flex-direction: column;
+    flex: 5;
+}
+
+.data-settings{
+    flex-direction: column;
+    flex: 1;
+}
+
+.ui-settings{
+    flex-direction: column;
+    flex: 1;
 }
 
 .url{
