@@ -517,17 +517,12 @@ function generateCode(){
     let url = url_input.value;
     
     let version = parseInt(version_input.value);
-    let size = getSize();
     let [errorLevel, errorBits] = getErrorLevel(version);
+    validateSettings(version, errorLevel);
+    let size = getSize();
 
     basePatterns(version, size);
     console.clear();
-    
-
-    if (available_bits-errorBits < url.length*8+8){
-        alert("Too much text. Use lower ERROR CORRECTION LEVEL or higher VERSION");
-        return;
-    }
 
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
@@ -553,6 +548,14 @@ function generateCode(){
 
 
 //#region independent of data
+function validateSettings(version, errorLevel){
+    finder_bits = 8**2*3;
+    timing_bits = (getSize()-8*2)*2;
+    version_bits = 18*2*(version >= 7);
+    alignment_bits = ;
+    total_bits = finder_bits+timing_bits+version_bits+alignment_bits+1;
+}
+
 function mapSetup(){
     errorLevelMap = new Map();
     errorLevelMap.set('L', new Map());
