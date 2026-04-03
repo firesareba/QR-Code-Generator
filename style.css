@@ -15,10 +15,10 @@ input[type='color']{
 }
 
 .container {
-  display: flex;             /* Required: Web needs this to enable flex */ 
-  align-items: stretch;      /* React Native default behavior */
-  flex-shrink: 0;            /* Standard behavior in RN */
-  position: relative;        /* RN Views are relative by default */
+  display: flex;          
+  align-items: stretch;   
+  flex-shrink: 0;         
+  position: relative;     
   border: 1px dashed red;
 }
 
