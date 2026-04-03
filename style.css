@@ -19,7 +19,7 @@ input[type='color']{
   align-items: stretch;   
   flex-shrink: 0;         
   position: relative;     
-  /* border: 1px dashed red; */
+  border: 1px dashed red;
 }
 
 .non-footer{
@@ -61,11 +61,11 @@ input[type='color']{
 }
 
 .url input{
-    /* width: 100% */
+    flex: 1;
 }
 
 #code-canvas {
-    height: 600px;
+    width: 100%;
     aspect-ratio: 1;
 }
 
