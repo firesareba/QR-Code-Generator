@@ -6,7 +6,6 @@ const paddingOffset = 3;
 const errorOffset = 4;
 const formatOffset = 5;
 const versionOffset = 6;
-const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -546,7 +545,7 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size, true);
+    displayCode(size);
 }
 
 
@@ -569,10 +568,10 @@ function getValidSettings(url){
                 error_level_input.value = 'M';
             } else if (error_level_input.value == 'M'){
                 error_level_input.value = 'L';
-            } else{
+            } else {
                 alert("Too much info");
             }
-        }else {
+        } else {
             version_input.value = version+1;
             version_label.innerHTML = "Version: "+ version_input.value;
         }
