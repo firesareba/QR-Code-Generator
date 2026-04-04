@@ -559,6 +559,31 @@ function getValidSettings(url){
     let terminators = (8-((available_bits-4-errorBits)%8))%8;
     let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
 
+    while (available_bits > needed){
+        if (error_level_input.value != 'H'){
+            if (error_level_input.value == 'L'){
+                error_level_input.value = 'M';
+            } else if (error_level_input.value == 'M'){
+                error_level_input.value = 'Q';
+            } else if (error_level_input.value == 'Q'){
+                error_level_input.value = 'H';
+            }
+        } else if (version > 1) {
+            version_input.value = version-1;
+            version_label.innerHTML = "Version: "+ version_input.value;
+        } else {
+            break;
+        }
+
+
+        version = parseInt(version_input.value);
+        [errorLevel, errorBits] = getErrorLevel(version);
+        size = getSize();
+
+        available_bits = size**2-(getBaseBits(version, size)+errorBits);
+        terminators = (8-((available_bits-4-errorBits)%8))%8;
+        needed = 4+8+8*(version >= 10)+8*url.length+terminators;
+    }
 
     while (available_bits < needed){
         if (version == 40){
