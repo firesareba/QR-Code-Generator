@@ -6,6 +6,7 @@ const paddingOffset = 3;
 const errorOffset = 4;
 const formatOffset = 5;
 const versionOffset = 6;
+const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -516,13 +517,15 @@ function writeVersionBits(versionBits, size, offset){
 function generateCode(){
     let url = url_input.value;
     
-    let [version, errorLevel, errorBits] = getValidSettings();
+    let [version, errorLevel, errorBits] = getValidSettings(url);
+    if (version == 0){
+        return;
+    }
+
     let size = getSize();
     
     basePatterns(version, size);
-    console.clear();
-
-    console.log(baseBits(version, size), size**2-available_bits);
+    // console.clear();
 
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
@@ -543,19 +546,30 @@ function generateCode(){
         versionInfo(version, size);
     }
 
-    displayCode(size);
+    displayCode(size, true);
 }
 
 
 //#region independent of data
-function getValidSettings(){
+function getValidSettings(url){
     let version = parseInt(version_input.value);
     let [errorLevel, errorBits] = getErrorLevel(version);
+    let size = getSize();
+
+    available_bits = size**2-(getBaseBits(version, size)+errorBits);
+    let terminators = (8-((available_bits-4-errorBits)%8))%8;
+    let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
+
+
+    if (available_bits < needed){
+        console.log("Not gonna work");
+        return [0, 0, 0];
+    }
 
     return [version, errorLevel, errorBits];
 }
 
-function baseBits(version, size){
+function getBaseBits(version, size){
     let finder_bits = 8**2*3;
     let format_bits = 15*2;
     let version_bits = 18*2*(version >= 7);
@@ -618,7 +632,6 @@ function getSize(){
 }
 
 function validAlignmentPattern(center){
-    console.log("Called")
     for (let i=center[0]-2; i<=center[0]+2; i++){
         for (let j=center[1]-2; j<=center[1]+2; j++){
             if (code_grid[i][j] != -1){
