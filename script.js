@@ -525,7 +525,7 @@ function generateCode(){
     let size = getSize();
     
     basePatterns(version, size);
-    // console.clear();
+    console.clear();
 
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
@@ -561,9 +561,30 @@ function getValidSettings(url){
     let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
 
 
-    if (available_bits < needed){
-        console.log("Not gonna work");
-        return [0, 0, 0];
+    while (available_bits < needed){
+        if (version == 40){
+            if (error_level_input.value == 'H'){
+                error_level_input.value = 'Q';
+            } else if (error_level_input.value == 'Q'){
+                error_level_input.value = 'M';
+            } else if (error_level_input.value == 'M'){
+                error_level_input.value = 'L';
+            } else{
+                alert("Too much info");
+            }
+        }else {
+            version_input.value = version+1;
+            version_label.innerHTML = "Version: "+ version_input.value;
+        }
+
+
+        version = parseInt(version_input.value);
+        [errorLevel, errorBits] = getErrorLevel(version);
+        size = getSize();
+
+        available_bits = size**2-(getBaseBits(version, size)+errorBits);
+        terminators = (8-((available_bits-4-errorBits)%8))%8;
+        needed = 4+8+8*(version >= 10)+8*url.length+terminators;
     }
 
     return [version, errorLevel, errorBits];
