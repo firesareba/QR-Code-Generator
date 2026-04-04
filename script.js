@@ -518,9 +518,11 @@ function generateCode(){
     
     let [version, errorLevel, errorBits] = getValidSettings();
     let size = getSize();
-
+    
     basePatterns(version, size);
     console.clear();
+
+    console.log(baseBits(version, size), size**2-available_bits);
 
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
@@ -557,31 +559,29 @@ function baseBits(version, size){
     let finder_bits = 8**2*3;
     let format_bits = 15*2;
     let version_bits = 18*2*(version >= 7);
+    let timing_bits = (size-8*2)*2;
     let alignment_bits = 0;
 
+    //#region alignment
+    //no 6, 6
     let numLines = Math.floor(version/7)+2;
-    let lastLine = size-7;
-    let lineSpacing = Math.ceil((lastLine-6)/(numLines-1));
-    lineSpacing = Math.ceil(lineSpacing/2)*2;
 
     for (let j=2; j<=numLines; j++){
-        if (validAlignmentPattern([6, lastLine-(numLines-j)*lineSpacing])){
-            alignment_bits += 5**2;
-        }
+        alignment_bits += 5**2;
+        timing_bits -= 5;
     }
 
     for (let i=2; i<=numLines; i++){
-        if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, 6])){
+        alignment_bits += 5**2;
+        timing_bits -= 5;
+        for (let j=2; j<=numLines; j++){
             alignment_bits += 5**2;
         }
-        for (let j=2; j<=numLines; j++){
-            if (validAlignmentPattern([lastLine-(numLines-i)*lineSpacing, lastLine-(numLines-j)*lineSpacing])){
-                alignment_bits += 5**2;
-            }
-        }
     }
-
-    return finder_bits+format_bits+version_bits+1;
+    alignment_bits -= 2*5**2;
+    timing_bits += 5*2;
+    //#endregion
+    return finder_bits+format_bits+version_bits+timing_bits+alignment_bits+1;
 }
 
 function mapSetup(){
@@ -618,6 +618,7 @@ function getSize(){
 }
 
 function validAlignmentPattern(center){
+    console.log("Called")
     for (let i=center[0]-2; i<=center[0]+2; i++){
         for (let j=center[1]-2; j<=center[1]+2; j++){
             if (code_grid[i][j] != -1){
