@@ -32,27 +32,23 @@ input[type='color']{
 
 .settings{
     flex: 1;
-    border: solid 1px cyan;
 }
 
 .custom-settings-holder{
     flex-direction: column;
     flex: 3;
     justify-content: center;
-    border: solid 1px yellow;
 }
 
 .inner-settings{
     margin: 10px;
     flex-direction: column;
     flex: 5;
-    border: solid 1px cyan;
 }
 
 .inner-settings > *{
     flex: 1;
     align-content: center;
-    border: solid 1px red;
 }
 
 .url{
