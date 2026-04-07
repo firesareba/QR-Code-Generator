@@ -1,0 +1,32 @@
+body{
+    background-color: black;
+    color: antiquewhite;
+    font-family: 'Courier New', Courier, monospace;
+    justify-content: center;
+    text-align: center;
+}
+
+a {
+    color: antiquewhite;
+}
+
+input[type='color']{
+    margin: 10px;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 30%;
+}
+
+.container {
+  display: flex;          
+  align-items: stretch;   
+  flex-shrink: 0;         
+  position: relative;     
+}
+
+#title{
+    font-family: 'OldNewspaperTypes', sans-serif;
+}
+
+#check{
+    font-size: xx-large;
+}
