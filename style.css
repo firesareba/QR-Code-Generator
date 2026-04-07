@@ -19,7 +19,6 @@ input[type='color']{
   align-items: stretch;   
   flex-shrink: 0;         
   position: relative;     
-  /* border: 2px dashed red; */
 }
 
 .non-footer{
@@ -31,27 +30,29 @@ input[type='color']{
     width: 90vh;
 }
 
-.custom-settings{
+.settings{
+    flex: 1;
+}
+
+.custom-settings-holder{
     flex-direction: column;
-    flex: 5;
+    flex: 1;
+    justify-content: center;
 }
 
 .inner-settings{
     margin: 10px;
     flex-direction: column;
-    /* border: solid 1px yellow; */
 }
 
 .inner-settings > *{
     flex: 1;
     margin: 0;
-    /* border: solid 1px red; */
     align-content: center;
 }
 
 .outer-settings{
     flex: 5;
-    /* border: solid 1px aqua; */
 }
 
 .url{
