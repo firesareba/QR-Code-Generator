@@ -9,14 +9,15 @@ const versionOffset = 6;
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
-let code_grid = [];
-let errorLevelMap;
-let logo = new Image();
-
 const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
 const vertical_format = 6;
 const alpha = 2;
+
+let code_grid = [];
+let errorLevelMap;
+let logo = new Image();
+let prevEmpty = false;
 //#endregion
 
 //#region access html
@@ -525,7 +526,7 @@ function generateCode(){
     let size = getSize();
     
     basePatterns(version, size);
-    console.clear();
+    // console.clear();
 
     let terminators = (8-((available_bits-4-errorBits)%8))%8;//4 mode bits, url data is a multiple of 8
     let dataBitsLeft = (available_bits-4-8-8*(version >= 10)-(8*url.length)-terminators)-errorBits;//in order: available_bits-mode-minimumLengthByte-extraLengthByte-dataBytes-terminators-errorBits
@@ -552,6 +553,17 @@ function generateCode(){
 
 //#region independent of data
 function getValidSettings(url){
+    if (url.length == 0){
+        if (!prevEmpty){
+            error_level_input.value = "L";
+            version_input.value = 2;
+            version_label.innerHTML = "Version: "+ version_input.value;
+        }
+        prevEmpty = true;
+    } else {
+        prevEmpty = false;
+    }
+
     let version = parseInt(version_input.value);
     let [errorLevel, errorBits] = getErrorLevel(version);
     let size = getSize();
