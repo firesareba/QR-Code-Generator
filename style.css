@@ -36,29 +36,22 @@ input[type='color']{
     flex: 5;
 }
 
-.setting-buffer{
+.inner-settings{
     margin: 10px;
     flex-direction: column;
+    /* border: solid 1px yellow; */
 }
 
-.setting-buffer div{
+.inner-settings > *{
     flex: 1;
+    margin: 0;
     /* border: solid 1px red; */
     align-content: center;
 }
 
-.data-settings{
-    flex: 1;
+.outer-settings{
+    flex: 5;
     /* border: solid 1px aqua; */
-    margin-bottom: 40px;
-    justify-content: center;
-}
-
-.ui-settings{
-    flex: 1;
-    /* border: solid 1px aqua; */
-    margin-top: 40px;
-    justify-content: center;
 }
 
 .url{
