@@ -518,6 +518,7 @@ function generateCode(){
     
     let [version, errorLevel, errorBits] = getValidSettings(url);
     if (version == 0){
+        alert("Too much info");
         return;
     }
 
@@ -569,7 +570,7 @@ function getValidSettings(url){
             } else if (error_level_input.value == 'M'){
                 error_level_input.value = 'L';
             } else {
-                alert("Too much info");
+                return [0, 0, 0]
             }
         } else {
             version_input.value = version+1;
