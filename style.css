@@ -36,26 +36,29 @@ input[type='color']{
     flex: 5;
 }
 
-.data-settings{
-    flex-direction: column;
-    flex: 1;
+.setting-buffer{
     margin: 10px;
-    /* border-color: aqua; */
+    flex-direction: column;
 }
 
-.data-settings div{
+.setting-buffer div{
     flex: 1;
+    /* border: solid 1px red; */
+    align-content: center;
+}
+
+.data-settings{
+    flex: 1;
+    /* border: solid 1px aqua; */
+    margin-bottom: 40px;
+    justify-content: center;
 }
 
 .ui-settings{
-    flex-direction: column;
     flex: 1;
-    margin: 10px;
-    /* border-color: aqua; */
-}
-
-.ui-settings div{
-    flex: 1;
+    /* border: solid 1px aqua; */
+    margin-top: 40px;
+    justify-content: center;
 }
 
 .url{
