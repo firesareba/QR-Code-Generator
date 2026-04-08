@@ -24,25 +24,47 @@ input[type='color']{
   position: relative;     
 }
 
+.nav-holder{
+    margin-top: 10vh;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.title-display{
+    flex-direction: column;
+    justify-content: center;
+}
 
 .page-button {
     background-color: antiquewhite;
     border: none;
     border-radius: 10px;
+    padding: 25px;
+    margin: 10px;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
+    font-size: 22px;
     cursor: pointer;
+    transition: transform 0.3s;
 }
 
 .page-button:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
     background-color: aliceblue;
 }
 
 #title{
     font-family: 'OldNewspaperTypes', sans-serif;
+    max-height: 10vh;
 }
 
 #check{
     font-size: xx-large;
+}
+
+#code-canvas {
+    align-self: center;
+    height: 50vh;
+    aspect-ratio: 1;
+    background-color: red;
 }

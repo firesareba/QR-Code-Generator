@@ -7,17 +7,20 @@
         <link rel="stylesheet" href="landingStyle.css">
     </head>
     <body>
-        <h1 id="title">QR Code Generator</h1>
-        <div>
-            <button class="page-button">
-                <a href="./info.html">Information Page</a>
-            </button>
-            <button class="page-button">
-                <a href="./main.html">Main Page</a>
-            </button>
+        <div class="title-display container">
+            <canvas id="code-canvas"></canvas>
+            <h1 id="title">QR Code Generator</h1>
+        </div>
+        <div class="nav-holder container">
+            <a href="./info.html">
+                <button class="page-button">INFO PAGE</button>
+            </a>
+            <a href="./main.html">
+                <button class="page-button">MAIN PAGE</button>
+            </a>
         </div>
 
-        <p id="check"><strong>IMPORTANT:</strong> Please check out the info page.</p>
+        <p id="check"><strong>IMPORTANT:</strong> Please check out the <strong>Info Page</strong></p>
     </body>
     <script src="script.js"></script>
 </html>
