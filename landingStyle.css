@@ -24,9 +24,19 @@ input[type='color']{
   position: relative;     
 }
 
-.page-button{
+
+.page-button {
     background-color: antiquewhite;
-    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.page-button:active {
+    transform: scale(0.95);
+    background-color: aliceblue;
 }
 
 #title{
