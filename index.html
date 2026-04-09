@@ -24,16 +24,25 @@
     </body>
     <script src="script.js"></script>
     <script>
+        function downloadTextFile(text, num) {
+            var blob = new Blob([text], { type: 'text/plain' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${num} Code.txt`;
+            link.click();
+        }
+
         let version;
         let errorLevels = ["L", "M", "Q", "H"]
-        for (let i=0; i<20; i++){
+        for (let i=0; i<2; i++){
             version = Math.floor(Math.random() * 19) + 2;
             if (version == 2){
                 errorLevel = errorLevels[Math.floor(Math.random() * 3)];
             } else{
                 errorLevel = errorLevels[Math.floor(Math.random() * 4)];
             }
-            generateCode("QR Code Generator", version, errorLevel, Math.random()*8);
+            // generateCode("QR Code Generator", version, errorLevel, Math.random()*8);
+            downloadTextFile("code_grid", i);
         }
     </script>
 </html>
