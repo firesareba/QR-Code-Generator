@@ -25,6 +25,21 @@
     <script src="script.js"></script>
     <script src="preGenCodes.js"></script>
     <script>
+        const fonts = [
+            'Georgia, serif',
+            'Times New Roman, serif',
+            'Arial, sans-serif',
+            'Verdana, sans-serif',
+            'Trebuchet MS, sans-serif',
+            'Impact, Charcoal, sans-serif',
+            'Courier New, monospace',
+            'Lucida Console, monospace',
+            'Comic Sans MS, cursive',
+            'Brush Script MT, cursive',
+            'Papyrus, fantasy',
+            'Copperplate, fantasy'
+        ];
+
         const title = document.getElementById("title");
 
         let idxOptions = [];
@@ -45,12 +60,12 @@
             [red, green, blue] = [(red+127)%255, (green+127)%255, (blue+127)%255];
             oneColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
 
-            title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
+            title.style.fontFamily = fonts[Math.floor(Math.random()*fonts.length)];
             displayCode();
 
             idx = idxOptions[Math.floor((idxOptions.length-1)*Math.random())];
             idxOptions = idxOptions.filter(x => x !== idx);
             idxOptions.push(idx);
-        }, 500);
+        }, 1000);
     </script>
 </html>
