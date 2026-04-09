@@ -59,7 +59,7 @@ input[type='color']{
     flex: 1;
 }
 
-#code-canvas {
+.code-canvas {
     max-height: 90vh;
     aspect-ratio: 1;
 }
@@ -110,4 +110,10 @@ footer {
     font-size: xx-large;
     justify-content: center;
     text-align: center;
+}
+
+#changing-code {
+    align-self: center;
+    height: 50vh;
+    aspect-ratio: 1;
 }

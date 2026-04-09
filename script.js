@@ -33,7 +33,7 @@ let logo_input;
 let zeroBit_input;
 let oneBit_input;
 
-const canvas = document.getElementById("code-canvas");
+const canvas = document.getElementsByClassName("code-canvas")[0];
 const drawable_canvas = canvas.getContext("2d");
 //#endregion
 
