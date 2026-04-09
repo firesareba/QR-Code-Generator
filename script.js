@@ -18,8 +18,8 @@ let code_grid = [];
 let errorLevelMap;
 let logo = new Image();
 let prevEmpty = false;
-let zeroColor;
-let oneColor;
+let zeroColor = "#ffffff";
+let oneColor = "#000000";
 //#endregion
 
 //#region access html
