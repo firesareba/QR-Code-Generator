@@ -23,34 +23,11 @@
         <p id="check"><strong>IMPORTANT:</strong> Please check out the <strong>Info Page</strong></p>
     </body>
     <script src="script.js"></script>
+    <script src="preGenCodes.js"></script>
     <script>
-        function downloadTextFile(text) {
-            var blob = new Blob([text], { type: 'text/plain' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "Code.txt";
-            link.click();
-        }
-
-
-        let totalText = "";
-        let version;
-        let errorLevels = ["L", "M", "Q", "H"]
-        for (let i=0; i<20; i++){
-            version = Math.floor(Math.random() * 19) + 2;
-            if (version == 2){
-                errorLevel = errorLevels[Math.floor(Math.random() * 3)];
-            } else{
-                errorLevel = errorLevels[Math.floor(Math.random() * 4)];
-            }
-            let maskMethod = Math.floor(Math.random() * 8);
-            generateCode("QR Code Generator", version, errorLevel, maskMethod);
-            for (let row of code_grid){
-                totalText += row;
-                totalText += "\n";
-            }
-            totalText += "\n";
-        }
-        downloadTextFile(totalText);
+        setInterval(() => {
+            code_grid = pre_gen_codes[pre_gen_codes.length*Math.random()];
+            displayCode();
+        }, 1000);
     </script>
 </html>
