@@ -478,7 +478,7 @@ function generateCode(url, version, errorLevel, maskingMethod){
         versionInfo(version, size);
     }
 
-    displayCode(size);
+    displayCode();
 }
 
 
@@ -721,7 +721,7 @@ function mainSetup(){
                     dataURL = event.target.result;
                     logo.src = dataURL;
                     logo.onload = function() {
-                        displayCode(getSize(version));
+                        displayCode();
                     };
                 }
                 
@@ -732,14 +732,14 @@ function mainSetup(){
         zeroBit_input.addEventListener(
             "change", function(event){
                 zeroColor = zeroBit_input.value;
-                displayCode(getSize(parseInt(version_input.value)));
+                displayCode();
             }
         );
 
         oneBit_input.addEventListener(
             "change", function(event){
                 oneColor = oneBit_input.value;
-                displayCode(getSize(parseInt(version_input.value)));
+                displayCode();
             }
         );
 
@@ -938,7 +938,9 @@ function errorString(mainString, generatorString, targLen){
 
 
 //#region draw
-function displayCode(size, debug=false){
+function displayCode(debug=false){
+    let size = code_grid.length;
+
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
     drawable_canvas.fillStyle = zeroColor;
