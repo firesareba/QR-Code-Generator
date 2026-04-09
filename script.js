@@ -478,8 +478,6 @@ function generateCode(url, version, errorLevel, maskingMethod){
         versionInfo(version, size);
     }
 
-    zeroColor = zeroBit_input.value;
-    oneColor = oneBit_input.value;
     displayCode(size);
 }
 
@@ -650,99 +648,108 @@ function unoffsetBinary(binaryString){
 }
 
 function mainSetup(){
-    url_input = document.getElementById("url");
-    mask_input = document.getElementById("mask");
-    error_level_input = document.getElementById("error-correction");
-    version_label = document.getElementById("version-label");
-    version_input = document.getElementById("version");
-    download_input = document.getElementById("download");
-    logo_input = document.getElementById("logo");
-    zeroBit_input = document.getElementById("zeroBit");
-    oneBit_input = document.getElementById("oneBit");
+    try {
+        url_input = document.getElementById("url");
+        mask_input = document.getElementById("mask");
+        error_level_input = document.getElementById("error-correction");
+        version_label = document.getElementById("version-label");
+        version_input = document.getElementById("version");
+        download_input = document.getElementById("download");
+        logo_input = document.getElementById("logo");
+        zeroBit_input = document.getElementById("zeroBit");
+        oneBit_input = document.getElementById("oneBit");
 
-    //#region bypass cookies
-    url_input.value = "";
-    mask_input.value = "0";
-    error_level_input.value = "L";
-    version_input.value = 2;
-    zeroBit_input.value = "#ffffff";
-    oneBit_input.value = "#000000"
-    //#endregion
+        //#region bypass cookies
+        url_input.value = "";
+        mask_input.value = "0";
+        error_level_input.value = "L";
+        version_input.value = 2;
+        zeroBit_input.value = "#ffffff";
+        oneBit_input.value = "#000000"
+        zeroColor = zeroBit_input.value;
+        oneColor = oneBit_input.value;
+        //#endregion
 
-    //#region listeners
-    url_input.addEventListener(
-        "input", function(event) {
+        //#region listeners
+        url_input.addEventListener(
+            "input", function(event) {
+                generateCode();
+            }
+        );
+
+        mask_input.addEventListener(
+            "input", function(event) {
+                generateCode();
+            }
+        );
+
+        error_level_input.addEventListener(
+            "change", function(event) {
+                generateCode();
+            }
+        );
+
+        version_input.addEventListener(
+            "input", function(e){
+            version_label.innerHTML = "Version: "+ version_input.value;
             generateCode();
-        }
-    );
+            }
+        );
 
-    mask_input.addEventListener(
-        "input", function(event) {
-            generateCode();
-        }
-    );
+        download_input.addEventListener(
+            "click", function(event) {
+                var dataURL = canvas.toDataURL("image/jpeg", 1.0);
 
-    error_level_input.addEventListener(
-        "change", function(event) {
-            generateCode();
-        }
-    );
+                var a = document.createElement('a');
+                a.href = dataURL;
+                if (url_input.value.length > 10){
+                    a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
+                } else {
+                    a.download = "'"+url_input.value+"'-qr-code.jpeg";
+                }
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            }
+        );
 
-    version_input.addEventListener(
-        "input", function(e){
-        version_label.innerHTML = "Version: "+ version_input.value;
+        logo_input.addEventListener(
+            'change', function(e) {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    dataURL = event.target.result;
+                    logo.src = dataURL;
+                    logo.onload = function() {
+                        displayCode(getSize(version));
+                    };
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        );
+
+        zeroBit_input.addEventListener(
+            "change", function(event){
+                zeroColor = zeroBit_input.value;
+                displayCode(getSize(parseInt(version_input.value)));
+            }
+        );
+
+        oneBit_input.addEventListener(
+            "change", function(event){
+                oneColor = oneBit_input.value;
+                displayCode(getSize(parseInt(version_input.value)));
+            }
+        );
+
+        //#endregion
+
         generateCode();
-        }
-    );
-
-    download_input.addEventListener(
-        "click", function(event) {
-            var dataURL = canvas.toDataURL("image/jpeg", 1.0);
-
-            var a = document.createElement('a');
-            a.href = dataURL;
-            if (url_input.value.length > 10){
-                a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
-            } else {
-                a.download = "'"+url_input.value+"'-qr-code.jpeg";
-            }
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        }
-    );
-
-    logo_input.addEventListener(
-        'change', function(e) {
-            const reader = new FileReader();
-
-            reader.onload = function(event) {
-                dataURL = event.target.result;
-                logo.src = dataURL;
-                logo.onload = function() {
-                    displayCode(getSize(version));
-                };
-            }
-            
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    );
-
-    zeroBit_input.addEventListener(
-        "change", function(event){
-            zeroColor = zeroBit_input.value;
-            displayCode(getSize(parseInt(version_input.value)));
-        }
-    );
-
-    oneBit_input.addEventListener(
-        "change", function(event){
-            oneColor = oneBit_input.value;
-            displayCode(getSize(parseInt(version_input.value)));
-        }
-    );
-
-    //#endregion
+    } catch (err){
+        return;
+    }
+    
 }
 //#endregion
 
@@ -1006,4 +1013,3 @@ function draw_line(x1, y1, x2, y2, type) {
 
 mapSetup();
 mainSetup();
-generateCode();
