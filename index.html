@@ -29,7 +29,7 @@
         for (let i=0; i<pre_gen_codes.length; i++){
             idxOptions.push(i);
         }
-        
+
         let idx = idxOptions[Math.floor(idxOptions.length*Math.random())];
         idxOptions = idxOptions.filter(x => x !== idx);
         idxOptions.push(idx);
@@ -42,6 +42,6 @@
             idxOptions.push(idx);
             code_grid = pre_gen_codes[idx];
             displayCode();
-        }, 1000);
+        }, 500);
     </script>
 </html>
