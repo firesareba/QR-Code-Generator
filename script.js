@@ -731,14 +731,14 @@ function mainSetup(){
     zeroBit_input.addEventListener(
         "change", function(event){
             zeroColor = zeroBit_input.value;
-            displayCode(getSize(version));
+            displayCode(getSize(parseInt(version_input.value)));
         }
     );
 
     oneBit_input.addEventListener(
         "change", function(event){
             oneColor = oneBit_input.value;
-            displayCode(getSize(version));
+            displayCode(getSize(parseInt(version_input.value)));
         }
     );
 
@@ -934,7 +934,6 @@ function errorString(mainString, generatorString, targLen){
 function displayCode(size, debug=false){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
-    console.log(zeroColor, oneColor)
     drawable_canvas.fillStyle = zeroColor;
     drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
     drawable_canvas.fillStyle = oneColor;
