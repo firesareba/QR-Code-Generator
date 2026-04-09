@@ -38,8 +38,11 @@
 
         setInterval(() => {
             code_grid = pre_gen_codes[idx];
-            zeroColor = '#' + Math.floor(Math.random()*16777215+1).toString(16).padStart(6, '0');
-            oneColor = '#' + Math.floor(Math.random()*16777215+1).toString(16).padStart(6, '0');
+
+            [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
+            zeroColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
+            [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
+            oneColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
             title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
             displayCode();
 
