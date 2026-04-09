@@ -237,8 +237,8 @@ function alignmentPatterns(version, size){
     }
 }
 
-function getErrorLevel(version){
-    return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+function getErrorLevel(version, errorLevel){
+    return 8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+leftoverBits[version]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
 function getBitStream(url, terminators, paddingBytes, version){
@@ -514,10 +514,15 @@ function writeVersionBits(versionBits, size, offset){
 
 
 //main func
-function generateCode(){
-    let url = url_input.value;
+function generateCode(url, version, errorLevel){
+    if (url == null){
+        url = url_input.value;
+    }
     
-    let [version, errorLevel, errorBits] = getValidSettings(url);
+    version = parseInt(version_input.value);
+    errorLevel = error_level_input.value;
+    let errorBits;
+    [version, errorLevel, errorBits] = getValidSettings(url, version, errorLevel);
     if (version == 0){
         alert("Too much info");
         return;
@@ -552,7 +557,7 @@ function generateCode(){
 
 
 //#region independent of data
-function getValidSettings(url){
+function getValidSettings(url, version, errorLevel){
     if (url.length == 0){
         if (!prevEmpty){
             error_level_input.value = "L";
@@ -564,14 +569,12 @@ function getValidSettings(url){
         prevEmpty = false;
     }
 
-    let version = parseInt(version_input.value);
-    let [errorLevel, errorBits] = getErrorLevel(version);
+    let errorBits = getErrorLevel(version, errorLevel);
     let size = getSize();
-
+    
     available_bits = size**2-(getBaseBits(version, size)+errorBits);
     let terminators = (8-((available_bits-4-errorBits)%8))%8;
     let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
-    
 
     while (available_bits < needed){
         if (version == 40){
@@ -591,14 +594,14 @@ function getValidSettings(url){
 
 
         version = parseInt(version_input.value);
-        [errorLevel, errorBits] = getErrorLevel(version);
+        errorBits = getErrorLevel(version, errorLevel);
         size = getSize();
 
         available_bits = size**2-(getBaseBits(version, size)+errorBits);
         terminators = (8-((available_bits-4-errorBits)%8))%8;
         needed = 4+8+8*(version >= 10)+8*url.length+terminators;
     }
-
+    
     return [version, errorLevel, errorBits];
 }
 
