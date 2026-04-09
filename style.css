@@ -36,7 +36,6 @@ input[type='color']{
 
 .custom-settings-holder{
     flex-direction: column;
-    flex: 3;
     justify-content: center;
 }
 
