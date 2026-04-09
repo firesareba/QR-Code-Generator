@@ -11,5 +11,5 @@ for row in contents:
         js_file.write("".join(curr)+"\n],\n\n[\n")
         curr = []
     else:
-        curr.append(f"\n    [{row}]")
+        curr.append(f"\n    [{row}],")
 js_file.close()
