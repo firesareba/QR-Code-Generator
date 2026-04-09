@@ -24,9 +24,16 @@
     </body>
     <script src="script.js"></script>
     <script>
-        setInterval(
-            function(){
-                generateCode("QR Code Generator", Math.floor(Math.random() * 40) + 1, "L", 0);
-        }, 1000);
+        let version;
+        let errorLevels = ["L", "M", "Q", "H"]
+        for (let i=0; i<20; i++){
+            version = Math.floor(Math.random() * 19) + 2;
+            if (version == 2){
+                errorLevel = errorLevels[Math.floor(Math.random() * 3)];
+            } else{
+                errorLevel = errorLevels[Math.floor(Math.random() * 4)];
+            }
+            generateCode("QR Code Generator", version, errorLevel, Math.random()*8);
+        }
     </script>
 </html>
