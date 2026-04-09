@@ -41,8 +41,10 @@
 
             [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
             zeroColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
-            [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
+
+            [red, green, blue] = [(red+127)%255, (green+127)%255, (blue+127)%255];
             oneColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
+
             title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
             displayCode();
 
