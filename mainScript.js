@@ -21,8 +21,100 @@ let prevEmpty = false;
 //#endregion
 
 //#region access html
+const url_input = document.getElementById("url");
+const mask_input = document.getElementById("mask");
+const error_level_input = document.getElementById("error-correction");
+const version_label = document.getElementById("version-label");
+const version_input = document.getElementById("version");
+const download_input = document.getElementById("download");
+const logo_input = document.getElementById("logo");
+const zeroBit_input = document.getElementById("zeroBit");
+const oneBit_input = document.getElementById("oneBit");
+
 const canvas = document.getElementById("code-canvas")
 const drawable_canvas = canvas.getContext("2d");
+//#endregion
+
+//#region bypass cookies
+url_input.value = "";
+mask_input.value = "0";
+error_level_input.value = "L";
+version_input.value = 2;
+zeroBit_input.value = "#ffffff";
+oneBit_input.value = "#000000"
+//#endregion
+
+//#region listeners
+url_input.addEventListener(
+    "input", function(event) {
+        generateCode();
+    }
+);
+
+mask_input.addEventListener(
+    "input", function(event) {
+        generateCode();
+    }
+);
+
+error_level_input.addEventListener(
+    "change", function(event) {
+        generateCode();
+    }
+);
+
+version_input.addEventListener(
+    "input", function(e){
+    version_label.innerHTML = "Version: "+ version_input.value;
+    generateCode();
+    }
+);
+
+download_input.addEventListener(
+    "click", function(event) {
+        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+
+        var a = document.createElement('a');
+        a.href = dataURL;
+        if (url_input.value.length > 10){
+            a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
+        } else {
+            a.download = "'"+url_input.value+"'-qr-code.jpeg";
+        }
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+);
+
+logo_input.addEventListener(
+    'change', function(e) {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            dataURL = event.target.result;
+            logo.src = dataURL;
+            logo.onload = function() {
+                displayCode(getSize());
+            };
+        }
+        
+        reader.readAsDataURL(e.target.files[0]);
+    }
+);
+
+zeroBit_input.addEventListener(
+    "change", function(event){
+        displayCode(getSize());
+    }
+);
+
+oneBit_input.addEventListener(
+    "change", function(event){
+        displayCode(getSize());
+    }
+);
+
 //#endregion
 
 
@@ -145,8 +237,8 @@ function alignmentPatterns(version, size){
     }
 }
 
-function getErrorLevel(version, errorLevel){
-    return [8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+function getErrorLevel(version){
+    return [error_level_input.value, 8*(errorLevelMap.get(error_level_input.value).get('n_per_block')[version]*errorLevelMap.get(error_level_input.value).get('num_blocks')[version])+leftoverBits[version]]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
 function getBitStream(url, terminators, paddingBytes, version){
@@ -422,23 +514,16 @@ function writeVersionBits(versionBits, size, offset){
 
 
 //main func
-function generateCode(url, version, errorLevel){
-    if (url == null){
-        url = url_input.value;
-    }
+function generateCode(){
+    let url = url_input.value;
     
-    if (version == null){
-        let version = parseInt(version_input.value);
-        let errorLevel = error_level_input.value;
-        let errorBits;
-        [version, errorLevel, errorBits] = getValidSettings(url, version, errorLevel);
-        if (version == 0){
-            alert("Too much info");
-            return;
-        }
+    let [version, errorLevel, errorBits] = getValidSettings(url);
+    if (version == 0){
+        alert("Too much info");
+        return;
     }
 
-    let size = getSize(version);
+    let size = getSize();
     
     basePatterns(version, size);
     // console.clear();
@@ -467,7 +552,7 @@ function generateCode(url, version, errorLevel){
 
 
 //#region independent of data
-function getValidSettings(url, version, errorLevel){
+function getValidSettings(url){
     if (url.length == 0){
         if (!prevEmpty){
             error_level_input.value = "L";
@@ -479,7 +564,8 @@ function getValidSettings(url, version, errorLevel){
         prevEmpty = false;
     }
 
-    let errorBits = getErrorLevel(version, errorLevel);
+    let version = parseInt(version_input.value);
+    let [errorLevel, errorBits] = getErrorLevel(version);
     let size = getSize();
 
     available_bits = size**2-(getBaseBits(version, size)+errorBits);
@@ -574,8 +660,8 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function getSize(version){
-    return 4*parseInt(version)+17
+function getSize(){
+    return 4*parseInt(version_input.value)+17
 }
 
 function validAlignmentPattern(center){
