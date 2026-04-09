@@ -25,6 +25,8 @@
     <script src="script.js"></script>
     <script src="preGenCodes.js"></script>
     <script>
+        const title = document.getElementById("title");
+
         let idxOptions = [];
         for (let i=0; i<pre_gen_codes.length; i++){
             idxOptions.push(i);
@@ -40,7 +42,12 @@
             idx = idxOptions[Math.floor((idxOptions.length-1)*Math.random())];
             idxOptions = idxOptions.filter(x => x !== idx);
             idxOptions.push(idx);
+
             code_grid = pre_gen_codes[idx];
+            zeroColor = "#ff00ff";
+            oneColor = "#ffff00";
+            title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
+
             displayCode();
         }, 500);
     </script>
