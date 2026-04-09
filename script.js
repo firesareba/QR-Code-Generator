@@ -18,6 +18,8 @@ let code_grid = [];
 let errorLevelMap;
 let logo = new Image();
 let prevEmpty = false;
+let zeroColor;
+let oneColor;
 //#endregion
 
 //#region access html
@@ -432,7 +434,7 @@ function writeVersionBits(versionBits, size, offset){
 
 
 //main func
-function generateCode(url, version, errorLevel){
+function generateCode(url, version, errorLevel, maskingMethod){
     if (url == null){
         url = url_input.value;
     }
@@ -442,6 +444,9 @@ function generateCode(url, version, errorLevel){
     if (errorLevel == null){
         errorLevel = error_level_input.value;
     }
+    if (maskingMethod == null){
+        maskingMethod = parseInt(mask_input.value)
+    }
 
     let errorBits;
     [version, errorLevel, errorBits] = getValidSettings(url, version, errorLevel);
@@ -450,7 +455,7 @@ function generateCode(url, version, errorLevel){
         return;
     }
 
-    let size = getSize();
+    let size = getSize(version);
     
     basePatterns(version, size);
     // console.clear();
@@ -465,7 +470,6 @@ function generateCode(url, version, errorLevel){
 
     ErrorCorrection(coefficients, errorLevel, version, size);
 
-    let maskingMethod = parseInt(mask_input.value)
     mask(maskingMethod, size);
 
     format(maskingMethod, errorLevel, size);
@@ -474,6 +478,8 @@ function generateCode(url, version, errorLevel){
         versionInfo(version, size);
     }
 
+    zeroColor = zeroBit_input.value;
+    oneColor = oneBit_input.value;
     displayCode(size);
 }
 
@@ -492,7 +498,7 @@ function getValidSettings(url, version, errorLevel){
     }
 
     let errorBits = getErrorLevel(version, errorLevel);
-    let size = getSize();
+    let size = getSize(version);
     
     available_bits = size**2-(getBaseBits(version, size)+errorBits);
     let terminators = (8-((available_bits-4-errorBits)%8))%8;
@@ -517,7 +523,7 @@ function getValidSettings(url, version, errorLevel){
 
         version = parseInt(version_input.value);
         errorBits = getErrorLevel(version, errorLevel);
-        size = getSize();
+        size = getSize(version);
 
         available_bits = size**2-(getBaseBits(version, size)+errorBits);
         terminators = (8-((available_bits-4-errorBits)%8))%8;
@@ -585,8 +591,8 @@ function mapSetup(){
     HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
 }
 
-function getSize(){
-    return 4*parseInt(version_input.value)+17
+function getSize(version){
+    return 4*version+17
 }
 
 function validAlignmentPattern(center){
@@ -714,7 +720,7 @@ function mainSetup(){
                 dataURL = event.target.result;
                 logo.src = dataURL;
                 logo.onload = function() {
-                    displayCode(getSize());
+                    displayCode(getSize(version));
                 };
             }
             
@@ -724,13 +730,15 @@ function mainSetup(){
 
     zeroBit_input.addEventListener(
         "change", function(event){
-            displayCode(getSize());
+            zeroColor = zeroBit_input.value;
+            displayCode(getSize(version));
         }
     );
 
     oneBit_input.addEventListener(
         "change", function(event){
-            displayCode(getSize());
+            oneColor = oneBit_input.value;
+            displayCode(getSize(version));
         }
     );
 
@@ -926,9 +934,10 @@ function errorString(mainString, generatorString, targLen){
 function displayCode(size, debug=false){
     canvas.width = (size+2)*cell_size;
     canvas.height = canvas.width;
-    drawable_canvas.fillStyle = zeroBit_input.value;
+    console.log(zeroColor, oneColor)
+    drawable_canvas.fillStyle = zeroColor;
     drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
-    drawable_canvas.fillStyle = oneBit_input.value;
+    drawable_canvas.fillStyle = oneColor;
 
     for (let i=0; i<size; i++){
         for (let j=0; j<size; j++){
@@ -940,9 +949,9 @@ function displayCode(size, debug=false){
                 }
             } else {
                 if (code_grid[i][j]%2 == 1){
-                    drawable_canvas.fillStyle = oneBit_input.value;
+                    drawable_canvas.fillStyle = oneColor;
                 } else {
-                    drawable_canvas.fillStyle = zeroBit_input.value;
+                    drawable_canvas.fillStyle = zeroColor;
                 }
             }
             drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);

@@ -66,5 +66,5 @@ input[type='color']{
     align-self: center;
     height: 50vh;
     aspect-ratio: 1;
-    background-color: red;
+    /* background-color: red; */
 }
