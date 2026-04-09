@@ -35,20 +35,17 @@
         let idx = idxOptions[Math.floor(idxOptions.length*Math.random())];
         idxOptions = idxOptions.filter(x => x !== idx);
         idxOptions.push(idx);
-        code_grid = pre_gen_codes[idx];
-        displayCode();
 
         setInterval(() => {
+            code_grid = pre_gen_codes[idx];
+            zeroColor = '#' + Math.floor(Math.random()*16777215+1).toString(16).padStart(6, '0');
+            oneColor = '#' + Math.floor(Math.random()*16777215+1).toString(16).padStart(6, '0');
+            title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
+            displayCode();
+
             idx = idxOptions[Math.floor((idxOptions.length-1)*Math.random())];
             idxOptions = idxOptions.filter(x => x !== idx);
             idxOptions.push(idx);
-
-            code_grid = pre_gen_codes[idx];
-            zeroColor = "#ff00ff";
-            oneColor = "#ffff00";
-            title.style.fontFamily = "Impact,Charcoal,sans-serif"; 
-
-            displayCode();
         }, 500);
     </script>
 </html>
