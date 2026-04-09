@@ -518,9 +518,13 @@ function generateCode(url, version, errorLevel){
     if (url == null){
         url = url_input.value;
     }
-    
-    version = parseInt(version_input.value);
-    errorLevel = error_level_input.value;
+    if (version == null){
+        version = parseInt(version_input.value);
+    }
+    if (errorLevel == null){
+        errorLevel = error_level_input.value;
+    }
+
     let errorBits;
     [version, errorLevel, errorBits] = getValidSettings(url, version, errorLevel);
     if (version == 0){
