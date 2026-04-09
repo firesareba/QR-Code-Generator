@@ -25,8 +25,22 @@
     <script src="script.js"></script>
     <script src="preGenCodes.js"></script>
     <script>
+        let idxOptions = [];
+        for (let i=0; i<pre_gen_codes.length; i++){
+            idxOptions.push(i);
+        }
+        
+        let idx = idxOptions[Math.floor(idxOptions.length*Math.random())];
+        idxOptions = idxOptions.filter(x => x !== idx);
+        idxOptions.push(idx);
+        code_grid = pre_gen_codes[idx];
+        displayCode();
+
         setInterval(() => {
-            code_grid = pre_gen_codes[Math.floor(pre_gen_codes.length*Math.random())];
+            idx = idxOptions[Math.floor((idxOptions.length-1)*Math.random())];
+            idxOptions = idxOptions.filter(x => x !== idx);
+            idxOptions.push(idx);
+            code_grid = pre_gen_codes[idx];
             displayCode();
         }, 1000);
     </script>
