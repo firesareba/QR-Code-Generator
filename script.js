@@ -6,6 +6,7 @@ const paddingOffset = 3;
 const errorOffset = 4;
 const formatOffset = 5;
 const versionOffset = 6;
+const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
@@ -20,6 +21,7 @@ let logo = new Image();
 let prevEmpty = false;
 let zeroColor = "#ffffff";
 let oneColor = "#000000";
+let debug = false;
 //#endregion
 
 //#region access html
@@ -654,20 +656,77 @@ function mainSetup(){
         error_level_input = document.getElementById("error-correction");
         version_label = document.getElementById("version-label");
         version_input = document.getElementById("version");
-        download_input = document.getElementById("download");
-        logo_input = document.getElementById("logo");
-        zeroBit_input = document.getElementById("zeroBit");
-        oneBit_input = document.getElementById("oneBit");
+
+        try{
+            download_input = document.getElementById("download");
+            logo_input = document.getElementById("logo");
+            zeroBit_input = document.getElementById("zeroBit");
+            oneBit_input = document.getElementById("oneBit");
+
+            //#region bypass cookies
+            zeroBit_input.value = "#ffffff";
+            oneBit_input.value = "#000000"
+            zeroColor = zeroBit_input.value;
+            oneColor = oneBit_input.value;
+            //#endregion
+
+            //#region listeners
+            download_input.addEventListener(
+                "click", function(event) {
+                    var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+
+                    var a = document.createElement('a');
+                    a.href = dataURL;
+                    if (url_input.value.length > 10){
+                        a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
+                    } else {
+                        a.download = "'"+url_input.value+"'-qr-code.jpeg";
+                    }
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
+            );
+
+            logo_input.addEventListener(
+                'change', function(e) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(event) {
+                        dataURL = event.target.result;
+                        logo.src = dataURL;
+                        logo.onload = function() {
+                            displayCode();
+                        };
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            );
+
+            zeroBit_input.addEventListener(
+                "change", function(event){
+                    zeroColor = zeroBit_input.value;
+                    displayCode();
+                }
+            );
+
+            oneBit_input.addEventListener(
+                "change", function(event){
+                    oneColor = oneBit_input.value;
+                    displayCode();
+                }
+            );
+            //#endregion
+        }catch (err) {
+            debug = true;
+        }
 
         //#region bypass cookies
         url_input.value = "";
         mask_input.value = "0";
         error_level_input.value = "L";
         version_input.value = 2;
-        zeroBit_input.value = "#ffffff";
-        oneBit_input.value = "#000000"
-        zeroColor = zeroBit_input.value;
-        oneColor = oneBit_input.value;
         //#endregion
 
         //#region listeners
@@ -693,53 +752,6 @@ function mainSetup(){
             "input", function(e){
             version_label.innerHTML = "Version: "+ version_input.value;
             generateCode();
-            }
-        );
-
-        download_input.addEventListener(
-            "click", function(event) {
-                var dataURL = canvas.toDataURL("image/jpeg", 1.0);
-
-                var a = document.createElement('a');
-                a.href = dataURL;
-                if (url_input.value.length > 10){
-                    a.download = "'"+url_input.value.slice(0, 10)+"...'-qr-code.jpeg";
-                } else {
-                    a.download = "'"+url_input.value+"'-qr-code.jpeg";
-                }
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            }
-        );
-
-        logo_input.addEventListener(
-            'change', function(e) {
-                const reader = new FileReader();
-
-                reader.onload = function(event) {
-                    dataURL = event.target.result;
-                    logo.src = dataURL;
-                    logo.onload = function() {
-                        displayCode();
-                    };
-                }
-                
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        );
-
-        zeroBit_input.addEventListener(
-            "change", function(event){
-                zeroColor = zeroBit_input.value;
-                displayCode();
-            }
-        );
-
-        oneBit_input.addEventListener(
-            "change", function(event){
-                oneColor = oneBit_input.value;
-                displayCode();
             }
         );
 
@@ -938,7 +950,7 @@ function errorString(mainString, generatorString, targLen){
 
 
 //#region draw
-function displayCode(debug=false){
+function displayCode(){
     let size = code_grid.length;
 
     canvas.width = (size+2)*cell_size;
