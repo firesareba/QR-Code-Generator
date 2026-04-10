@@ -50,12 +50,21 @@ input[type='color']{
     align-content: center;
 }
 
+.inner-settings > h1{
+    font-family: 'OldNewspaperTypes', sans-serif;
+}
+
 .url{
     margin-bottom: 10px;
 }
 
 .url input{
     flex: 1;
+}
+
+.url label{
+    font-size: 20px;
+    font-family: 'OldNewspaperTypes', sans-serif;
 }
 
 .code-canvas {
@@ -117,6 +126,7 @@ footer {
 .page.button {
     padding: 25px;
     font-size: 22px;
+    margin: 10px;
 }
 
 .button:active {
