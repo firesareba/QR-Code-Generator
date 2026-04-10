@@ -759,7 +759,7 @@ function mainSetup(){
 
         generateCode();
     } catch (err){
-        return;
+        debug = false;
     }
     
 }
