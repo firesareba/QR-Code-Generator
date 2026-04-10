@@ -100,6 +100,26 @@ input[type='color']{
   border-radius: 10px;
 }
 
+#version::-moz-range-track {
+    background-color: antiquewhite;
+    border-radius: 10px;
+    padding: 2px;
+}
+
+#version::-moz-range-progress {
+  background-color: black;
+  border-radius: 10px;
+}
+
+#version::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: rgb(56, 56, 56);
+  height: 10px;
+  aspect-ratio: 5/2;
+  border-radius: 10px;
+}
+
 #mask{
     background-color: antiquewhite;
     border: none;
