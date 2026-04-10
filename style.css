@@ -10,7 +10,8 @@ a {
 
 input[type='color']{
     margin: 10px;
-    border: 1px solid rgb(255, 255, 255);
+    border: none;
+    background-color: antiquewhite;
     border-radius: 10px;
 }
 
@@ -101,14 +102,15 @@ input[type='color']{
 }
 
 #version::-moz-range-track {
-    background-color: antiquewhite;
+    background-color: aliceblue;
     border-radius: 10px;
     padding: 2px;
 }
 
 #version::-moz-range-progress {
-  background-color: black;
-  border-radius: 10px;
+   background-color: antiquewhite;
+    border-radius: 10px;
+    padding: 2px;
 }
 
 #version::-moz-range-thumb {
