@@ -27,7 +27,7 @@ input[type='color']{
 
 .url-display{
     flex-direction: column;
-    width: 90vh;
+    width: 89vh;
 }
 
 .settings{
@@ -68,7 +68,7 @@ input[type='color']{
 }
 
 .code-canvas {
-    max-height: 90vh;
+    max-height: 89vh;
     aspect-ratio: 1;
 }
 
