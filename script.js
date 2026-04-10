@@ -491,6 +491,7 @@ function getValidSettings(url, version, errorLevel){
             error_level_input.value = "L";
             version_input.value = 2;
             version_label.innerHTML = "Version: "+ version_input.value;
+            version = parseInt(version_input.value);
         }
         prevEmpty = true;
     } else {

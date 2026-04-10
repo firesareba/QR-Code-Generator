@@ -60,11 +60,17 @@ input[type='color']{
 
 .url input{
     flex: 1;
+    background-color: antiquewhite;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 20px;
 }
 
 .url label{
     font-size: 20px;
     font-family: 'OldNewspaperTypes', sans-serif;
+    margin-right: 10px;
 }
 
 .code-canvas {
