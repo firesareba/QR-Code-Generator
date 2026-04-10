@@ -15,6 +15,10 @@ input[type='color']{
     border-radius: 10px;
 }
 
+.input{
+    cursor: pointer;
+}
+
 .container {
   display: flex;          
   align-items: stretch;   
