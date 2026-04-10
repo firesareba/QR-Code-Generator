@@ -62,6 +62,12 @@ input[type='color']{
     font-family: 'OldNewspaperTypes', sans-serif;
 }
 
+.explanations{
+    flex-direction: column;
+    flex: 5;
+    margin: 10px;
+}
+
 .url{
     margin-bottom: 10px;
 }
