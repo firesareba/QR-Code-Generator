@@ -39,7 +39,6 @@ input[type='color']{
 
 .settings{
     flex: 1;
-    font-size: 25px;
 }
 
 .custom-settings-holder{
@@ -51,6 +50,7 @@ input[type='color']{
     margin: 10px;
     flex-direction: column;
     flex: 5;
+    font-size: 25px;
 }
 
 .inner-settings > *{
