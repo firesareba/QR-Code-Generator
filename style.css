@@ -2,6 +2,8 @@ body{
     background-color: black;
     color: antiquewhite;
     font-family: 'Courier New', Courier, monospace;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 a {
@@ -165,6 +167,9 @@ footer {
     flex: 1;
     font-size: 30px;
     background-color: black;
+    position: fixed;
+    left: 20px;
+    bottom: 5px;
 }
 
 
