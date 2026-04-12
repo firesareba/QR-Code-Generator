@@ -10,6 +10,8 @@ const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred",
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
+const infoTitles = ["Base Patterns", "Main Data", "Extra Bits", "Padding", "Error Correction", "Format Information", "Version Information"]
+
 const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
 const vertical_format = 6;
@@ -546,8 +548,8 @@ function mainSetup(){
         }catch (err) {
             debug = true;
 
-            explanations_title = document.getElementsByClassName("explanations")[0].getElementsByTagName("h1");
-            explanations_paragraph = document.getElementsByClassName("explanations")[0].getElementsByTagName("p");
+            explanations_title = document.getElementsByClassName("explanations")[0].getElementsByTagName("h1")[0];
+            explanations_paragraph = document.getElementsByClassName("explanations")[0].getElementsByTagName("p")[0];
 
             canvas.addEventListener('mousemove', (e) => {
                 const rect = canvas.getBoundingClientRect();
@@ -767,9 +769,12 @@ function setAlignmentPattern(center){
 }
 
 function updateExplanations(x, y){
-    cell = code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1];
-    code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1] = 4;
-    displayCode();
+    let cell = code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1];
+    let offset = Math.floor(cell/2);
+    if (offset < infoTitles.length){
+        explanations_title.innerHTML = infoTitles[offset];
+        explanations_title.style.color = debugColors[offset*2];
+    }
 }
 //#endregion
 
