@@ -24,7 +24,7 @@ let oneColor = "#000000";
 let debug = false;
 //#endregion
 
-//#region access html
+//#region html
 let url_input;
 let mask_input;
 let error_level_input;
@@ -421,19 +421,6 @@ function versionInfo(version, size){
 
     writeVersionBits(version_combined, size, versionOffset); 
 }
-
-function writeVersionBits(versionBits, size, offset){
-    versionBits = offsetBinary(versionBits, offset);
-    
-    for(let i=0; i<6; i++){
-        for(let j=0; j<3; j++){
-            available_bits -= (code_grid[i][size-11+j] == -1);
-            available_bits -= (code_grid[size-11+j][i] == -1);
-            code_grid[i][size-11+j] = parseInt(versionBits[i*3+j]);//think of like a base 6 number sys, j is units place and i is unit^2
-            code_grid[size-11+j][i] = parseInt(versionBits[i*3+j]);
-        }
-    }
-}
 //#endregion
 
 
@@ -487,171 +474,6 @@ function generateCode(url, version, errorLevel, maskingMethod){
 
 
 //#region independent of data
-function getValidSettings(url, version, errorLevel){
-    if (url.length == 0){
-        if (!prevEmpty){
-            error_level_input.value = "L";
-            version_input.value = 2;
-            version_label.innerHTML = "Version: "+ version_input.value;
-            version = parseInt(version_input.value);
-        }
-        prevEmpty = true;
-    } else {
-        prevEmpty = false;
-    }
-
-    let errorBits = getErrorLevel(version, errorLevel);
-    let size = getSize(version);
-    
-    available_bits = size**2-(getBaseBits(version, size)+errorBits);
-    let terminators = (8-((available_bits-4-errorBits)%8))%8;
-    let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
-
-    while (available_bits < needed){
-        if (version == 40){
-            if (error_level_input.value == 'H'){
-                error_level_input.value = 'Q';
-            } else if (error_level_input.value == 'Q'){
-                error_level_input.value = 'M';
-            } else if (error_level_input.value == 'M'){
-                error_level_input.value = 'L';
-            } else {
-                return [0, 0, 0]
-            }
-        } else {
-            version_input.value = version+1;
-            version_label.innerHTML = "Version: "+ version_input.value;
-        }
-
-
-        version = parseInt(version_input.value);
-        errorBits = getErrorLevel(version, errorLevel);
-        size = getSize(version);
-
-        available_bits = size**2-(getBaseBits(version, size)+errorBits);
-        terminators = (8-((available_bits-4-errorBits)%8))%8;
-        needed = 4+8+8*(version >= 10)+8*url.length+terminators;
-    }
-    
-    return [version, errorLevel, errorBits];
-}
-
-function getBaseBits(version, size){
-    let finder_bits = 8**2*3;
-    let format_bits = 15*2;
-    let version_bits = 18*2*(version >= 7);
-    let timing_bits = (size-8*2)*2;
-    let alignment_bits = 0;
-
-    //#region alignment
-    //no 6, 6
-    let numLines = Math.floor(version/7)+2;
-
-    for (let j=2; j<=numLines; j++){
-        alignment_bits += 5**2;
-        timing_bits -= 5;
-    }
-
-    for (let i=2; i<=numLines; i++){
-        alignment_bits += 5**2;
-        timing_bits -= 5;
-        for (let j=2; j<=numLines; j++){
-            alignment_bits += 5**2;
-        }
-    }
-    alignment_bits -= 2*5**2;
-    timing_bits += 5*2;
-    //#endregion
-    return finder_bits+format_bits+version_bits+timing_bits+alignment_bits+1;
-}
-
-function mapSetup(){
-    errorLevelMap = new Map();
-    errorLevelMap.set('L', new Map());
-    errorLevelMap.set('M', new Map());
-    errorLevelMap.set('Q', new Map());
-    errorLevelMap.set('H', new Map());
-
-    LMap = errorLevelMap.get('L');
-    MMap = errorLevelMap.get('M');
-    QMap = errorLevelMap.get('Q');
-    HMap = errorLevelMap.get('H');
-
-    LMap.set('formatBits', '01');
-    LMap.set('n_per_block', [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
-    LMap.set('num_blocks', [0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25]);
-
-    MMap.set('formatBits', '00');
-    MMap.set('n_per_block', [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28]);
-    MMap.set('num_blocks', [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 50]);
-
-    QMap.set('formatBits', '11');
-    QMap.set('n_per_block', [0, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
-    QMap.set('num_blocks', [0, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68]);
-
-    HMap.set('formatBits', '10');
-    HMap.set('n_per_block', [0, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
-    HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
-}
-
-function getSize(version){
-    return 4*version+17
-}
-
-function validAlignmentPattern(center){
-    for (let i=center[0]-2; i<=center[0]+2; i++){
-        for (let j=center[1]-2; j<=center[1]+2; j++){
-            if (code_grid[i][j] != -1){
-                return false;
-            }
-        }
-    }
-    
-    return true;
-}
-
-function setAlignmentPattern(center){
-    outline(center[0]-1, center[1]-1, 3, 0+baseOffset*2);//white
-    outline(center[0]-2, center[1]-2, 5, 1+baseOffset*2);
-
-    code_grid[center[0]][center[1]] = 1+baseOffset*2;//center
-    available_bits -= 1;
-}
-
-function outline(start_r, start_c, size, value){
-    available_bits -= (code_grid[start_r][start_c] == -1) + (code_grid[start_r+size-1][start_c] == -1) + (code_grid[start_r][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+size-1] == -1);
-    code_grid[start_r][start_c] = value;
-    code_grid[start_r+size-1][start_c] = value;
-    code_grid[start_r][start_c+size-1] = value;
-    code_grid[start_r+size-1][start_c+size-1] = value;
-
-    for (let i=1; i<size-1; i++){
-        available_bits -= (code_grid[start_r][start_c+i] == -1) + (code_grid[start_r+i][start_c] == -1) + (code_grid[start_r+i][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+i] == -1);
-        code_grid[start_r][start_c+i] = value;//top row
-        code_grid[start_r+i][start_c] = value;//left column
-        code_grid[start_r+i][start_c+size-1] = value;//right column
-        code_grid[start_r+size-1][start_c+i] = value;//bottom row
-    }
-}
-
-function offsetBinary(binaryString, offset){
-    let offsetedArray = [];
-    for (let i=0; i<binaryString.length; i++){
-        offsetedArray.push((parseInt(binaryString[i])%2)+offset*2);
-    }
-
-    return offsetedArray;
-}
-
-function unoffsetBinary(binaryString){
-    let unoffsetedArray = [];
-    for (let i=0; i<binaryString.length; i++){
-        unoffsetedArray.push((parseInt(binaryString[i])%2));
-    }
-
-    return unoffsetedArray;
-}
-
 function mainSetup(){
     try {
         url_input = document.getElementById("url");
@@ -731,6 +553,7 @@ function mainSetup(){
                 const rect = canvas.getBoundingClientRect();
                 const x = (e.clientX - rect.left) * (canvas.width / rect.width);
                 const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                updateExplanations(x, y)
             });
         }
 
@@ -775,6 +598,177 @@ function mainSetup(){
     }
     
 }
+
+function mapSetup(){
+    errorLevelMap = new Map();
+    errorLevelMap.set('L', new Map());
+    errorLevelMap.set('M', new Map());
+    errorLevelMap.set('Q', new Map());
+    errorLevelMap.set('H', new Map());
+
+    LMap = errorLevelMap.get('L');
+    MMap = errorLevelMap.get('M');
+    QMap = errorLevelMap.get('Q');
+    HMap = errorLevelMap.get('H');
+
+    LMap.set('formatBits', '01');
+    LMap.set('n_per_block', [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
+    LMap.set('num_blocks', [0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25]);
+
+    MMap.set('formatBits', '00');
+    MMap.set('n_per_block', [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28]);
+    MMap.set('num_blocks', [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 50]);
+
+    QMap.set('formatBits', '11');
+    QMap.set('n_per_block', [0, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
+    QMap.set('num_blocks', [0, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68]);
+
+    HMap.set('formatBits', '10');
+    HMap.set('n_per_block', [0, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
+    HMap.set('num_blocks', [0, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]);
+}
+
+
+function offsetBinary(binaryString, offset){
+    let offsetedArray = [];
+    for (let i=0; i<binaryString.length; i++){
+        offsetedArray.push((parseInt(binaryString[i])%2)+offset*2);
+    }
+
+    return offsetedArray;
+}
+
+function unoffsetBinary(binaryString){
+    let unoffsetedArray = [];
+    for (let i=0; i<binaryString.length; i++){
+        unoffsetedArray.push((parseInt(binaryString[i])%2));
+    }
+
+    return unoffsetedArray;
+}
+
+
+function getSize(version){
+    return 4*version+17
+}
+
+function getValidSettings(url, version, errorLevel){
+    if (url.length == 0){
+        if (!prevEmpty){
+            error_level_input.value = "L";
+            version_input.value = 2;
+            version_label.innerHTML = "Version: "+ version_input.value;
+            version = parseInt(version_input.value);
+        }
+        prevEmpty = true;
+    } else {
+        prevEmpty = false;
+    }
+
+    let errorBits = getErrorLevel(version, errorLevel);
+    let size = getSize(version);
+    
+    available_bits = size**2-(getBaseBits(version, size)+errorBits);
+    let terminators = (8-((available_bits-4-errorBits)%8))%8;
+    let needed = 4+8+8*(version >= 10)+8*url.length+terminators;
+
+    while (available_bits < needed){
+        if (version == 40){
+            if (error_level_input.value == 'H'){
+                error_level_input.value = 'Q';
+            } else if (error_level_input.value == 'Q'){
+                error_level_input.value = 'M';
+            } else if (error_level_input.value == 'M'){
+                error_level_input.value = 'L';
+            } else {
+                return [0, 0, 0]
+            }
+        } else {
+            version_input.value = version+1;
+            version_label.innerHTML = "Version: "+ version_input.value;
+        }
+
+
+        version = parseInt(version_input.value);
+        errorBits = getErrorLevel(version, errorLevel);
+        size = getSize(version);
+
+        available_bits = size**2-(getBaseBits(version, size)+errorBits);
+        terminators = (8-((available_bits-4-errorBits)%8))%8;
+        needed = 4+8+8*(version >= 10)+8*url.length+terminators;
+    }
+    
+    return [version, errorLevel, errorBits];
+}
+
+function getBaseBits(version, size){
+    let finder_bits = 8**2*3;
+    let format_bits = 15*2;
+    let version_bits = 18*2*(version >= 7);
+    let timing_bits = (size-8*2)*2;
+    let alignment_bits = 0;
+
+    //#region alignment
+    //no 6, 6
+    let numLines = Math.floor(version/7)+2;
+
+    for (let j=2; j<=numLines; j++){
+        alignment_bits += 5**2;
+        timing_bits -= 5;
+    }
+
+    for (let i=2; i<=numLines; i++){
+        alignment_bits += 5**2;
+        timing_bits -= 5;
+        for (let j=2; j<=numLines; j++){
+            alignment_bits += 5**2;
+        }
+    }
+    alignment_bits -= 2*5**2;
+    timing_bits += 5*2;
+    //#endregion
+    return finder_bits+format_bits+version_bits+timing_bits+alignment_bits+1;
+}
+
+function outline(start_r, start_c, size, value){
+    available_bits -= (code_grid[start_r][start_c] == -1) + (code_grid[start_r+size-1][start_c] == -1) + (code_grid[start_r][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+size-1] == -1);
+    code_grid[start_r][start_c] = value;
+    code_grid[start_r+size-1][start_c] = value;
+    code_grid[start_r][start_c+size-1] = value;
+    code_grid[start_r+size-1][start_c+size-1] = value;
+
+    for (let i=1; i<size-1; i++){
+        available_bits -= (code_grid[start_r][start_c+i] == -1) + (code_grid[start_r+i][start_c] == -1) + (code_grid[start_r+i][start_c+size-1] == -1) + (code_grid[start_r+size-1][start_c+i] == -1);
+        code_grid[start_r][start_c+i] = value;//top row
+        code_grid[start_r+i][start_c] = value;//left column
+        code_grid[start_r+i][start_c+size-1] = value;//right column
+        code_grid[start_r+size-1][start_c+i] = value;//bottom row
+    }
+}
+
+function validAlignmentPattern(center){
+    for (let i=center[0]-2; i<=center[0]+2; i++){
+        for (let j=center[1]-2; j<=center[1]+2; j++){
+            if (code_grid[i][j] != -1){
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+function setAlignmentPattern(center){
+    outline(center[0]-1, center[1]-1, 3, 0+baseOffset*2);//white
+    outline(center[0]-2, center[1]-2, 5, 1+baseOffset*2);
+
+    code_grid[center[0]][center[1]] = 1+baseOffset*2;//center
+    available_bits -= 1;
+}
+
+function updateExplanations(x, y){
+    console.log(x, y);
+}
 //#endregion
 
 
@@ -816,6 +810,20 @@ function writeByte(byte, size, offset=-1){
         nextPos(size);
         code_grid[position[0]][position[1]-col_offset] = bit;
         available_bits -= 1;
+    }
+}
+
+
+function writeVersionBits(versionBits, size, offset){
+    versionBits = offsetBinary(versionBits, offset);
+    
+    for(let i=0; i<6; i++){
+        for(let j=0; j<3; j++){
+            available_bits -= (code_grid[i][size-11+j] == -1);
+            available_bits -= (code_grid[size-11+j][i] == -1);
+            code_grid[i][size-11+j] = parseInt(versionBits[i*3+j]);//think of like a base 6 number sys, j is units place and i is unit^2
+            code_grid[size-11+j][i] = parseInt(versionBits[i*3+j]);
+        }
     }
 }
 //#endregion
