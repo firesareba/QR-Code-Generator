@@ -5,11 +5,9 @@ body{
     margin-left: 20px;
     margin-right: 20px;
 }
-
 a {
     color: antiquewhite;
 }
-
 input[type='color']{
     margin: 10px;
     border: none;
@@ -20,16 +18,15 @@ input[type='color']{
 .input{
     cursor: pointer;
 }
-
 .container {
-  display: flex;          
-  align-items: stretch;   
-  flex-shrink: 0;         
-  position: relative;     
+  display: flex;
+  align-items: stretch;
+  position: relative;
 }
-
 .non-footer{
     flex-direction: row;
+    height: calc(100vh - 50px);
+    overflow: hidden;
 }
 
 .url-display{
@@ -39,25 +36,25 @@ input[type='color']{
 
 .settings{
     flex: 1;
+    min-width: 0;
+    overflow-y: auto;
 }
-
 .custom-settings-holder{
     flex-direction: column;
     justify-content: center;
+    min-width: 0;
 }
-
 .inner-settings{
     margin: 10px;
     flex-direction: column;
     flex: 5;
     font-size: 25px;
+    min-width: 0;
 }
-
 .inner-settings > *{
     flex: 1;
     align-content: center;
 }
-
 .inner-settings > h1{
     font-family: 'OldNewspaperTypes', sans-serif;
 }
@@ -66,12 +63,18 @@ input[type='color']{
     flex-direction: column;
     flex: 5;
     margin: 10px;
+    min-width: 0;
+    overflow: hidden;
+}
+.explanations p {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
 }
 
 .url{
     margin-bottom: 10px;
 }
-
 .url input{
     flex: 1;
     background-color: antiquewhite;
@@ -80,7 +83,6 @@ input[type='color']{
     padding-right: 10px;
     border-radius: 20px;
 }
-
 .url label{
     font-size: 20px;
     font-family: 'OldNewspaperTypes', sans-serif;
@@ -97,13 +99,11 @@ input[type='color']{
   appearance: none;
   background: transparent;
 }
-
 #version::-webkit-slider-runnable-track{
     background-color: antiquewhite;
     border-radius: 10px;
     padding: 2px;
 }
-
 #version::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -112,19 +112,16 @@ input[type='color']{
   aspect-ratio: 5/2;
   border-radius: 10px;
 }
-
 #version::-moz-range-track {
     background-color: aliceblue;
     border-radius: 10px;
     padding: 2px;
 }
-
 #version::-moz-range-progress {
    background-color: antiquewhite;
     border-radius: 10px;
     padding: 2px;
 }
-
 #version::-moz-range-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -140,18 +137,15 @@ input[type='color']{
     border-radius: 10px;
     padding: 5px;
 }
-
 #error-correction{
     background-color: antiquewhite;
     border: none;
     border-radius: 10px;
 }
-
 #download{
     padding: 10px;
     font-size: 15px;
 }
-
 #logo::file-selector-button {
     background-color: antiquewhite;
     border: none;
@@ -163,7 +157,6 @@ input[type='color']{
     padding: 10px;
     font-size: 15px;
 }
-
 #logo::file-selector-button:active {
     transform: scale(0.9);
     background-color: aliceblue;
@@ -178,13 +171,11 @@ footer {
     bottom: 5px;
 }
 
-
 .nav-holder{
     margin-top: 10vh;
     flex-direction: row;
     justify-content: center;
 }
-
 .title-display{
     flex-direction: column;
     justify-content: center;
@@ -200,13 +191,11 @@ footer {
     cursor: pointer;
     transition: transform 0.3s;
 }
-
 .page.button {
     padding: 25px;
     font-size: 22px;
     margin: 10px;
 }
-
 .button:active {
     transform: scale(0.9);
     background-color: aliceblue;
@@ -216,13 +205,11 @@ footer {
     font-family: 'OldNewspaperTypes', sans-serif;
     height: 9vh;
 }
-
 #check{
     font-size: xx-large;
     justify-content: center;
     text-align: center;
 }
-
 #changing-code {
     align-self: center;
     height: 50vh;
