@@ -34,6 +34,8 @@ let download_input;
 let logo_input;
 let zeroBit_input;
 let oneBit_input;
+let explanations_title;
+let explanations_paragraph;
 
 const canvas = document.getElementsByClassName("code-canvas")[0];
 const drawable_canvas = canvas.getContext("2d");
@@ -721,6 +723,15 @@ function mainSetup(){
             //#endregion
         }catch (err) {
             debug = true;
+
+            explanations_title = document.getElementsByClassName("explanations")[0].getElementsByTagName("h1");
+            explanations_paragraph = document.getElementsByClassName("explanations")[0].getElementsByTagName("p");
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            });
         }
 
         //#region bypass cookies
