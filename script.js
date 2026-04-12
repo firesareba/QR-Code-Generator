@@ -767,7 +767,9 @@ function setAlignmentPattern(center){
 }
 
 function updateExplanations(x, y){
-    console.log(x, y);
+    cell = code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1];
+    code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1] = 4;
+    displayCode();
 }
 //#endregion
 
