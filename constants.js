@@ -1,3 +1,4 @@
+//#region landing
 const pre_gen_codes = [
     [
         [1,1,1,1,1,1,1,0,10,9,8,8,9,8,8,9,9,8,8,8,9,8,8,9,9,8,8,8,9,9,9,8,8,9,8,8,9,8,8,9,8,9,8,9,8,8,9,9,8,9,8,8,8,8,9,8,8,8,9,8,8,7,6,6,7,6,7,6,6,6,7,6,6,6,7,6,6,6,7,6,6,6,7,6,6,3,12,13,13,0,1,1,1,1,1,1,1],
@@ -1234,7 +1235,9 @@ const pre_gen_codes = [
         [1,1,1,1,1,1,1,0,11,8,8,7,6,6,6,2,2,3,3,3,2,3,3,3,3],
     ]
 ];
+//#endregion
 
+//#region info
 const infoTitles = [
     "Base Patterns", 
     "Main Data", 
@@ -1301,3 +1304,7 @@ const infoParagraphs = [
         Now take this concept and expand it to a 18 Dimensional object. Mathematically it is very simple.
     `,
 ];
+//#endregion
+
+//#region main
+//#endregion
