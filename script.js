@@ -20,7 +20,7 @@ const alpha = 2;
 let code_grid = [];
 let errorLevelMap;
 let logo = new Image();
-let prevEmpty = false;
+let prevEmpty = true;
 let zeroColor = "#ffffff";
 let oneColor = "#000000";
 let debug = false;
@@ -483,6 +483,13 @@ function mainSetup(){
         error_level_input = document.getElementById("error-correction");
         version_label = document.getElementById("version-label");
         version_input = document.getElementById("version");
+        
+        //#region bypass cookies
+        url_input.value = "";
+        mask_input.value = "0";
+        error_level_input.value = "L";
+        version_input.value = 2;
+        //#endregion
 
         try{
             download_input = document.getElementById("download");
@@ -546,6 +553,12 @@ function mainSetup(){
             );
             //#endregion
         }catch (err) {
+            //#region bypass cookies
+            mask_input.value = "0";
+            error_level_input.value = "L";
+            version_input.value = 10;
+            //#endregion
+
             debug = true;
 
             explanations_title = document.getElementsByClassName("explanations")[0].getElementsByTagName("h1")[0];
@@ -558,13 +571,6 @@ function mainSetup(){
                 updateExplanations(x, y)
             });
         }
-
-        //#region bypass cookies
-        url_input.value = "";
-        mask_input.value = "0";
-        error_level_input.value = "L";
-        version_input.value = 2;
-        //#endregion
 
         //#region listeners
         url_input.addEventListener(
