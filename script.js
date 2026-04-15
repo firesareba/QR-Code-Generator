@@ -555,6 +555,7 @@ function mainSetup(){
             mask_input.value = "0";
             error_level_input.value = "L";
             version_input.value = 10;
+            version_label.innerHTML = "Version: 10";
             //#endregion
 
             debug = true;
