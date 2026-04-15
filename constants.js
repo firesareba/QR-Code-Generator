@@ -1235,5 +1235,13 @@ const pre_gen_codes = [
     ]
 ];
 
-const infoTitles = ["Base Patterns", "Main Data", "Extra Bits", "Padding", "Error Correction", "Format Information", "Version Information"]
-let paragraphs = [];
+const infoTitles = [
+    "Base Patterns", 
+    "Main Data", 
+    "Extra Bits", 
+    "Padding", 
+    "Error Correction", 
+    "Format Information", 
+    "Version Information"
+]
+const paragraphs = [];
