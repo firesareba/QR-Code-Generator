@@ -10,8 +10,6 @@ const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred",
 
 const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
-const infoTitles = ["Base Patterns", "Main Data", "Extra Bits", "Padding", "Error Correction", "Format Information", "Version Information"]
-
 const mode = offsetBinary("0100", dataOffset);
 const cell_size = 50;
 const vertical_format = 6;
