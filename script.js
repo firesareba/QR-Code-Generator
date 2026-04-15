@@ -777,6 +777,7 @@ function updateExplanations(x, y){
     let offset = Math.floor(cell/2);
     if (offset < infoTitles.length){
         explanations_title.innerHTML = infoTitles[offset];
+        explanations_paragraph.innerHTML = infoParagraphs[offset];
         explanations_title.style.color = debugColors[offset*2];
     }
 }
