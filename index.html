@@ -23,9 +23,11 @@
         <p id="check"><strong>IMPORTANT:</strong> Please check out the <strong>Info Page</strong></p>
     </body>
     <script type="module" src="script.js"></script>
-    <script>
+    <script type="module">
+        import * as Constants from './constants.js';
+
         function changing(){
-            code_grid = pre_gen_codes[codeIdx];
+            code_grid = Constants.pre_gen_codes[codeIdx];
 
             [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
             zeroColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
@@ -64,7 +66,7 @@
         const title = document.getElementById("title");
 
         let codeIdxOptions = [];
-        for (let i=0; i<pre_gen_codes.length; i++){
+        for (let i=0; i<Constants.pre_gen_codes.length; i++){
             codeIdxOptions.push(i);
         }
 
