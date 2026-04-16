@@ -147,6 +147,7 @@ input[type='color']{
     padding: 10px;
     font-size: 15px;
 }
+
 #logo::file-selector-button {
     background-color: antiquewhite;
     border: none;
