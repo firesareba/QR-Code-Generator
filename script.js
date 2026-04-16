@@ -17,6 +17,13 @@ let prevEmpty = true;
 let zeroColor = "#ffffff";
 let oneColor = "#000000";
 let debug = false;
+
+let codeIdxOptions = [];
+let codeIdx;
+
+let fontIdxOptions = [];
+let fontIdx;
+
 //#endregion
 
 //#region html
@@ -25,12 +32,16 @@ let mask_input;
 let error_level_input;
 let version_label;
 let version_input;
+
 let download_input;
 let logo_input;
 let zeroBit_input;
 let oneBit_input;
+
 let explanations_title;
 let explanations_paragraph;
+
+let title;
 
 const canvas = document.getElementsByClassName("code-canvas")[0];
 const drawable_canvas = canvas.getContext("2d");
@@ -468,6 +479,30 @@ function generateCode(url, version, errorLevel, maskingMethod){
 }
 
 
+//#region landing page
+function changing(){
+    code_grid = Constants.pre_gen_codes[codeIdx];
+
+    let [red, green, blue] = [Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1), Math.floor(Math.random()*255+1)];
+    zeroColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
+
+    [red, green, blue] = [(red+127)%255, (green+127)%255, (blue+127)%255];
+    oneColor = '#'+red.toString(16).padStart(2, '0')+green.toString(16).padStart(2, '0')+blue.toString(16).padStart(2, '0');
+
+    title.style.fontFamily = Constants.fonts[fontIdx];
+    title.innerHTML = "QR Code Generator";
+    displayCode();
+
+    codeIdx = codeIdxOptions[Math.floor((codeIdxOptions.length-1)*Math.random())];
+    codeIdxOptions = codeIdxOptions.filter(x => x !== codeIdx);
+    codeIdxOptions.push(codeIdx);
+
+    fontIdx = fontIdxOptions[Math.floor((fontIdxOptions.length-1)*Math.random())];
+    fontIdxOptions = fontIdxOptions.filter(x => x !== fontIdx);
+    fontIdxOptions.push(fontIdx);
+}
+//#endregion
+
 //#region independent of data
 function mainSetup(){
     try {
@@ -545,7 +580,7 @@ function mainSetup(){
                 }
             );
             //#endregion
-        }catch (err) {
+        }catch (err) { //INFO PAGE
             //#region bypass cookies
             mask_input.value = "0";
             error_level_input.value = "L";
@@ -595,8 +630,32 @@ function mainSetup(){
         //#endregion
 
         generateCode();
-    } catch (err){
+    } catch (err){//LANDING PAGE
         debug = false;
+        
+
+        title = document.getElementById("title");
+
+        for (let i=0; i<Constants.pre_gen_codes.length; i++){
+            codeIdxOptions.push(i);
+        }
+
+        codeIdxOptions = codeIdxOptions.filter(x => x !== codeIdx);
+        codeIdx = codeIdxOptions[Math.floor(codeIdxOptions.length*Math.random())];
+        codeIdxOptions.push(codeIdx);
+
+        for (let i=0; i<Constants.fonts.length; i++){
+            fontIdxOptions.push(i);
+        }
+
+        fontIdxOptions = fontIdxOptions.filter(x => x !== fontIdx);
+        fontIdx = fontIdxOptions[Math.floor(fontIdxOptions.length*Math.random())];
+        fontIdxOptions.push(fontIdx);
+
+        changing();
+        setInterval(() => {
+            changing()
+        }, 1000);
     }
     
 }

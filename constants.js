@@ -1235,6 +1235,21 @@ export const pre_gen_codes = [
         [1,1,1,1,1,1,1,0,11,8,8,7,6,6,6,2,2,3,3,3,2,3,3,3,3],
     ]
 ];
+
+export const fonts = [
+    'Georgia, serif',
+    'Times New Roman, serif',
+    'Arial, sans-serif',
+    'Verdana, sans-serif',
+    'Trebuchet MS, sans-serif',
+    'Impact, Charcoal, sans-serif',
+    'Courier New, monospace',
+    'Lucida Console, monospace',
+    'Comic Sans MS, cursive',
+    'Brush Script MT, cursive',
+    'Papyrus, fantasy',
+    'Copperplate, fantasy'
+];
 //#endregion
 
 //#region info
