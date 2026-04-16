@@ -555,7 +555,7 @@ function mainSetup(){
                     const reader = new FileReader();
 
                     reader.onload = function(event) {
-                        dataURL = event.target.result;
+                        let dataURL = event.target.result;
                         logo.src = dataURL;
                         logo.onload = function() {
                             displayCode();
