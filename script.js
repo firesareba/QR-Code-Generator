@@ -828,12 +828,19 @@ function setAlignmentPattern(center){
 }
 
 function updateExplanations(x, y){
-    let cell = code_grid[Math.floor(y/Constants.cell_size)-1][Math.floor(x/Constants.cell_size)-1];
-    let offset = Math.floor(cell/2);
-    if (offset < Constants.infoTitles.length){
-        explanations_title.innerHTML = Constants.infoTitles[offset];
-        explanations_paragraph.innerHTML = Constants.infoParagraphs[offset];
-        explanations_title.style.color = Constants.debugColors[offset*2];
+    if ((0 <= Math.floor(y/Constants.cell_size)-1 < code_grid.length) && (0 <= Math.floor(x/Constants.cell_size)-1 < code_grid.length)){
+        let cell = code_grid[Math.floor(y/Constants.cell_size)-1][Math.floor(x/Constants.cell_size)-1];
+        let offset = Math.floor(cell/2);
+        if (offset < Constants.infoTitles.length){
+            explanations_title.innerHTML = Constants.infoTitles[offset];
+            explanations_paragraph.innerHTML = Constants.infoParagraphs[offset];
+            explanations_title.style.color = Constants.debugColors[offset*2];
+        }
+    } else {
+        explanations_title.innerHTML = "Quiet Zone";
+        explanations_paragraph.innerHTML = "A blank border around every QR Code. It helps the Reader, it doesn't store information";
+        explanations_title.style.color = "white";
+        return;
     }
 }
 //#endregion
