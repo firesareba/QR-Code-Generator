@@ -1,4 +1,5 @@
 # QR-Code-Generator
+## MADE FROM SCRATCH. NO LIBRARIES USED.
 A QR Code Generator that goes direct to the site. No intermediate server or expiration date.
 ## Functional Features
 ### Mask
