@@ -1,5 +1,5 @@
 //#region landing
-const pre_gen_codes = [
+export const pre_gen_codes = [
     [
         [1,1,1,1,1,1,1,0,10,9,8,8,9,8,8,9,9,8,8,8,9,8,8,9,9,8,8,8,9,9,9,8,8,9,8,8,9,8,8,9,8,9,8,9,8,8,9,9,8,9,8,8,8,8,9,8,8,8,9,8,8,7,6,6,7,6,7,6,6,6,7,6,6,6,7,6,6,6,7,6,6,6,7,6,6,3,12,13,13,0,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,1,0,11,9,9,8,9,8,8,8,9,9,9,8,9,9,9,9,8,9,8,9,8,9,8,8,8,8,8,8,9,8,9,9,8,9,8,8,8,9,9,8,8,8,9,9,8,8,9,8,9,8,8,8,9,7,6,7,7,6,7,7,7,6,7,7,6,6,7,7,6,6,7,7,6,6,7,7,6,3,12,12,13,0,1,0,0,0,0,0,1],
@@ -1238,7 +1238,7 @@ const pre_gen_codes = [
 //#endregion
 
 //#region info
-const infoTitles = [
+export const infoTitles = [
     "Base Patterns", 
     "Main Data", 
     "Extra Bits", 
@@ -1247,7 +1247,7 @@ const infoTitles = [
     "Format Information", 
     "Version Information"
 ]
-const infoParagraphs = [
+export const infoParagraphs = [
     `
         These are the patterns that tell the scanner "I'm a QR Code". They are shown in <strong style="color:rgb(205, 205, 205)">Off-white and Grey</strong>. They come in 3 sub groups: Finder Patterns, Timing Strips, and Alignment Patterns
         <br>The <strong>Finder Patterns</strong> are the most recognizable, the 3 square shapes in the corners. These are used to define the orientation of the qr code relative to the scanner.
@@ -1307,18 +1307,18 @@ const infoParagraphs = [
 //#endregion
 
 //#region main
-const baseOffset = 0;
-const dataOffset = 1;
-const extraOffset = 2;
-const paddingOffset = 3;
-const errorOffset = 4;
-const formatOffset = 5;
-const versionOffset = 6;
-const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
+export const baseOffset = 0;
+export const dataOffset = 1;
+export const extraOffset = 2;
+export const paddingOffset = 3;
+export const errorOffset = 4;
+export const formatOffset = 5;
+export const versionOffset = 6;
+export const debugColors = ["antiquewhite", "grey", "white", "black", "red", "darkred", "violet", "purple", "limegreen", "green", "yellow", "orange", "cyan", "blue"]
 
-const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+export const leftoverBits = [0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
 
-const cell_size = 50;
-const vertical_format = 6;
-const alpha = 2;
+export const cell_size = 50;
+export const vertical_format = 6;
+export const alpha = 2;
 //#endregion

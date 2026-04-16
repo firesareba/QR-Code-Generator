@@ -1,9 +1,17 @@
 //#region Vars
+//#region constants
+import * as Constants from './constants.js';
 
-const mode = offsetBinary("0100", dataOffset);
+const mode = offsetBinary("0100", Constants.dataOffset);
+//#endregion
 
 let code_grid = [];
+let available_bits;
+let direction;
+let col_offset;
+let position;
 let errorLevelMap;
+
 let logo = new Image();
 let prevEmpty = true;
 let zeroColor = "#ffffff";
@@ -47,15 +55,15 @@ function basePatterns(version, size){
     //#region format strips
     for (let i=0; i < 8; i++){
         //topleft
-        code_grid[8][i] = 1+baseOffset*2;    
-        code_grid[i][8] = 1+baseOffset*2;
+        code_grid[8][i] = 1+Constants.baseOffset*2;    
+        code_grid[i][8] = 1+Constants.baseOffset*2;
 
-        code_grid[8][size-1-i] = 1+baseOffset*2;//top right
-        code_grid[size-1-i][8] = 1+baseOffset*2;//bottom left
+        code_grid[8][size-1-i] = 1+Constants.baseOffset*2;//top right
+        code_grid[size-1-i][8] = 1+Constants.baseOffset*2;//bottom left
         
         available_bits -= 4;
     }
-    code_grid[8][8] = 1+baseOffset*2;//corner in top left
+    code_grid[8][8] = 1+Constants.baseOffset*2;//corner in top left
     available_bits -= 1;
     //#endregion
 
@@ -67,42 +75,42 @@ function basePatterns(version, size){
 
     //#region finder patterns
     //#region top-left
-    outline(0, 0, 8, 0+baseOffset*2);//outside
-    outline(1, 1, 5, 0+baseOffset*2);//inside
-    outline(0, 0, 7, 1+baseOffset*2);//middle
+    outline(0, 0, 8, 0+Constants.baseOffset*2);//outside
+    outline(1, 1, 5, 0+Constants.baseOffset*2);//inside
+    outline(0, 0, 7, 1+Constants.baseOffset*2);//middle
 
     //middle
     for (let i=2; i<=4; i++){
         for (let j=2; j<=4; j++){
-            code_grid[i][j] = 1+baseOffset*2;
+            code_grid[i][j] = 1+Constants.baseOffset*2;
             available_bits -= 1;
         }
     }
     //#endregion
 
     //#region top right
-    outline(0, size-8, 8, 0+baseOffset*2);//outside
-    outline(1, size-6, 5, 0+baseOffset*2);//inside
-    outline(0, size-7, 7, 1+baseOffset*2);//middle
+    outline(0, size-8, 8, 0+Constants.baseOffset*2);//outside
+    outline(1, size-6, 5, 0+Constants.baseOffset*2);//inside
+    outline(0, size-7, 7, 1+Constants.baseOffset*2);//middle
 
     //middle
     for (let i=2; i<=4; i++){
         for (let j=size-3; j>=size-5; j--){
-            code_grid[i][j] = 1+baseOffset*2;
+            code_grid[i][j] = 1+Constants.baseOffset*2;
             available_bits -= 1;
         }
     }
     //#endregion
 
     //#region bottom left
-    outline(size-8, 0, 8, 0+baseOffset*2);//outside
-    outline(size-6, 1, 5, 0+baseOffset*2);//inside
-    outline(size-7, 0, 7, 1+baseOffset*2);//middle
+    outline(size-8, 0, 8, 0+Constants.baseOffset*2);//outside
+    outline(size-6, 1, 5, 0+Constants.baseOffset*2);//inside
+    outline(size-7, 0, 7, 1+Constants.baseOffset*2);//middle
     
     //middle
     for (let i=size-3; i>=size-5; i--){
         for (let j=2; j<=4; j++){
-            code_grid[i][j] = 1+baseOffset*2;
+            code_grid[i][j] = 1+Constants.baseOffset*2;
             available_bits -= 1;
         }
     }
@@ -112,15 +120,15 @@ function basePatterns(version, size){
     //#region timing strips
     for (let i=8; i<=size-9; i++){
         available_bits -= (code_grid[6][i] == -1) + (code_grid[i][6] == -1);
-        code_grid[6][i] = (i%2==0)+baseOffset*2;
-        code_grid[i][6] = (i%2==0)+baseOffset*2;
+        code_grid[6][i] = (i%2==0)+Constants.baseOffset*2;
+        code_grid[i][6] = (i%2==0)+Constants.baseOffset*2;
     }
     //#endregion
 
-    code_grid[size-8][8] = 1+baseOffset*2;//random one in all qr codes
+    code_grid[size-8][8] = 1+Constants.baseOffset*2;//random one in all qr codes
     
     if (version >= 7){
-        writeVersionBits("111111111111111111", size, baseOffset);
+        writeVersionBits("111111111111111111", size, Constants.baseOffset);
     }
 }
 
@@ -149,27 +157,27 @@ function alignmentPatterns(version, size){
 }
 
 function getErrorLevel(version, errorLevel){
-    return 8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+leftoverBits[version]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
+    return 8*(errorLevelMap.get(errorLevel).get('n_per_block')[version]*errorLevelMap.get(errorLevel).get('num_blocks')[version])+Constants.leftoverBits[version]; //8 bits per byte, n/block*block = n = # of bytes, 7 for version info
 }
 
 function getBitStream(url, terminators, paddingBytes, version){
     let bitStream = [...mode];
 
     if (version < 10){
-        bitStream.push(...offsetBinary(padLeft((url.length).toString(2)), dataOffset));//length
+        bitStream.push(...offsetBinary(padLeft((url.length).toString(2)), Constants.dataOffset));//length
     } else {
-        bitStream.push(...offsetBinary(padLeft((url.length).toString(2), 16), dataOffset));//length
+        bitStream.push(...offsetBinary(padLeft((url.length).toString(2), 16), Constants.dataOffset));//length
     }
 
     for (let i = 0; i < url.length; i++){
-        bitStream.push(...offsetBinary(padLeft(url.charCodeAt(i).toString(2)), dataOffset));
+        bitStream.push(...offsetBinary(padLeft(url.charCodeAt(i).toString(2)), Constants.dataOffset));
     }
 
     for (let i=0; i<terminators; i++){
-        bitStream.push(extraOffset*2);
+        bitStream.push(Constants.extraOffset*2);
     }
     for (let i=1; i<=paddingBytes; i++){
-        bitStream.push(...offsetBinary(padLeft((17+(219*(i%2))).toString(2)), paddingOffset));
+        bitStream.push(...offsetBinary(padLeft((17+(219*(i%2))).toString(2)), Constants.paddingOffset));
     }
 
     return bitStream
@@ -216,7 +224,7 @@ function messageCoefficients(url, terminators, paddingBytes, errorLevel, version
 }
 
 function writeData(url, terminators, paddingBytes, errorLevel, version, size){
-    coefficients = messageCodewords(url, terminators, paddingBytes, errorLevel, version)
+    let coefficients = messageCodewords(url, terminators, paddingBytes, errorLevel, version)
     for (let b=0; b<coefficients[coefficients.length-1].length; b++){
         for (let block=0; block<coefficients.length; block++){
             if (coefficients[block].length > b){
@@ -241,20 +249,20 @@ function ErrorCorrection(coefficients, errorLevel, version, size){
 
     for (let b=0; b<errorCoefficients[0].length; b++){
         for (let block=0; block<errorCoefficients.length; block++){
-            writeByte(padLeft(errorCoefficients[block][b].toString(2)), size, errorOffset);
+            writeByte(padLeft(errorCoefficients[block][b].toString(2)), size, Constants.errorOffset);
         }
     }
 
     //Left over bits are just 0s
-    for (let i=0; i<leftoverBits[version]; i++){
+    for (let i=0; i<Constants.leftoverBits[version]; i++){
         nextPos(size);
-        code_grid[position[0]][position[1]-col_offset] = extraOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
+        code_grid[position[0]][position[1]-col_offset] = Constants.extraOffset*2;//should be done in resetCode func, but don't want to hard code starting pos
     }
 }
 
 //#region mask
 function importantBit(row, col){
-    return Math.floor(code_grid[row][col]/2) == baseOffset || Math.floor(code_grid[row][col]/2) == formatOffset || Math.floor(code_grid[row][col]/2) == versionOffset;
+    return Math.floor(code_grid[row][col]/2) == Constants.baseOffset || Math.floor(code_grid[row][col]/2) == Constants.formatOffset || Math.floor(code_grid[row][col]/2) == Constants.versionOffset;
 }
 
 function mask0(size){
@@ -376,7 +384,7 @@ function format(maskingMethod, errorLevel, size){
     let format_combined = format_main+format_error;
 
     let format_final = stringXOR(format_combined, "101010000010010");
-    format_final = offsetBinary(format_final, formatOffset)
+    format_final = offsetBinary(format_final, Constants.formatOffset)
 
     for (let i=0; i<6; i++){//top left
         code_grid[8][i] =  parseInt(format_final[i]);
@@ -406,7 +414,7 @@ function versionInfo(version, size){
     let version_combined = version_main+version_error;
     version_combined = version_combined.split('').reverse().join('');
 
-    writeVersionBits(version_combined, size, versionOffset); 
+    writeVersionBits(version_combined, size, Constants.versionOffset); 
 }
 //#endregion
 
@@ -600,10 +608,10 @@ function mapSetup(){
     errorLevelMap.set('Q', new Map());
     errorLevelMap.set('H', new Map());
 
-    LMap = errorLevelMap.get('L');
-    MMap = errorLevelMap.get('M');
-    QMap = errorLevelMap.get('Q');
-    HMap = errorLevelMap.get('H');
+    let LMap = errorLevelMap.get('L');
+    let MMap = errorLevelMap.get('M');
+    let QMap = errorLevelMap.get('Q');
+    let HMap = errorLevelMap.get('H');
 
     LMap.set('formatBits', '01');
     LMap.set('n_per_block', [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]);
@@ -753,20 +761,20 @@ function validAlignmentPattern(center){
 }
 
 function setAlignmentPattern(center){
-    outline(center[0]-1, center[1]-1, 3, 0+baseOffset*2);//white
-    outline(center[0]-2, center[1]-2, 5, 1+baseOffset*2);
+    outline(center[0]-1, center[1]-1, 3, 0+Constants.baseOffset*2);//white
+    outline(center[0]-2, center[1]-2, 5, 1+Constants.baseOffset*2);
 
-    code_grid[center[0]][center[1]] = 1+baseOffset*2;//center
+    code_grid[center[0]][center[1]] = 1+Constants.baseOffset*2;//center
     available_bits -= 1;
 }
 
 function updateExplanations(x, y){
-    let cell = code_grid[Math.floor(y/cell_size)-1][Math.floor(x/cell_size)-1];
+    let cell = code_grid[Math.floor(y/Constants.cell_size)-1][Math.floor(x/Constants.cell_size)-1];
     let offset = Math.floor(cell/2);
-    if (offset < infoTitles.length){
-        explanations_title.innerHTML = infoTitles[offset];
-        explanations_paragraph.innerHTML = infoParagraphs[offset];
-        explanations_title.style.color = debugColors[offset*2];
+    if (offset < Constants.infoTitles.length){
+        explanations_title.innerHTML = Constants.infoTitles[offset];
+        explanations_paragraph.innerHTML = Constants.infoParagraphs[offset];
+        explanations_title.style.color = Constants.debugColors[offset*2];
     }
 }
 //#endregion
@@ -775,7 +783,7 @@ function updateExplanations(x, y){
 //#region writing info
 function nextPos(size){
     while (position[0] >=0 && position[1] >= 0){
-        if (position[1] == vertical_format){
+        if (position[1] == Constants.vertical_format){
             position[1] -= 1;
             col_offset = 0;
         } else if (code_grid[position[0]][position[1]-col_offset] == -1){
@@ -878,7 +886,7 @@ function gf_log_of(a){
 function dividePolynomial(dividend, divisor){
     let quotient = []
 
-    for (calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
+    for (let calcIdx = 0; calcIdx <= (dividend.length - divisor.length); calcIdx++){
         var multiplier = Math.floor(gf_div(dividend[calcIdx], divisor[0]));
         quotient.push(multiplier);
         for (let i=0; i < divisor.length; i++){
@@ -899,7 +907,7 @@ function multiplyPolynomial(multiplicand, multiplier){
     for (let i=0; i < multiplicand.length; i++){
         for (let j=0; j < multiplier.length; j++){
             var multiplicand_degree = (multiplicand.length-i) -1;
-            multiplier_degree = (multiplier.length-j) -1;
+            var multiplier_degree = (multiplier.length-j) -1;
             var product_degree = multiplicand_degree + multiplier_degree;
 
             var product_idx = (product.length-product_degree) -1;
@@ -914,7 +922,7 @@ function multiplyPolynomial(multiplicand, multiplier){
 function generatorPolynomial(errorLevel, version){
     let curr = [1];
     for (let i=0; i<errorLevelMap.get(errorLevel).get('n_per_block')[version]; i++){
-        curr = multiplyPolynomial(curr, [1, gf_pow(alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
+        curr = multiplyPolynomial(curr, [1, gf_pow(Constants.alpha, i)]);//actually 1-exponentialte(i), but add and sub is same
     }
     
     return curr;
@@ -973,10 +981,10 @@ function errorString(mainString, generatorString, targLen){
 function displayCode(){
     let size = code_grid.length;
 
-    canvas.width = (size+2)*cell_size;
+    canvas.width = (size+2)*Constants.cell_size;
     canvas.height = canvas.width;
     drawable_canvas.fillStyle = zeroColor;
-    drawable_canvas.fillRect(0, 0, (size+2)*cell_size, (size+2)*cell_size);
+    drawable_canvas.fillRect(0, 0, (size+2)*Constants.cell_size, (size+2)*Constants.cell_size);
     drawable_canvas.fillStyle = oneColor;
 
     for (let i=0; i<size; i++){
@@ -985,7 +993,7 @@ function displayCode(){
                 if (code_grid[i][j] == -1){
                     drawable_canvas.fillStyle = "red";
                 } else {
-                    drawable_canvas.fillStyle = debugColors[code_grid[i][j]];
+                    drawable_canvas.fillStyle = Constants.debugColors[code_grid[i][j]];
                 }
             } else {
                 if (code_grid[i][j]%2 == 1){
@@ -994,7 +1002,7 @@ function displayCode(){
                     drawable_canvas.fillStyle = zeroColor;
                 }
             }
-            drawable_canvas.fillRect((j+1)*cell_size, (i+1)*cell_size, cell_size, cell_size);
+            drawable_canvas.fillRect((j+1)*Constants.cell_size, (i+1)*Constants.cell_size, Constants.cell_size, Constants.cell_size);
         }
     }
 
@@ -1011,18 +1019,18 @@ function displayCode(){
         let ratio;
         if (logo.height > logo.width){
             ratio = logo.width/logo.height;
-            logo.height = cell_size*logo_modules;
-            logo.width = cell_size*logo_modules*ratio
+            logo.height = Constants.cell_size*logo_modules;
+            logo.width = Constants.cell_size*logo_modules*ratio
         } else {
             ratio = logo.height/logo.width;
-            logo.height = cell_size*logo_modules*ratio
-            logo.width = cell_size*logo_modules;
+            logo.height = Constants.cell_size*logo_modules*ratio
+            logo.width = Constants.cell_size*logo_modules;
         }
 
         let drawPoint;
         drawable_canvas.fillStyle = zeroBit_input.value;
-        drawPoint = [canvas.width/2-cell_size*(logo_modules+2)/2, canvas.height/2-cell_size*(logo_modules+2)/2];
-        drawable_canvas.fillRect(drawPoint[0], drawPoint[1], cell_size*(logo_modules+2), cell_size*(logo_modules+2));
+        drawPoint = [canvas.width/2-Constants.cell_size*(logo_modules+2)/2, canvas.height/2-Constants.cell_size*(logo_modules+2)/2];
+        drawable_canvas.fillRect(drawPoint[0], drawPoint[1], Constants.cell_size*(logo_modules+2), Constants.cell_size*(logo_modules+2));
 
         drawPoint = [canvas.width/2-logo.width/2, canvas.height/2-logo.height/2];
         drawable_canvas.drawImage(logo, drawPoint[0], drawPoint[1], logo.width, logo.height);
@@ -1031,8 +1039,8 @@ function displayCode(){
 
 function drawGrid(size){
     for (let i=0; i<size+2; i++){
-        draw_line(0, i*cell_size, (size+2)*cell_size, i*cell_size);
-        draw_line(i*cell_size, 0, i*cell_size, (size+2)*cell_size,);
+        draw_line(0, i*Constants.cell_size, (size+2)*Constants.cell_size, i*Constants.cell_size);
+        draw_line(i*Constants.cell_size, 0, i*Constants.cell_size, (size+2)*Constants.cell_size,);
     }
 }
 
