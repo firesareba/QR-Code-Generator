@@ -1282,11 +1282,13 @@ export const infoParagraphs = [
     `,
 
     `
-        EXTRA BITS INFO MISSING. RIGHT NOW
+        What I call the "Extra Bits" are the ones that contain no data, and who's sole purpose is to fill all spots in the matrix. There are 2 parts, the Terminator and the 'Leftover' bits.
+        <br>The <strong>Terminators</strong> come right after the Main Data. They ensure the remaining bits are a multiple of 8, so it can fit full bytes.
+        <br> The <strong>'Leftovers'</strong> come after the Error Correction bytes. Unlike the Terminators, the 'Leftovers' are not dynamically determined. Rather, there is a hard-coded list of how many 'Leftovers' there will be based on the Vesion.
     `,
 
     `
-    In every QR Code, there is a amount of space set aside for the data. This space is NOT dependent on the length of the data. We use padding to fill the leftover space. 
+        In every QR Code, there is a amount of space set aside for the data. This space is NOT dependent on the length of the data. We use padding to fill the leftover space. 
         <br>First, we add the <strong>Terminators</strong>(Shown in <strong style="color:rgb(255, 0, 0)">Red</strong>). These just get the remaining data bits to a multiple of 8, so that bytes will fit evenly in it. There are at most 4.
         <br>The remaining space is filled with <strong>Padding Bytes</strong>(Shown in <strong style="color:rgb(179, 0, 179)">Purple</strong>). These are the numbers 17 and 236 represented in binary(and padded to 1 byte), alternating, in that order.
     `,
